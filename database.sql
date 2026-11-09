@@ -100,7 +100,7 @@ INSERT INTO `site_settings` (`key`, `value`) VALUES ('phone', '021 89086234');
 INSERT INTO `site_settings` (`key`, `value`) VALUES ('whatsapp', '6281289086234');
 INSERT INTO `site_settings` (`key`, `value`) VALUES ('email', 'angkasakaryamedika@gmail.com');
 INSERT INTO `site_settings` (`key`, `value`) VALUES ('address', 'Perumahan Sentul Indah Residence Blok A No. 1, Cikeas, Sukaraja, Bogor, Jawa Barat, 16710');
-INSERT INTO `site_settings` (`key`, `value`) VALUES ('operating_hours', 'Senin – Jumat, 08.30 – 17.00 WIB');
+INSERT INTO `site_settings` (`key`, `value`) VALUES ('operating_hours', 'Senin - Jumat, 08.30 - 17.00 WIB');
 INSERT INTO `site_settings` (`key`, `value`) VALUES ('distribution_focus', 'Prioritas Wilayah Jabodetabek & Pasokan Nasional');
 INSERT INTO `site_settings` (`key`, `value`) VALUES ('regulation_info', 'Kementerian Kesehatan RI (Izin Edar Resmi AKD)');
 

@@ -27,16 +27,16 @@ Angkasa Raya Medika meninggalkan estetika warna biru korporat yang steril dan ge
 
 Sistem warna mengadopsi palet **Blue Ocean Pastels** yang menghadirkan nuansa bersih, modern, dan bernuansa maritim/laboratorium berpresisi tinggi:
 
-| Nama _Token_ | Kode Hex | Peran & Deskripsi Penggunaan |
-| :--- | :--- | :--- |
-| **Ocean Blue (Primer)** | `#89CBDD` | Tombol CTA utama, status navigasi aktif, ikon utama, focus ring, filter pill aktif, dan hover aksen. |
-| **Pastel Cyan (Sekunder)** | `#ADDFF1` | Border kartu & input, tombol sekunder hover, divider halus, scrollbar thumb, dan aksen pelengkap. |
-| **Ice Aqua (Permukaan)** | `#D0F2F9` | Latar belakang tabel spesifikasi, hover container, background toggle tab admin, dan badge sekunder. |
-| **Pastel Mist (Latar Belakang)** | `#E9F8FF` | Latar belakang utama seluruh halaman web, background input form, dan track scrollbar. |
-| **Seafoam Mint (Aksen Unggulan)** | `#A3EEEC` | Tombol penawaran cepat (RFQ/WhatsApp), lencana terverifikasi resmi, badge instrumen/alat, dan highlight prioritas. |
-| **Deep Ocean Navy (Teks Kontras)** | `#0D253A` / `#0D2235` | Teks judul utama (H1–H3), teks tombol di atas pastel (kontras WCAG AAA), dan latar belakang footer/banner. |
-| **Ocean Slate (Teks Sekunder)** | `#486581` | Deskripsi produk, label input, metadata, dan breadcrumb. |
-| **Pure White** | `#FFFFFF` | Permukaan kartu produk, formulir modal, dan container utama. |
+| Nama _Token_                       | Kode Hex              | Peran & Deskripsi Penggunaan                                                                                       |
+| :--------------------------------- | :-------------------- | :----------------------------------------------------------------------------------------------------------------- |
+| **Ocean Blue (Primer)**            | `#89CBDD`             | Tombol CTA utama, status navigasi aktif, ikon utama, focus ring, filter pill aktif, dan hover aksen.               |
+| **Pastel Cyan (Sekunder)**         | `#ADDFF1`             | Border kartu & input, tombol sekunder hover, divider halus, scrollbar thumb, dan aksen pelengkap.                  |
+| **Ice Aqua (Permukaan)**           | `#D0F2F9`             | Latar belakang tabel spesifikasi, hover container, background toggle tab admin, dan badge sekunder.                |
+| **Pastel Mist (Latar Belakang)**   | `#E9F8FF`             | Latar belakang utama seluruh halaman web, background input form, dan track scrollbar.                              |
+| **Seafoam Mint (Aksen Unggulan)**  | `#A3EEEC`             | Tombol penawaran cepat (RFQ/WhatsApp), lencana terverifikasi resmi, badge instrumen/alat, dan highlight prioritas. |
+| **Deep Ocean Navy (Teks Kontras)** | `#0D253A` / `#0D2235` | Teks judul utama (H1-H3), teks tombol di atas pastel (kontras WCAG AAA), dan latar belakang footer/banner.         |
+| **Ocean Slate (Teks Sekunder)**    | `#486581`             | Deskripsi produk, label input, metadata, dan breadcrumb.                                                           |
+| **Pure White**                     | `#FFFFFF`             | Permukaan kartu produk, formulir modal, dan container utama.                                                       |
 
 ### Panduan Penggunaan Warna
 
@@ -60,14 +60,14 @@ Sistem desain ini secara ketat menggunakan **dua keluarga fon**:
 
 | Tingkat                      | Keluarga Fon | Ukuran (Desktop) | Ketebalan (_Weight_) | Tinggi Baris | Spasi Huruf (_Tracking_) |
 | ---------------------------- | ------------ | ---------------- | -------------------- | ------------ | ------------------------ | --- | ---- | ------- |
-| **Hero Display**             | Manrope      | 56–68px          | 800 (ExtraBold)      | 1,08         | -0,03em                  |
-| **H1 (Judul Halaman)**       | Manrope      | 42–50px          | 700 (Bold)           | 1,15         | -0,02em                  |
-| **H2 (Judul Bagian)**        | Manrope      | 30–38px          | 700 (Bold)           | 1,20         | -0,015em                 |
-| **H3 (Sub-judul / Kartu)**   | Manrope      | 20–24px          | 600 (SemiBold)       | 1,30         | -0,01em                  |
-| **Paragraf Pembuka**         | DM Sans      | 18–20px          | 400 (Regular)        | 1,60         | normal                   |
-| **Teks ​​Isi (_Body Text_)** | DM Sans      | 15–16px          | 400 (Regular)        | 1,65         | normal                   |
-| **Teknis / Spesifikasi**     | DM Sans      | 13–14px          | 500 (Medium)         | —            | —                        |     | 1.50 | +0.01em |
-| **Micro / Eyebrow**          | Manrope      | 11–12px          | 700 (Bold)           | 1.40         | +0.08em (Huruf Kapital)  |
+| **Hero Display**             | Manrope      | 56-68px          | 800 (ExtraBold)      | 1,08         | -0,03em                  |
+| **H1 (Judul Halaman)**       | Manrope      | 42-50px          | 700 (Bold)           | 1,15         | -0,02em                  |
+| **H2 (Judul Bagian)**        | Manrope      | 30-38px          | 700 (Bold)           | 1,20         | -0,015em                 |
+| **H3 (Sub-judul / Kartu)**   | Manrope      | 20-24px          | 600 (SemiBold)       | 1,30         | -0,01em                  |
+| **Paragraf Pembuka**         | DM Sans      | 18-20px          | 400 (Regular)        | 1,60         | normal                   |
+| **Teks ​​Isi (_Body Text_)** | DM Sans      | 15-16px          | 400 (Regular)        | 1,65         | normal                   |
+| **Teknis / Spesifikasi**     | DM Sans      | 13-14px          | 500 (Medium)         | —            | —                        |     | 1.50 | +0.01em |
+| **Micro / Eyebrow**          | Manrope      | 11-12px          | 700 (Bold)           | 1.40         | +0.08em (Huruf Kapital)  |
 
 ---
 
@@ -81,18 +81,18 @@ Sistem desain ini secara ketat menggunakan **dua keluarga fon**:
 
 ### 4.1 Skala Geometris & Proporsi Border-Radius (Nested Radius Scale)
 
-Untuk menciptakan estetika modern tanpa garis tepi (*borderless*), sistem menggunakan hierarki kelengkungan sudut yang proporsional secara bersarang (*nested radius rule*):
+Untuk menciptakan estetika modern tanpa garis tepi (_borderless_), sistem menggunakan hierarki kelengkungan sudut yang proporsional secara bersarang (_nested radius rule_):
 
-| Kelas Tailwind | Ukuran Pixel | Peruntukan Komponen | Karakter Visual |
-| :--- | :--- | :--- | :--- |
-| **`rounded-md`** | `6px` | Tag teknis, indikator kecil | Rapi, tajam, ringkas |
-| **`rounded-lg`** | `8px` | Kolom input formulir, tombol aksi di dalam kartu/modal | Profesional, fungsional |
-| **`rounded-xl`** | `12px` | Image stage produk (di dalam card), baris tabel dinamis, dropdown | Transisi proporsional |
-| **`rounded-2xl`** | `16px` | Kartu produk (`ProductCard`), kartu kategori, metrik dashboard | Ramah (*friendly*), modern |
-| **`rounded-3xl`** | `24px` | Jendela modal utama (`QuoteModal`), banner CTA besar, overview card | Lembut, lapang, berkelas |
-| **`rounded-full`**| `9999px`| Badge status verifikasi, pill filter kategori, tombol floating | Bersih, tegas, dinamis |
+| Kelas Tailwind     | Ukuran Pixel | Peruntukan Komponen                                                 | Karakter Visual            |
+| :----------------- | :----------- | :------------------------------------------------------------------ | :------------------------- |
+| **`rounded-md`**   | `6px`        | Tag teknis, indikator kecil                                         | Rapi, tajam, ringkas       |
+| **`rounded-lg`**   | `8px`        | Kolom input formulir, tombol aksi di dalam kartu/modal              | Profesional, fungsional    |
+| **`rounded-xl`**   | `12px`       | Image stage produk (di dalam card), baris tabel dinamis, dropdown   | Transisi proporsional      |
+| **`rounded-2xl`**  | `16px`       | Kartu produk (`ProductCard`), kartu kategori, metrik dashboard      | Ramah (_friendly_), modern |
+| **`rounded-3xl`**  | `24px`       | Jendela modal utama (`QuoteModal`), banner CTA besar, overview card | Lembut, lapang, berkelas   |
+| **`rounded-full`** | `9999px`     | Badge status verifikasi, pill filter kategori, tombol floating      | Bersih, tegas, dinamis     |
 
-> **Prinsip Proporsi Bersarang (*Nested Rule*):**  
+> **Prinsip Proporsi Bersarang (_Nested Rule_):**  
 > Ketika kontainer luar menggunakan kelengkungan besar (misal `rounded-2xl` dengan padding), elemen gambar atau sub-kontainer di dalamnya menggunakan satu tingkat lebih kecil (`rounded-xl`) sehingga lengkungan konsentris tampak harmonis dan presisi ($R_{\text{inner}} \approx R_{\text{outer}} - \text{padding}$).
 
 ---
@@ -109,7 +109,7 @@ Animasi dijalankan menggunakan **Motion for Vue (`motion-v`)**. Tingkat intensit
 ### 5.2 Kemunculan Berdasarkan Guliran (Scroll-Triggered Reveals)
 
 - **Kemunculan Judul Bagian:** Pergeseran vertikal yang luwes ($y: 24\text{px} \rightarrow 0$) disertai dengan perubahan opasitas ($0 \rightarrow 1$) selama 500ms, menggunakan kurva percepatan kustom (`cubic-bezier(0.16, 1, 0.3, 1)`).
-- **Kemunculan Kartu Secara Bertahap (Staggered Entries):** Pada kisi produk atau tampilan kategori, elemen-elemen di dalamnya muncul secara berurutan dengan jeda waktu (`stagger delay`) sebesar `50ms–80ms`.
+- **Kemunculan Kartu Secara Bertahap (Staggered Entries):** Pada kisi produk atau tampilan kategori, elemen-elemen di dalamnya muncul secara berurutan dengan jeda waktu (`stagger delay`) sebesar `50ms-80ms`.
 - **Perluasan Garis Pemisah (Hairline Divider Expansion):** Garis pemisah struktural mengalami perubahan skala horizontal secara halus ($scaleX: 0 \rightarrow 1$) saat memasuki area pandang (_viewport_).
 
 ### 5.3 Interaksi Mikro & Status Kursor (Hover States)
@@ -156,7 +156,7 @@ Animasi dijalankan menggunakan **Motion for Vue (`motion-v`)**. Tingkat intensit
 - **Wadah (_Container_):** Permukaan berwarna putih bersih yang dibingkai dengan garis tepi tipis 1px (`border-[#DDE6ED]`). Tidak menggunakan bayangan (_drop shadow_) yang mencolok. - **Bingkai Gambar:** Rasio aspek tetap ($4:3$ atau $1:1$) dengan latar belakang warna abu-abu muda netral/gading (`bg-[#F0F4F8]`).
 - **Label Kategori (Eyebrow):** Teks berukuran kecil dalam huruf kapital dengan warna _Scientific Turquoise_ (`#08AEB3`).
 - **Judul Produk:** Font Manrope 18px _SemiBold_, dengan warna _Deep Navy_ yang kontras tinggi.
-- **Pratinjau Spesifikasi:** 2–3 poin fitur utama....atribut (misalnya, Tingkat Kemurnian/Grade, Ukuran Kemasan) dalam format tabel yang ringkas.
+- **Pratinjau Spesifikasi:** 2-3 poin fitur utama....atribut (misalnya, Tingkat Kemurnian/Grade, Ukuran Kemasan) dalam format tabel yang ringkas.
 - **CTA:** Tautan atau tombol "Minta Penawaran" (Request Quote) yang memicu munculnya modal penawaran kontekstual.
 
 ### 6.4 Tabel Spesifikasi (Detail Produk)

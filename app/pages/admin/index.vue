@@ -2,31 +2,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
-import {
-  PlusCircle,
-  Search,
-  Edit3,
-  Trash2,
-  ExternalLink,
-  Package,
-  Layers,
-  Inbox,
-  CheckCircle2,
-  AlertCircle,
-  MessageSquare,
-  Sparkles,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  ShieldCheck,
-  User,
-  Users,
-  Plus,
-  Lock,
-  X,
-  Bell,
-  Volume2,
-} from "lucide-vue-next";
+import { PlusCircle, Search, Edit3, Trash2, ExternalLink, Package, Layers, Inbox, CheckCircle2, AlertCircle, MessageSquare, Sparkles, Settings, ChevronLeft, ChevronRight, ShieldCheck, User, Users, Plus, Lock, X, Bell, Volume2 } from "lucide-vue-next";
 import type { Product } from "~/types/catalog";
 import { useCatalog } from "~/composables/useCatalog";
 import { useSiteSettings } from "~/composables/useSiteSettings";
@@ -63,7 +39,7 @@ watch(
     if (newTab && ["products", "categories", "inquiries", "users"].includes(newTab as string)) {
       activeTab.value = newTab as AdminTab;
     }
-  }
+  },
 );
 
 const switchTab = (tab: AdminTab) => {
@@ -113,12 +89,7 @@ const filteredProducts = computed(() => {
   }
   if (searchQuery.value && searchQuery.value.trim() !== "") {
     const q = searchQuery.value.toLowerCase().trim();
-    list = list.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.sku.toLowerCase().includes(q) ||
-        (p.brand && p.brand.toLowerCase().includes(q))
-    );
+    list = list.filter((p) => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || (p.brand && p.brand.toLowerCase().includes(q)));
   }
   return list;
 });
@@ -334,10 +305,7 @@ const handleDeleteUser = async (u: any) => {
 <template>
   <div class="space-y-8 animate-fade-up">
     <!-- Success / Error Alert -->
-    <div
-      v-if="successMessage"
-      class="p-4 rounded-2xl bg-[#A3EEEC]/50 text-[#054E4C] text-[14px] flex items-center justify-between font-medium shadow-xs"
-    >
+    <div v-if="successMessage" class="p-4 rounded-2xl bg-[#A3EEEC]/50 text-[#054E4C] text-[14px] flex items-center justify-between font-medium shadow-xs">
       <div class="flex items-center gap-2.5">
         <CheckCircle2 class="w-5 h-5 text-[#054E4C] shrink-0" />
         <span>{{ successMessage }}</span>
@@ -345,10 +313,7 @@ const handleDeleteUser = async (u: any) => {
       <button type="button" class="text-[#054E4C] font-bold" @click="successMessage = null">✕</button>
     </div>
 
-    <div
-      v-if="deleteError"
-      class="p-4 rounded-2xl bg-red-100 text-red-800 text-[14px] flex items-center justify-between font-medium shadow-xs"
-    >
+    <div v-if="deleteError" class="p-4 rounded-2xl bg-red-100 text-red-800 text-[14px] flex items-center justify-between font-medium shadow-xs">
       <div class="flex items-center gap-2.5">
         <AlertCircle class="w-5 h-5 text-red-600 shrink-0" />
         <span>{{ deleteError }}</span>
@@ -367,35 +332,21 @@ const handleDeleteUser = async (u: any) => {
           <span class="block font-black text-[#0D2235]">Pusat Kendali Produk.</span>
           <span class="block font-light text-[#486581]">Katalog Reagen & Permintaan B2B.</span>
         </h1>
-        <p class="text-[14.5px] text-[#486581] font-sans max-w-2xl">
-          <strong class="text-[#0D253A] font-semibold">Spesifikasi jelas. Dokumen lengkap.</strong> Kelola ketersediaan inventaris reagen diagnostik serta tindak lanjuti permintaan penawaran harga resmi dari rumah sakit dan laboratorium.
-        </p>
+        <p class="text-[14.5px] text-[#486581] font-sans max-w-2xl"><strong class="text-[#0D253A] font-semibold">Spesifikasi jelas. Dokumen lengkap.</strong> Kelola ketersediaan inventaris reagen diagnostik serta tindak lanjuti permintaan penawaran harga resmi dari rumah sakit dan laboratorium.</p>
       </div>
 
       <div class="flex flex-wrap items-center gap-3 shrink-0">
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-white hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13px] transition-colors shadow-xs cursor-pointer"
-          title="Tes Bunyi Cafe Chime Notifikasi RFQ"
-          @click="playCafeChime"
-        >
+        <button type="button" class="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-white hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13px] transition-colors shadow-xs cursor-pointer" title="Tes Bunyi Cafe Chime Notifikasi RFQ" @click="playCafeChime">
           <Bell class="w-4 h-4 text-[#1B7E98]" />
           <span>Tes Bunyi Cafe</span>
         </button>
 
-        <NuxtLink
-          to="/products"
-          target="_blank"
-          class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13.5px] transition-colors shadow-xs"
-        >
+        <NuxtLink to="/products" target="_blank" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13.5px] transition-colors shadow-xs">
           <ExternalLink class="w-4 h-4 text-[#89CBDD]" />
           <span>Lihat Katalog</span>
         </NuxtLink>
 
-        <NuxtLink
-          to="/admin/products/create"
-          class="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[14px] transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shadow-xs hover:shadow-md"
-        >
+        <NuxtLink to="/admin/products/create" class="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[14px] transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shadow-xs hover:shadow-md">
           <PlusCircle class="w-4 h-4 transform group-hover:rotate-90 transition-transform duration-300" />
           <span>Tambah Produk Baru</span>
         </NuxtLink>
@@ -405,11 +356,7 @@ const handleDeleteUser = async (u: any) => {
     <!-- Metrics Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
       <!-- Card 1: Produk -->
-      <div
-        class="bg-white rounded-3xl p-6 space-y-2 shadow-xs hover:shadow-md transition-all cursor-pointer"
-        :class="{ 'ring-2 ring-[#89CBDD]': activeTab === 'products' }"
-        @click="switchTab('products')"
-      >
+      <div class="bg-white rounded-3xl p-6 space-y-2 shadow-xs hover:shadow-md transition-all cursor-pointer" :class="{ 'ring-2 ring-[#89CBDD]': activeTab === 'products' }" @click="switchTab('products')">
         <div class="flex items-center justify-between">
           <span class="text-[12px] font-manrope font-bold uppercase tracking-wider text-[#486581]">Total Produk</span>
           <div class="w-9 h-9 rounded-xl bg-[#89CBDD]/20 text-[#1B7E98] flex items-center justify-center">
@@ -423,11 +370,7 @@ const handleDeleteUser = async (u: any) => {
       </div>
 
       <!-- Card 2: Kategori -->
-      <div
-        class="bg-white rounded-3xl p-6 space-y-2 shadow-xs hover:shadow-md transition-all cursor-pointer"
-        :class="{ 'ring-2 ring-[#89CBDD]': activeTab === 'categories' }"
-        @click="switchTab('categories')"
-      >
+      <div class="bg-white rounded-3xl p-6 space-y-2 shadow-xs hover:shadow-md transition-all cursor-pointer" :class="{ 'ring-2 ring-[#89CBDD]': activeTab === 'categories' }" @click="switchTab('categories')">
         <div class="flex items-center justify-between">
           <span class="text-[12px] font-manrope font-bold uppercase tracking-wider text-[#486581]">Kategori Produk</span>
           <div class="w-9 h-9 rounded-xl bg-[#ADDFF1]/30 text-[#0D253A] flex items-center justify-center">
@@ -439,11 +382,7 @@ const handleDeleteUser = async (u: any) => {
       </div>
 
       <!-- Card 3: RFQ -->
-      <div
-        class="bg-white rounded-3xl p-6 space-y-2 shadow-xs hover:shadow-md transition-all cursor-pointer"
-        :class="{ 'ring-2 ring-amber-400': activeTab === 'inquiries' }"
-        @click="switchTab('inquiries')"
-      >
+      <div class="bg-white rounded-3xl p-6 space-y-2 shadow-xs hover:shadow-md transition-all cursor-pointer" :class="{ 'ring-2 ring-amber-400': activeTab === 'inquiries' }" @click="switchTab('inquiries')">
         <div class="flex items-center justify-between">
           <span class="text-[12px] font-manrope font-bold uppercase tracking-wider text-[#486581]">Penawaran (RFQ)</span>
           <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-[#F2A23A] flex items-center justify-center">
@@ -457,12 +396,7 @@ const handleDeleteUser = async (u: any) => {
       </div>
 
       <!-- Card 4: Identitas / User Management -->
-      <div
-        v-if="isSuperAdmin"
-        class="bg-white rounded-3xl p-6 space-y-2 hover:bg-[#E9F8FF]/80 transition-all group shadow-xs hover:shadow-md cursor-pointer block"
-        :class="{ 'ring-2 ring-[#A3EEEC]': activeTab === 'users' }"
-        @click="switchTab('users')"
-      >
+      <div v-if="isSuperAdmin" class="bg-white rounded-3xl p-6 space-y-2 hover:bg-[#E9F8FF]/80 transition-all group shadow-xs hover:shadow-md cursor-pointer block" :class="{ 'ring-2 ring-[#A3EEEC]': activeTab === 'users' }" @click="switchTab('users')">
         <div class="flex items-center justify-between">
           <span class="text-[12px] font-manrope font-bold uppercase tracking-wider text-[#486581]">Kelola Admin</span>
           <div class="w-9 h-9 rounded-xl bg-[#A3EEEC]/40 text-[#054E4C] flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -475,11 +409,7 @@ const handleDeleteUser = async (u: any) => {
         <p class="text-[12px] text-[#1B7E98] font-bold group-hover:underline">Tambah & atur hak akses &rarr;</p>
       </div>
 
-      <NuxtLink
-        v-else
-        to="/admin/settings"
-        class="bg-white rounded-3xl p-6 space-y-2 hover:bg-[#E9F8FF]/80 transition-all group shadow-xs hover:shadow-md block"
-      >
+      <NuxtLink v-else to="/admin/settings" class="bg-white rounded-3xl p-6 space-y-2 hover:bg-[#E9F8FF]/80 transition-all group shadow-xs hover:shadow-md block">
         <div class="flex items-center justify-between">
           <span class="text-[12px] font-manrope font-bold uppercase tracking-wider text-[#486581]">Identitas Brand</span>
           <div class="w-9 h-9 rounded-xl bg-[#A3EEEC]/40 text-[#054E4C] flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -495,32 +425,17 @@ const handleDeleteUser = async (u: any) => {
 
     <!-- Navigation Tabs Bar -->
     <div class="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-[#D0F2F9]/60 w-fit">
-      <button
-        type="button"
-        class="px-5 py-2.5 rounded-xl font-manrope font-bold text-[13.5px] transition-all cursor-pointer flex items-center gap-2"
-        :class="activeTab === 'products' ? 'bg-white text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838]'"
-        @click="switchTab('products')"
-      >
+      <button type="button" class="px-5 py-2.5 rounded-xl font-manrope font-bold text-[13.5px] transition-all cursor-pointer flex items-center gap-2" :class="activeTab === 'products' ? 'bg-white text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838]'" @click="switchTab('products')">
         <Package class="w-4 h-4" />
         <span>Daftar Produk ({{ products.length }})</span>
       </button>
 
-      <button
-        type="button"
-        class="px-5 py-2.5 rounded-xl font-manrope font-bold text-[13.5px] transition-all cursor-pointer flex items-center gap-2"
-        :class="activeTab === 'categories' ? 'bg-white text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838]'"
-        @click="switchTab('categories')"
-      >
+      <button type="button" class="px-5 py-2.5 rounded-xl font-manrope font-bold text-[13.5px] transition-all cursor-pointer flex items-center gap-2" :class="activeTab === 'categories' ? 'bg-white text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838]'" @click="switchTab('categories')">
         <Layers class="w-4 h-4" />
         <span>Kategori Produk ({{ categories.length }})</span>
       </button>
 
-      <button
-        type="button"
-        class="px-5 py-2.5 rounded-xl font-manrope font-bold text-[13.5px] transition-all cursor-pointer flex items-center gap-2"
-        :class="activeTab === 'inquiries' ? 'bg-white text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838]'"
-        @click="switchTab('inquiries')"
-      >
+      <button type="button" class="px-5 py-2.5 rounded-xl font-manrope font-bold text-[13.5px] transition-all cursor-pointer flex items-center gap-2" :class="activeTab === 'inquiries' ? 'bg-white text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838]'" @click="switchTab('inquiries')">
         <Inbox class="w-4 h-4" />
         <span>Permintaan Penawaran (RFQ)</span>
         <span v-if="inquiries.length > 0" class="px-2 py-0.5 rounded-full bg-[#89CBDD] text-[#082838] text-[11px] font-bold">
@@ -528,13 +443,7 @@ const handleDeleteUser = async (u: any) => {
         </span>
       </button>
 
-      <button
-        v-if="isSuperAdmin"
-        type="button"
-        class="px-5 py-2.5 rounded-xl font-manrope font-bold text-[13.5px] transition-all cursor-pointer flex items-center gap-2"
-        :class="activeTab === 'users' ? 'bg-white text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838]'"
-        @click="switchTab('users')"
-      >
+      <button v-if="isSuperAdmin" type="button" class="px-5 py-2.5 rounded-xl font-manrope font-bold text-[13.5px] transition-all cursor-pointer flex items-center gap-2" :class="activeTab === 'users' ? 'bg-white text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838]'" @click="switchTab('users')">
         <Users class="w-4 h-4 text-[#1B7E98]" />
         <span>Kelola Admin ({{ usersList.length }})</span>
         <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-[#A3EEEC] text-[#054E4C]">Super</span>
@@ -550,32 +459,13 @@ const handleDeleteUser = async (u: any) => {
         <!-- Search Input -->
         <div class="relative flex-1 max-w-md">
           <Search class="w-4 h-4 text-[#89CBDD] absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Cari nama produk, SKU, brand..."
-            class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#E9F8FF]/80 text-[13.5px] text-[#0D2235] placeholder-[#486581]/70 focus:bg-white focus:ring-2 focus:ring-[#89CBDD]/40 outline-none transition-all font-sans"
-          />
+          <input v-model="searchQuery" type="text" placeholder="Cari nama produk, SKU, brand..." class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#E9F8FF]/80 text-[13.5px] text-[#0D2235] placeholder-[#486581]/70 focus:bg-white focus:ring-2 focus:ring-[#89CBDD]/40 outline-none transition-all font-sans" />
         </div>
 
         <!-- Category Filter Pills (Dynamically loaded from categories) -->
         <div class="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
-          <button
-            type="button"
-            class="px-4 py-2 rounded-2xl text-[12.5px] font-manrope font-bold whitespace-nowrap transition-all cursor-pointer"
-            :class="selectedCategory === 'all' ? 'bg-[#89CBDD] text-[#082838]' : 'bg-[#E9F8FF] text-[#486581] hover:bg-[#D0F2F9]'"
-            @click="selectedCategory = 'all'"
-          >
-            Semua ({{ products.length }})
-          </button>
-          <button
-            v-for="cat in categories"
-            :key="cat.slug"
-            type="button"
-            class="px-4 py-2 rounded-2xl text-[12.5px] font-manrope font-bold whitespace-nowrap transition-all cursor-pointer"
-            :class="selectedCategory === cat.slug ? 'bg-[#89CBDD] text-[#082838]' : 'bg-[#E9F8FF] text-[#486581] hover:bg-[#D0F2F9]'"
-            @click="selectedCategory = cat.slug"
-          >
+          <button type="button" class="px-4 py-2 rounded-2xl text-[12.5px] font-manrope font-bold whitespace-nowrap transition-all cursor-pointer" :class="selectedCategory === 'all' ? 'bg-[#89CBDD] text-[#082838]' : 'bg-[#E9F8FF] text-[#486581] hover:bg-[#D0F2F9]'" @click="selectedCategory = 'all'">Semua ({{ products.length }})</button>
+          <button v-for="cat in categories" :key="cat.slug" type="button" class="px-4 py-2 rounded-2xl text-[12.5px] font-manrope font-bold whitespace-nowrap transition-all cursor-pointer" :class="selectedCategory === cat.slug ? 'bg-[#89CBDD] text-[#082838]' : 'bg-[#E9F8FF] text-[#486581] hover:bg-[#D0F2F9]'" @click="selectedCategory = cat.slug">
             {{ cat.name }}
           </button>
         </div>
@@ -595,12 +485,7 @@ const handleDeleteUser = async (u: any) => {
               </tr>
             </thead>
             <tbody class="divide-y divide-[#D0F2F9]/40">
-              <tr
-                v-for="(p, idx) in paginatedProducts"
-                :key="p.id"
-                class="transition-colors"
-                :class="idx % 2 === 0 ? 'bg-white hover:bg-[#E9F8FF]/50' : 'bg-[#E9F8FF]/20 hover:bg-[#E9F8FF]/50'"
-              >
+              <tr v-for="(p, idx) in paginatedProducts" :key="p.id" class="transition-colors" :class="idx % 2 === 0 ? 'bg-white hover:bg-[#E9F8FF]/50' : 'bg-[#E9F8FF]/20 hover:bg-[#E9F8FF]/50'">
                 <!-- Thumbnail & Name -->
                 <td class="py-4 px-6">
                   <div class="flex items-center gap-3.5">
@@ -625,9 +510,7 @@ const handleDeleteUser = async (u: any) => {
 
                 <!-- Packaging & Grade -->
                 <td class="py-4 px-4 text-[#486581]">
-                  <div v-if="p.packaging && p.packaging[0]" class="font-medium text-[#0D2235]">
-                    {{ p.packaging[0].size }} {{ p.packaging[0].unit }}
-                  </div>
+                  <div v-if="p.packaging && p.packaging[0]" class="font-medium text-[#0D2235]">{{ p.packaging[0].size }} {{ p.packaging[0].unit }}</div>
                   <div class="text-[11.5px] text-[#486581]">
                     {{ p.grade || "-" }}
                   </div>
@@ -636,12 +519,8 @@ const handleDeleteUser = async (u: any) => {
                 <!-- Status Tags -->
                 <td class="py-4 px-4">
                   <div class="flex flex-col gap-1 items-start">
-                    <span v-if="p.isFeatured" class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10.5px] font-manrope font-bold">
-                      ★ Unggulan
-                    </span>
-                    <span v-if="p.isVerified" class="px-2.5 py-0.5 rounded-full bg-[#A3EEEC]/50 text-[#054E4C] text-[10.5px] font-manrope font-bold">
-                      Terverifikasi
-                    </span>
+                    <span v-if="p.isFeatured" class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10.5px] font-manrope font-bold"> ★ Unggulan </span>
+                    <span v-if="p.isVerified" class="px-2.5 py-0.5 rounded-full bg-[#A3EEEC]/50 text-[#054E4C] text-[10.5px] font-manrope font-bold"> Terverifikasi </span>
                   </div>
                 </td>
 
@@ -657,20 +536,10 @@ const handleDeleteUser = async (u: any) => {
                     </NuxtLink>
 
                     <!-- Delete Button: Only active for Super Admin -->
-                    <button
-                      v-if="isSuperAdmin"
-                      type="button"
-                      class="p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                      title="Hapus Produk (Super Admin)"
-                      @click="handleDeleteProduct(p.id, p.name)"
-                    >
+                    <button v-if="isSuperAdmin" type="button" class="p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors cursor-pointer" title="Hapus Produk (Super Admin)" @click="handleDeleteProduct(p.id, p.name)">
                       <Trash2 class="w-4 h-4" />
                     </button>
-                    <span
-                      v-else
-                      class="p-2 text-gray-300 cursor-not-allowed"
-                      title="Hapus produk dibatasi hanya untuk Super Admin"
-                    >
+                    <span v-else class="p-2 text-gray-300 cursor-not-allowed" title="Hapus produk dibatasi hanya untuk Super Admin">
                       <Trash2 class="w-4 h-4" />
                     </span>
                   </div>
@@ -678,9 +547,7 @@ const handleDeleteUser = async (u: any) => {
               </tr>
 
               <tr v-if="paginatedProducts.length === 0">
-                <td colspan="5" class="py-12 text-center text-[#486581]">
-                  Tidak ada produk yang cocok dengan pencarian atau filter.
-                </td>
+                <td colspan="5" class="py-12 text-center text-[#486581]">Tidak ada produk yang cocok dengan pencarian atau filter.</td>
               </tr>
             </tbody>
           </table>
@@ -691,14 +558,7 @@ const handleDeleteUser = async (u: any) => {
           <div class="flex items-center gap-2">
             <span class="text-[#486581] font-medium">Tampilkan:</span>
             <div class="flex items-center gap-1 bg-[#E9F8FF] p-1 rounded-xl">
-              <button
-                v-for="size in pageSizeOptions"
-                :key="size"
-                type="button"
-                class="px-2.5 py-1 rounded-lg font-manrope font-bold text-[12px] transition-all cursor-pointer"
-                :class="productsPageSize === size ? 'bg-[#89CBDD] text-[#082838]' : 'text-[#486581] hover:text-[#082838]'"
-                @click="productsPageSize = size"
-              >
+              <button v-for="size in pageSizeOptions" :key="size" type="button" class="px-2.5 py-1 rounded-lg font-manrope font-bold text-[12px] transition-all cursor-pointer" :class="productsPageSize === size ? 'bg-[#89CBDD] text-[#082838]' : 'text-[#486581] hover:text-[#082838]'" @click="productsPageSize = size">
                 {{ size }}
               </button>
             </div>
@@ -706,31 +566,17 @@ const handleDeleteUser = async (u: any) => {
           </div>
 
           <div class="text-[#486581] font-medium">
-            Menampilkan <strong class="text-[#0D2235]">{{ productsStartRange }}–{{ productsEndRange }}</strong> dari <strong class="text-[#0D2235]">{{ totalProducts }}</strong> produk
+            Menampilkan <strong class="text-[#0D2235]">{{ productsStartRange }}-{{ productsEndRange }}</strong> dari <strong class="text-[#0D2235]">{{ totalProducts }}</strong> produk
           </div>
 
           <div class="flex items-center gap-1.5">
-            <button
-              type="button"
-              class="p-2 rounded-xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
-              :disabled="productsPage <= 1"
-              title="Halaman Sebelumnya"
-              @click="productsPage--"
-            >
+            <button type="button" class="p-2 rounded-xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer" :disabled="productsPage <= 1" title="Halaman Sebelumnya" @click="productsPage--">
               <ChevronLeft class="w-4 h-4" />
             </button>
 
-            <div class="px-3.5 py-1.5 rounded-xl bg-[#D0F2F9]/70 text-[#082838] font-manrope font-bold text-[12.5px]">
-              Hal {{ productsPage }} / {{ totalProductsPages }}
-            </div>
+            <div class="px-3.5 py-1.5 rounded-xl bg-[#D0F2F9]/70 text-[#082838] font-manrope font-bold text-[12.5px]">Hal {{ productsPage }} / {{ totalProductsPages }}</div>
 
-            <button
-              type="button"
-              class="p-2 rounded-xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
-              :disabled="productsPage >= totalProductsPages"
-              title="Halaman Selanjutnya"
-              @click="productsPage++"
-            >
+            <button type="button" class="p-2 rounded-xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer" :disabled="productsPage >= totalProductsPages" title="Halaman Selanjutnya" @click="productsPage++">
               <ChevronRight class="w-4 h-4" />
             </button>
           </div>
@@ -748,29 +594,18 @@ const handleDeleteUser = async (u: any) => {
           <p class="text-[13px] text-[#486581]">Kelola klasifikasi produk reagen dan instrumen diagnostik.</p>
         </div>
 
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all cursor-pointer shadow-xs"
-          @click="showCategoryModal = true"
-        >
+        <button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all cursor-pointer shadow-xs" @click="showCategoryModal = true">
           <Plus class="w-4 h-4" />
           <span>Tambah Kategori Baru</span>
         </button>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div
-          v-for="cat in categories"
-          :key="cat.slug"
-          class="bg-white rounded-3xl p-5 border border-[#D0F2F9]/80 shadow-xs flex flex-col justify-between space-y-3"
-        >
+        <div v-for="cat in categories" :key="cat.slug" class="bg-white rounded-3xl p-5 border border-[#D0F2F9]/80 shadow-xs flex flex-col justify-between space-y-3">
           <div class="space-y-1.5">
             <div class="flex items-center justify-between">
-              <span
-                class="text-[10.5px] font-manrope font-extrabold uppercase px-2.5 py-0.5 rounded-full"
-                :class="cat.isInstrument ? 'bg-[#ADDFF1]/40 text-[#082838]' : 'bg-[#A3EEEC]/50 text-[#054E4C]'"
-              >
-                {{ cat.isInstrument ? 'Alat / Instrumen' : 'Reagen & Bahan' }}
+              <span class="text-[10.5px] font-manrope font-extrabold uppercase px-2.5 py-0.5 rounded-full" :class="cat.isInstrument ? 'bg-[#ADDFF1]/40 text-[#082838]' : 'bg-[#A3EEEC]/50 text-[#054E4C]'">
+                {{ cat.isInstrument ? "Alat / Instrumen" : "Reagen & Bahan" }}
               </span>
               <span class="text-[11px] font-mono text-[#486581]">{{ cat.slug }}</span>
             </div>
@@ -784,17 +619,9 @@ const handleDeleteUser = async (u: any) => {
           </div>
 
           <div class="pt-3 border-t border-[#D0F2F9]/40 flex items-center justify-between text-[12px]">
-            <span class="text-[#486581]">
-              {{ products.filter(p => p.categorySlug === cat.slug).length }} produk aktif
-            </span>
+            <span class="text-[#486581]"> {{ products.filter((p) => p.categorySlug === cat.slug).length }} produk aktif </span>
 
-            <button
-              v-if="isSuperAdmin"
-              type="button"
-              class="text-red-600 hover:text-red-800 font-manrope font-bold text-[12px] flex items-center gap-1 cursor-pointer"
-              title="Hapus Kategori (Super Admin)"
-              @click="handleDeleteCategory(cat)"
-            >
+            <button v-if="isSuperAdmin" type="button" class="text-red-600 hover:text-red-800 font-manrope font-bold text-[12px] flex items-center gap-1 cursor-pointer" title="Hapus Kategori (Super Admin)" @click="handleDeleteCategory(cat)">
               <Trash2 class="w-3.5 h-3.5" />
               <span>Hapus</span>
             </button>
@@ -816,11 +643,7 @@ const handleDeleteUser = async (u: any) => {
 
           <!-- Cafe Chime Sound Preview Button -->
           <div class="flex items-center gap-2">
-            <button
-              type="button"
-              class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#E9F8FF] text-[#082838] font-manrope font-bold text-[12px] transition-all shadow-xs cursor-pointer border border-[#ADDFF1]/60"
-              @click="playCafeChime"
-            >
+            <button type="button" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#E9F8FF] text-[#082838] font-manrope font-bold text-[12px] transition-all shadow-xs cursor-pointer border border-[#ADDFF1]/60" @click="playCafeChime">
               <Bell class="w-3.5 h-3.5 text-[#1B7E98]" />
               <span>Bunyikan Chime Cafe</span>
             </button>
@@ -828,12 +651,7 @@ const handleDeleteUser = async (u: any) => {
         </div>
 
         <div v-if="paginatedInquiries.length > 0" class="divide-y divide-[#D0F2F9]/40">
-          <div
-            v-for="(inq, i) in paginatedInquiries"
-            :key="inq.id"
-            class="p-6 transition-colors"
-            :class="i % 2 === 0 ? 'bg-white' : 'bg-[#E9F8FF]/30'"
-          >
+          <div v-for="(inq, i) in paginatedInquiries" :key="inq.id" class="p-6 transition-colors" :class="i % 2 === 0 ? 'bg-white' : 'bg-[#E9F8FF]/30'">
             <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
               <div class="space-y-2">
                 <div class="flex items-center gap-3">
@@ -854,9 +672,7 @@ const handleDeleteUser = async (u: any) => {
                   </div>
                 </div>
 
-                <div class="mt-3 p-3 rounded-2xl bg-[#E9F8FF]/60 text-[13.5px] text-[#0D2235] font-sans">
-                  "{{ inq.message }}"
-                </div>
+                <div class="mt-3 p-3 rounded-2xl bg-[#E9F8FF]/60 text-[13.5px] text-[#0D2235] font-sans">"{{ inq.message }}"</div>
               </div>
 
               <!-- Quick Action -->
@@ -864,12 +680,7 @@ const handleDeleteUser = async (u: any) => {
                 <span class="text-[11.5px] text-[#486581]">
                   {{ new Date(inq.createdAt).toLocaleString("id-ID") }}
                 </span>
-                <a
-                  v-if="inq.phoneNumber"
-                  :href="`https://wa.me/${inq.phoneNumber.replace(/[^0-9]/g, '')}?text=Halo%20${encodeURIComponent(inq.fullName)},%20kami%20dari%20Angkasa%20Raya%20Medika%20terkait%20permintaan%20penawaran%20harga%20Anda.`"
-                  target="_blank"
-                  class="group inline-flex items-center gap-2 px-4.5 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] text-[12.5px] font-manrope font-bold transition-all shadow-xs"
-                >
+                <a v-if="inq.phoneNumber" :href="`https://wa.me/${inq.phoneNumber.replace(/[^0-9]/g, '')}?text=Halo%20${encodeURIComponent(inq.fullName)},%20kami%20dari%20Angkasa%20Raya%20Medika%20terkait%20permintaan%20penawaran%20harga%20Anda.`" target="_blank" class="group inline-flex items-center gap-2 px-4.5 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] text-[12.5px] font-manrope font-bold transition-all shadow-xs">
                   <MessageSquare class="w-3.5 h-3.5 text-[#082838]" />
                   <span>Respon via WhatsApp</span>
                 </a>
@@ -878,52 +689,31 @@ const handleDeleteUser = async (u: any) => {
           </div>
         </div>
 
-        <div v-else class="p-12 text-center text-[#486581]">
-          Belum ada permintaan penawaran masuk dari form website.
-        </div>
+        <div v-else class="p-12 text-center text-[#486581]">Belum ada permintaan penawaran masuk dari form website.</div>
 
         <!-- Inquiries Pagination Footer -->
         <div v-if="inquiries.length > 0" class="p-4 sm:p-5 bg-white border-t border-[#D0F2F9]/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-[13px] font-sans">
           <div class="flex items-center gap-2">
             <span class="text-[#486581] font-medium">Tampilkan:</span>
             <div class="flex items-center gap-1 bg-[#E9F8FF] p-1 rounded-xl">
-              <button
-                v-for="size in pageSizeOptions"
-                :key="size"
-                type="button"
-                class="px-2.5 py-1 rounded-lg font-manrope font-bold text-[12px] transition-all cursor-pointer"
-                :class="inquiriesPageSize === size ? 'bg-[#89CBDD] text-[#082838]' : 'text-[#486581] hover:text-[#082838]'"
-                @click="inquiriesPageSize = size"
-              >
+              <button v-for="size in pageSizeOptions" :key="size" type="button" class="px-2.5 py-1 rounded-lg font-manrope font-bold text-[12px] transition-all cursor-pointer" :class="inquiriesPageSize === size ? 'bg-[#89CBDD] text-[#082838]' : 'text-[#486581] hover:text-[#082838]'" @click="inquiriesPageSize = size">
                 {{ size }}
               </button>
             </div>
           </div>
 
           <div class="text-[#486581] font-medium">
-            Menampilkan <strong class="text-[#0D2235]">{{ inquiriesStartRange }}–{{ inquiriesEndRange }}</strong> dari <strong class="text-[#0D2235]">{{ totalInquiries }}</strong> RFQ
+            Menampilkan <strong class="text-[#0D2235]">{{ inquiriesStartRange }}-{{ inquiriesEndRange }}</strong> dari <strong class="text-[#0D2235]">{{ totalInquiries }}</strong> RFQ
           </div>
 
           <div class="flex items-center gap-1.5">
-            <button
-              type="button"
-              class="p-2 rounded-xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
-              :disabled="inquiriesPage <= 1"
-              @click="inquiriesPage--"
-            >
+            <button type="button" class="p-2 rounded-xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer" :disabled="inquiriesPage <= 1" @click="inquiriesPage--">
               <ChevronLeft class="w-4 h-4" />
             </button>
 
-            <div class="px-3.5 py-1.5 rounded-xl bg-[#D0F2F9]/70 text-[#082838] font-manrope font-bold text-[12.5px]">
-              Hal {{ inquiriesPage }} / {{ totalInquiriesPages }}
-            </div>
+            <div class="px-3.5 py-1.5 rounded-xl bg-[#D0F2F9]/70 text-[#082838] font-manrope font-bold text-[12.5px]">Hal {{ inquiriesPage }} / {{ totalInquiriesPages }}</div>
 
-            <button
-              type="button"
-              class="p-2 rounded-xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
-              :disabled="inquiriesPage >= totalInquiriesPages"
-              @click="inquiriesPage++"
-            >
+            <button type="button" class="p-2 rounded-xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer" :disabled="inquiriesPage >= totalInquiriesPages" @click="inquiriesPage++">
               <ChevronRight class="w-4 h-4" />
             </button>
           </div>
@@ -941,11 +731,7 @@ const handleDeleteUser = async (u: any) => {
           <p class="text-[13px] text-[#486581]">Buat akun administrator baru serta kendalikan kewenangan akses tim.</p>
         </div>
 
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all cursor-pointer shadow-xs"
-          @click="showUserModal = true"
-        >
+        <button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all cursor-pointer shadow-xs" @click="showUserModal = true">
           <Plus class="w-4 h-4" />
           <span>Tambah Akun Admin Baru</span>
         </button>
@@ -975,30 +761,19 @@ const handleDeleteUser = async (u: any) => {
                   </div>
                 </div>
               </td>
-              <td class="py-4 px-4 font-mono text-[13px] text-[#486581]">
-                @{{ u.username }}
-              </td>
+              <td class="py-4 px-4 font-mono text-[13px] text-[#486581]">@{{ u.username }}</td>
               <td class="py-4 px-4">
-                <span
-                  class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-manrope font-extrabold uppercase tracking-wide"
-                  :class="u.role === 'superadmin' ? 'bg-[#A3EEEC]/60 text-[#054E4C]' : 'bg-[#ADDFF1]/40 text-[#082838]'"
-                >
+                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-manrope font-extrabold uppercase tracking-wide" :class="u.role === 'superadmin' ? 'bg-[#A3EEEC]/60 text-[#054E4C]' : 'bg-[#ADDFF1]/40 text-[#082838]'">
                   <ShieldCheck v-if="u.role === 'superadmin'" class="w-3.5 h-3.5" />
                   <User v-else class="w-3.5 h-3.5" />
-                  <span>{{ u.role === 'superadmin' ? 'Super Admin' : 'Admin Biasa' }}</span>
+                  <span>{{ u.role === "superadmin" ? "Super Admin" : "Admin Biasa" }}</span>
                 </span>
               </td>
               <td class="py-4 px-4 text-[#486581] text-[12.5px]">
-                {{ new Date(u.created_at).toLocaleDateString('id-ID') }}
+                {{ new Date(u.created_at).toLocaleDateString("id-ID") }}
               </td>
               <td class="py-4 px-6 text-right">
-                <button
-                  v-if="u.id !== user?.id"
-                  type="button"
-                  class="text-red-600 hover:text-red-800 p-2 rounded-xl hover:bg-red-50 transition-colors cursor-pointer"
-                  title="Hapus Akun Pengguna"
-                  @click="handleDeleteUser(u)"
-                >
+                <button v-if="u.id !== user?.id" type="button" class="text-red-600 hover:text-red-800 p-2 rounded-xl hover:bg-red-50 transition-colors cursor-pointer" title="Hapus Akun Pengguna" @click="handleDeleteUser(u)">
                   <Trash2 class="w-4 h-4" />
                 </button>
               </td>
@@ -1034,33 +809,20 @@ const handleDeleteUser = async (u: any) => {
 
           <div class="space-y-4">
             <div class="space-y-1">
-              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">
-                Nama Kategori <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="newCatName"
-                type="text"
-                placeholder="Contoh: Rapid Test Kit, Kimia Klinik, dll"
-                class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all"
-              />
+              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]"> Nama Kategori <span class="text-red-500">*</span> </label>
+              <input v-model="newCatName" type="text" placeholder="Contoh: Rapid Test Kit, Kimia Klinik, dll" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all" />
             </div>
 
             <div class="space-y-1">
               <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">Jenis Sediaan</label>
               <div class="grid grid-cols-2 gap-2 pt-1">
-                <label
-                  class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1"
-                  :class="!newCatIsInstrument ? 'bg-[#A3EEEC]/30 border-[#054E4C] text-[#054E4C] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'"
-                >
+                <label class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1" :class="!newCatIsInstrument ? 'bg-[#A3EEEC]/30 border-[#054E4C] text-[#054E4C] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'">
                   <input v-model="newCatIsInstrument" type="radio" :value="false" class="sr-only" />
                   <span class="text-[13px] font-manrope">Reagen / Bahan</span>
                   <span class="text-[10px] font-normal opacity-75">Bahan uji & konsumabel</span>
                 </label>
 
-                <label
-                  class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1"
-                  :class="newCatIsInstrument ? 'bg-[#ADDFF1]/40 border-[#082838] text-[#082838] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'"
-                >
+                <label class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1" :class="newCatIsInstrument ? 'bg-[#ADDFF1]/40 border-[#082838] text-[#082838] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'">
                   <input v-model="newCatIsInstrument" type="radio" :value="true" class="sr-only" />
                   <span class="text-[13px] font-manrope">Alat / Mesin</span>
                   <span class="text-[10px] font-normal opacity-75">Instrumen & analyzer</span>
@@ -1070,29 +832,13 @@ const handleDeleteUser = async (u: any) => {
 
             <div class="space-y-1">
               <label class="block text-[13px] font-manrope font-semibold text-[#0D253A]">Deskripsi Singkat (Opsional)</label>
-              <textarea
-                v-model="newCatDescription"
-                rows="2"
-                placeholder="Penjelasan fungsi lini kategori..."
-                class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all resize-none"
-              />
+              <textarea v-model="newCatDescription" rows="2" placeholder="Penjelasan fungsi lini kategori..." class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all resize-none" />
             </div>
           </div>
 
           <div class="flex items-center justify-end gap-2.5 pt-2">
-            <button
-              type="button"
-              class="px-5 py-2.5 rounded-2xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13px]"
-              @click="showCategoryModal = false"
-            >
-              Batal
-            </button>
-            <button
-              type="button"
-              :disabled="isSavingCategory"
-              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all shadow-xs disabled:opacity-50"
-              @click="handleAddCategory"
-            >
+            <button type="button" class="px-5 py-2.5 rounded-2xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13px]" @click="showCategoryModal = false">Batal</button>
+            <button type="button" :disabled="isSavingCategory" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all shadow-xs disabled:opacity-50" @click="handleAddCategory">
               <span>{{ isSavingCategory ? "Menyimpan..." : "Simpan Kategori" }}</span>
             </button>
           </div>
@@ -1126,48 +872,24 @@ const handleDeleteUser = async (u: any) => {
 
           <div class="space-y-4">
             <div class="space-y-1">
-              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">
-                Nama Lengkap <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="newUserName"
-                type="text"
-                placeholder="Contoh: Budi Santoso, S.Si"
-                class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all"
-              />
+              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]"> Nama Lengkap <span class="text-red-500">*</span> </label>
+              <input v-model="newUserName" type="text" placeholder="Contoh: Budi Santoso, S.Si" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all" />
             </div>
 
             <div class="space-y-1">
-              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">
-                Username Login <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="newUserUsername"
-                type="text"
-                placeholder="Contoh: budi_arm"
-                class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] font-mono outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all"
-              />
+              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]"> Username Login <span class="text-red-500">*</span> </label>
+              <input v-model="newUserUsername" type="text" placeholder="Contoh: budi_arm" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] font-mono outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all" />
             </div>
 
             <div class="space-y-1">
-              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">
-                Kata Sandi Baru <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="newUserPassword"
-                type="password"
-                placeholder="Minimal 6 karakter"
-                class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all"
-              />
+              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]"> Kata Sandi Baru <span class="text-red-500">*</span> </label>
+              <input v-model="newUserPassword" type="password" placeholder="Minimal 6 karakter" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all" />
             </div>
 
             <div class="space-y-1">
               <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">Tingkat Hak Akses</label>
               <div class="grid grid-cols-2 gap-2 pt-1">
-                <label
-                  class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1"
-                  :class="newUserRole === 'admin' ? 'bg-[#ADDFF1]/40 border-[#082838] text-[#082838] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'"
-                >
+                <label class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1" :class="newUserRole === 'admin' ? 'bg-[#ADDFF1]/40 border-[#082838] text-[#082838] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'">
                   <input v-model="newUserRole" type="radio" value="admin" class="sr-only" />
                   <span class="text-[13px] font-manrope flex items-center gap-1">
                     <User class="w-3.5 h-3.5" />
@@ -1176,10 +898,7 @@ const handleDeleteUser = async (u: any) => {
                   <span class="text-[10px] font-normal opacity-75">Kelola produk & lihat RFQ</span>
                 </label>
 
-                <label
-                  class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1"
-                  :class="newUserRole === 'superadmin' ? 'bg-[#A3EEEC]/40 border-[#054E4C] text-[#054E4C] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'"
-                >
+                <label class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1" :class="newUserRole === 'superadmin' ? 'bg-[#A3EEEC]/40 border-[#054E4C] text-[#054E4C] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'">
                   <input v-model="newUserRole" type="radio" value="superadmin" class="sr-only" />
                   <span class="text-[13px] font-manrope flex items-center gap-1">
                     <ShieldCheck class="w-3.5 h-3.5" />
@@ -1192,19 +911,8 @@ const handleDeleteUser = async (u: any) => {
           </div>
 
           <div class="flex items-center justify-end gap-2.5 pt-2">
-            <button
-              type="button"
-              class="px-5 py-2.5 rounded-2xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13px]"
-              @click="showUserModal = false"
-            >
-              Batal
-            </button>
-            <button
-              type="button"
-              :disabled="isSavingUser"
-              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all shadow-xs disabled:opacity-50"
-              @click="handleCreateUser"
-            >
+            <button type="button" class="px-5 py-2.5 rounded-2xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13px]" @click="showUserModal = false">Batal</button>
+            <button type="button" :disabled="isSavingUser" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all shadow-xs disabled:opacity-50" @click="handleCreateUser">
               <span>{{ isSavingUser ? "Menyimpan..." : "Buat Akun" }}</span>
             </button>
           </div>

@@ -109,9 +109,7 @@ const handleSave = async () => {
           <span class="block font-black text-[#0D2235]">Konfigurasi Identitas.</span>
           <span class="block font-light text-[#486581]">Profil & Kontak Resmi Perusahaan.</span>
         </h1>
-        <p class="text-[14.5px] text-[#486581] font-sans max-w-2xl leading-relaxed">
-          <strong class="text-[#0D253A] font-semibold">Spesifikasi jelas. Dokumen lengkap.</strong> Perbarui nama brand, kontak WhatsApp, alamat, dan copywriting landing page secara langsung.
-        </p>
+        <p class="text-[14.5px] text-[#486581] font-sans max-w-2xl leading-relaxed"><strong class="text-[#0D253A] font-semibold">Spesifikasi jelas. Dokumen lengkap.</strong> Perbarui nama brand, kontak WhatsApp, alamat, dan copywriting landing page secara langsung.</p>
       </div>
 
       <!-- Top Actions -->
@@ -121,13 +119,7 @@ const handleSave = async () => {
           <span>Lihat Website</span>
         </NuxtLink>
 
-        <button
-          v-if="isSuperAdmin"
-          type="button"
-          :disabled="isSaving"
-          class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[14px] transition-all transform hover:-translate-y-0.5 active:translate-y-0 shadow-xs hover:shadow-md disabled:opacity-50 cursor-pointer"
-          @click="handleSave"
-        >
+        <button v-if="isSuperAdmin" type="button" :disabled="isSaving" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[14px] transition-all transform hover:-translate-y-0.5 active:translate-y-0 shadow-xs hover:shadow-md disabled:opacity-50 cursor-pointer" @click="handleSave">
           <Save class="w-4 h-4" />
           <span>{{ isSaving ? "Menyimpan..." : "Simpan Perubahan" }}</span>
         </button>
@@ -135,14 +127,9 @@ const handleSave = async () => {
     </div>
 
     <!-- Super Admin vs Admin Restriction Banner -->
-    <div
-      v-if="!isSuperAdmin"
-      class="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-900 text-[13.5px] flex items-center gap-3 font-medium shadow-xs"
-    >
+    <div v-if="!isSuperAdmin" class="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-900 text-[13.5px] flex items-center gap-3 font-medium shadow-xs">
       <ShieldCheck class="w-5 h-5 text-amber-600 shrink-0" />
-      <span>
-        <strong>Mode Pratinjau (Admin Biasa):</strong> Pengubahan profil hukum dan kontak resmi perusahaan dibatasi khusus untuk Super Admin guna mencegah kesalahan input data publik.
-      </span>
+      <span> <strong>Mode Pratinjau (Admin Biasa):</strong> Pengubahan profil hukum dan kontak resmi perusahaan dibatasi khusus untuk Super Admin guna mencegah kesalahan input data publik. </span>
     </div>
 
     <!-- Alert Notifications -->
@@ -257,7 +244,7 @@ const handleSave = async () => {
 
         <div class="space-y-1">
           <label class="block text-[13px] font-manrope font-semibold text-[#0D2235]"> Jam Layanan Operasional </label>
-          <input v-model="form.operating_hours" type="text" placeholder="Contoh: Senin – Jumat, 08.30 – 17.00 WIB" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[14px] text-[#0D2235] focus:outline-none focus:ring-2 focus:ring-[#89CBDD]/30 transition-all" />
+          <input v-model="form.operating_hours" type="text" placeholder="Contoh: Senin - Jumat, 08.30 - 17.00 WIB" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[14px] text-[#0D2235] focus:outline-none focus:ring-2 focus:ring-[#89CBDD]/30 transition-all" />
         </div>
       </div>
 
