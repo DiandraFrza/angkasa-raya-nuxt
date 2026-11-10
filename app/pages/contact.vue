@@ -274,7 +274,7 @@ const handleSubmit = async () => {
               <span class="text-[12px] text-[#486581]"> Respon penawaran resmi dalam 1 hari kerja. </span>
               <button type="submit" :disabled="isSubmitting" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[14px] transition-all disabled:opacity-50 cursor-pointer shadow-xs">
                 <span v-if="isSubmitting">Mengirimkan...</span>
-                <span v-else>Kirim Permintaan Penawaran</span>
+                <span v-else>Kirim</span>
                 <Send class="w-4 h-4" />
               </button>
             </div>

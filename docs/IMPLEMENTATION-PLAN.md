@@ -62,7 +62,7 @@ Reactive --> useQuoteModal
 Reactive --> useReducedMotion
 useCatalog --> CategoriesData
 useCatalog --> ProductsData
-Reactive -->|Kirim Permintaan Penawaran| InquiryEndpoint
+Reactive -->|Kirim| InquiryEndpoint
 PrerenderEngine -.->|Pra-render saat build|
 ``` Halaman
 ````

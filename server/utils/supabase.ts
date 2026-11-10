@@ -92,6 +92,27 @@ export const supabaseCreateCategory = async (cat: { id: string; slug: string; na
   return cat;
 };
 
+export const supabaseUpdateCategory = async (id: string, cat: { name?: string; description?: string; isInstrument?: boolean }) => {
+  const sb = useSupabase();
+  const updateData: any = {};
+  if (cat.name !== undefined) updateData.name = cat.name;
+  if (cat.description !== undefined) updateData.description = cat.description;
+  if (cat.isInstrument !== undefined) updateData.is_instrument = Boolean(cat.isInstrument);
+
+  const { error } = await sb.from("categories").update(updateData).eq("id", id);
+  if (error) throw createError({ statusCode: 500, statusMessage: error.message });
+
+  // If name changed, optionally update category_name on products
+  if (cat.name) {
+    const { data: existingCat } = await sb.from("categories").select("slug").eq("id", id).maybeSingle();
+    if (existingCat) {
+      await sb.from("products").update({ category_name: cat.name }).eq("category_slug", existingCat.slug);
+    }
+  }
+
+  return { success: true, message: "Kategori berhasil diperbarui." };
+};
+
 export const supabaseDeleteCategory = async (idOrSlug: string) => {
   const sb = useSupabase();
 

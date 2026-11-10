@@ -61,21 +61,78 @@ const waInquiryUrl = computed(() => {
           </div>
 
           <!-- Documentation / Downloads Card -->
-          <div class="bg-white rounded-3xl p-6 space-y-3.5 border border-slate-100 shadow-sm">
-            <h4 class="font-manrope font-bold text-[14px] text-[#0D2235] flex items-center gap-2">
-              <FileText class="w-4 h-4 text-[#89CBDD]" />
-              <span>Dokumen & Lembar Data Teknis</span>
-            </h4>
-            <div v-if="product.documents && product.documents.length > 0" class="space-y-2">
-              <div v-for="(doc, idx) in product.documents" :key="idx" class="flex items-center justify-between p-3.5 rounded-2xl bg-[#E9F8FF] hover:bg-[#D0F2F9] transition-colors text-[13px] border border-slate-100">
-                <div class="flex items-center gap-2.5 truncate">
-                  <Download class="w-4 h-4 text-[#89CBDD] shrink-0" />
-                  <span class="font-medium text-[#0D2235] truncate">{{ doc.title }}</span>
-                </div>
-                <span class="text-[11px] text-[#486581] font-mono shrink-0 ml-2">
-                  {{ doc.fileSize }}
-                </span>
-              </div>
+          <div class="bg-white rounded-3xl p-6 space-y-4 border border-slate-100 shadow-sm">
+            <div class="flex items-center justify-between">
+              <h4 class="font-manrope font-bold text-[14.5px] text-[#0D2235] flex items-center gap-2">
+                <FileText class="w-4 h-4 text-[#89CBDD]" />
+                <span>Dokumen & Lembar Data Teknis</span>
+              </h4>
+              <span v-if="product.documents && product.documents.length > 0" class="text-[11px] font-manrope font-bold px-2 py-0.5 rounded-full bg-[#E9F8FF] text-[#1B7E98]">
+                {{ product.documents.length }} Berkas
+              </span>
+            </div>
+
+            <div v-if="product.documents && product.documents.length > 0" class="space-y-2.5">
+              <template v-for="(doc, idx) in product.documents" :key="idx">
+                <!-- If actual fileUrl exists -->
+                <a
+                  v-if="doc.fileUrl && doc.fileUrl !== '#'"
+                  :href="doc.fileUrl"
+                  target="_blank"
+                  :download="doc.title"
+                  class="group flex items-center justify-between p-3.5 rounded-2xl bg-[#E9F8FF]/80 hover:bg-[#D0F2F9] transition-all text-[13px] border border-[#ADDFF1]/40 hover:border-[#89CBDD] shadow-2xs"
+                  :title="'Unduh ' + doc.title"
+                >
+                  <div class="flex items-center gap-3 min-w-0 pr-2">
+                    <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#1B7E98] group-hover:bg-[#89CBDD] group-hover:text-[#082838] transition-colors shadow-2xs">
+                      <Download class="w-4 h-4" />
+                    </div>
+                    <div class="min-w-0">
+                      <div class="font-manrope font-bold text-[#0D2235] truncate group-hover:text-[#082838]">
+                        {{ doc.title }}
+                      </div>
+                      <div class="text-[11px] text-[#486581] flex items-center gap-2 mt-0.5 font-mono">
+                        <span class="px-1.5 py-0.2 rounded bg-white text-[10px] font-bold uppercase tracking-wider text-[#054E4C]">
+                          {{ doc.type || "Dokumen" }}
+                        </span>
+                        <span v-if="doc.fileSize">{{ doc.fileSize }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="shrink-0 flex items-center gap-1 text-[12px] font-manrope font-bold text-[#1B7E98] group-hover:text-[#082838]">
+                    <span>Unduh</span>
+                    <Download class="w-3.5 h-3.5" />
+                  </div>
+                </a>
+
+                <!-- If doc requires inquiry request -->
+                <button
+                  v-else
+                  type="button"
+                  class="w-full text-left group flex items-center justify-between p-3.5 rounded-2xl bg-[#E9F8FF]/50 hover:bg-[#D0F2F9] transition-all text-[13px] border border-slate-100 hover:border-[#89CBDD] cursor-pointer"
+                  @click="openModal({ name: product.name, sku: product.sku, slug: product.slug, categoryName: product.categoryName })"
+                >
+                  <div class="flex items-center gap-3 min-w-0 pr-2">
+                    <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#486581] group-hover:bg-[#89CBDD] group-hover:text-[#082838] transition-colors shadow-2xs">
+                      <Download class="w-4 h-4" />
+                    </div>
+                    <div class="min-w-0">
+                      <div class="font-manrope font-bold text-[#0D2235] truncate">
+                        {{ doc.title }}
+                      </div>
+                      <div class="text-[11px] text-[#486581] flex items-center gap-2 mt-0.5 font-mono">
+                        <span class="px-1.5 py-0.2 rounded bg-white text-[10px] font-bold uppercase tracking-wider text-[#054E4C]">
+                          {{ doc.type || "Dokumen" }}
+                        </span>
+                        <span>{{ doc.fileSize || "Atas Permintaan" }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="shrink-0 text-[11.5px] font-manrope font-bold text-[#1B7E98] group-hover:underline">
+                    Minta Akses
+                  </span>
+                </button>
+              </template>
             </div>
             <p v-else class="text-[12.5px] text-[#486581] font-sans font-light">Dokumen COA/SDS sediaan ini tersedia atas permohonan resmi tim pengadaan.</p>
           </div>

@@ -5,6 +5,7 @@ import { ref, onMounted } from "vue";
 import { Save, Building2, Phone, Mail, MapPin, Upload, Image as ImageIcon, CheckCircle2, Sparkles, ShieldCheck, Clock, ArrowRight, ExternalLink } from "lucide-vue-next";
 import { useSiteSettings, type SiteSettings, defaultSettings } from "~/composables/useSiteSettings";
 import { useAdminAuth } from "~/composables/useAdminAuth";
+import { useActionModal } from "~/composables/useActionModal";
 
 definePageMeta({
   layout: "admin",
@@ -16,11 +17,10 @@ useSeoMeta({
 
 const { settings, updateLocalSettings, refresh } = useSiteSettings();
 const { isSuperAdmin } = useAdminAuth();
+const { showSuccess, showAlert } = useActionModal();
 
 const form = ref<SiteSettings>({ ...defaultSettings });
 const isSaving = ref(false);
-const saveSuccess = ref(false);
-const saveError = ref("");
 const isUploadingLogo = ref(false);
 
 onMounted(async () => {
@@ -44,7 +44,6 @@ const handleLogoUpload = async (e: Event) => {
   uploadData.append("file", file);
 
   isUploadingLogo.value = true;
-  saveError.value = "";
 
   try {
     const res = await $fetch<{ success: boolean; url: string }>("/api/upload", {
@@ -54,13 +53,13 @@ const handleLogoUpload = async (e: Event) => {
 
     if (res && res.url) {
       form.value.logo_url = res.url;
-      saveSuccess.value = true;
-      setTimeout(() => {
-        saveSuccess.value = false;
-      }, 3000);
+      showSuccess("Data Berhasil Disimpan", "Logo baru berhasil diunggah.");
     }
   } catch (err: any) {
-    saveError.value = err.data?.statusMessage || "Gagal mengunggah file logo.";
+    showAlert({
+      title: "Gagal Mengunggah Logo",
+      message: err.data?.statusMessage || "Gagal mengunggah file logo.",
+    });
   } finally {
     isUploadingLogo.value = false;
   }
@@ -68,13 +67,14 @@ const handleLogoUpload = async (e: Event) => {
 
 const handleSave = async () => {
   if (!isSuperAdmin.value) {
-    saveError.value = "Akses ditolak: Hanya Super Admin yang berwenang memperbarui konfigurasi resmi perusahaan.";
+    showAlert({
+      title: "Akses Ditolak",
+      message: "Hanya Super Admin yang berwenang memperbarui konfigurasi resmi perusahaan.",
+    });
     return;
   }
 
   isSaving.value = true;
-  saveSuccess.value = false;
-  saveError.value = "";
 
   try {
     const res = await $fetch<{ success: boolean; message: string; settings: Record<string, string> }>("/api/settings", {
@@ -84,13 +84,13 @@ const handleSave = async () => {
 
     if (res.success) {
       updateLocalSettings(res.settings);
-      saveSuccess.value = true;
-      setTimeout(() => {
-        saveSuccess.value = false;
-      }, 4000);
+      showSuccess("Data Berhasil Disimpan", "Pengaturan website berhasil diperbarui.");
     }
   } catch (err: any) {
-    saveError.value = err.data?.statusMessage || "Terjadi kesalahan saat menyimpan pengaturan.";
+    showAlert({
+      title: "Gagal Menyimpan",
+      message: err.data?.statusMessage || "Terjadi kesalahan saat menyimpan pengaturan.",
+    });
   } finally {
     isSaving.value = false;
   }
@@ -99,25 +99,10 @@ const handleSave = async () => {
 
 <template>
   <div class="space-y-8 pb-16 animate-fade-up">
-    <!-- Header Page: Giant Typography with Extreme Contrast -->
     <!-- Super Admin vs Admin Restriction Banner -->
     <div v-if="!isSuperAdmin" class="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-900 text-[13.5px] flex items-center gap-3 font-medium shadow-xs">
       <ShieldCheck class="w-5 h-5 text-amber-600 shrink-0" />
       <span> <strong>Mode Pratinjau (Admin Biasa):</strong> Pengubahan profil hukum dan kontak resmi perusahaan dibatasi khusus untuk Super Admin guna mencegah kesalahan input data publik. </span>
-    </div>
-
-    <!-- Alert Notifications -->
-    <div v-if="saveSuccess" class="p-4 rounded-2xl bg-[#A3EEEC]/50 text-[#054E4C] flex items-center justify-between transition-all font-medium text-[13.5px] shadow-xs">
-      <div class="flex items-center gap-3">
-        <CheckCircle2 class="w-5 h-5 text-[#054E4C] shrink-0" />
-        <span>Pengaturan berhasil disimpan! Header, Footer, dan konten website telah diperbarui secara langsung.</span>
-      </div>
-      <button type="button" class="text-xs font-bold text-[#054E4C] underline" @click="saveSuccess = false">Tutup</button>
-    </div>
-
-    <div v-if="saveError" class="p-4 rounded-2xl bg-red-100 text-red-800 flex items-center justify-between transition-all font-medium text-[13.5px] shadow-xs">
-      <span class="text-[13.5px]">{{ saveError }}</span>
-      <button type="button" class="text-xs font-bold text-red-700 underline" @click="saveError = ''">Tutup</button>
     </div>
 
     <form class="space-y-8" @submit.prevent="handleSave">

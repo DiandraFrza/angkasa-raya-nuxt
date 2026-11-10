@@ -6,6 +6,7 @@ import { LayoutDashboard, Package, Inbox, PlusCircle, Settings, ExternalLink, Me
 import { useSiteSettings } from "~/composables/useSiteSettings";
 import { useAdminAuth } from "~/composables/useAdminAuth";
 import { useCafeNotification } from "~/composables/useCafeNotification";
+import { useActionModal } from "~/composables/useActionModal";
 import CafeNotification from "~/components/admin/CafeNotification.vue";
 
 const route = useRoute();
@@ -13,16 +14,23 @@ const router = useRouter();
 const { settings } = useSiteSettings();
 const { user, isSuperAdmin, logout } = useAdminAuth();
 const { isSoundEnabled, toggleSound, playCafeChime, notifyNewInquiry } = useCafeNotification();
+const { showConfirm } = useActionModal();
 
 const isSidebarOpen = ref(false);
 const closeSidebar = () => {
   isSidebarOpen.value = false;
 };
 
-const handleLogout = async () => {
-  if (confirm("Apakah Anda yakin ingin keluar dari panel administrator?")) {
-    await logout();
-  }
+const handleLogout = () => {
+  showConfirm({
+    title: "Konfirmasi Keluar",
+    message: "Apakah Anda yakin ingin keluar dari panel administrator?",
+    confirmText: "Ya, Keluar",
+    cancelText: "Batal",
+    onConfirm: async () => {
+      await logout();
+    },
+  });
 };
 
 const handleOpenInquiry = (inquiryId: string) => {

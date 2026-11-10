@@ -2,9 +2,10 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { Plus, Trash2, ShieldCheck, User, Users, CheckCircle2, AlertCircle, X, Lock, ChevronLeft, ChevronRight } from "lucide-vue-next";
+import { Plus, Trash2, Edit3, ShieldCheck, User, Users, AlertCircle, X, Lock, ChevronLeft, ChevronRight } from "lucide-vue-next";
 import { useSiteSettings } from "~/composables/useSiteSettings";
 import { useAdminAuth } from "~/composables/useAdminAuth";
+import { useActionModal } from "~/composables/useActionModal";
 
 definePageMeta({
   layout: "admin",
@@ -12,13 +13,11 @@ definePageMeta({
 
 const { settings } = useSiteSettings();
 const { user, isSuperAdmin } = useAdminAuth();
+const { showSuccess, showConfirm, showAlert } = useActionModal();
 
 useSeoMeta({
   title: () => `Kelola Akun Admin`,
 });
-
-const successMessage = ref<string | null>(null);
-const deleteError = ref<string | null>(null);
 
 // Pagination State
 const pageSizeOptions = [10, 20, 50, 100];
@@ -51,20 +50,35 @@ const usersEndRange = computed(() => {
   return Math.min(usersPage.value * usersPageSize.value, totalUsers.value);
 });
 
-// Modal State
+// Modal State (Create & Edit)
 const showUserModal = ref(false);
-const newUserUsername = ref("");
-const newUserName = ref("");
-const newUserPassword = ref("");
-const newUserRole = ref<"superadmin" | "admin">("admin");
+const modalMode = ref<"create" | "edit">("create");
+const selectedUserId = ref("");
+const formUsername = ref("");
+const formName = ref("");
+const formPassword = ref("");
+const formRole = ref<"superadmin" | "admin">("admin");
 const isSavingUser = ref(false);
 const userActionError = ref<string | null>(null);
 
-const openUserModal = () => {
-  newUserUsername.value = "";
-  newUserName.value = "";
-  newUserPassword.value = "";
-  newUserRole.value = "admin";
+const openCreateUserModal = () => {
+  modalMode.value = "create";
+  selectedUserId.value = "";
+  formUsername.value = "";
+  formName.value = "";
+  formPassword.value = "";
+  formRole.value = "admin";
+  userActionError.value = null;
+  showUserModal.value = true;
+};
+
+const openEditUserModal = (u: any) => {
+  modalMode.value = "edit";
+  selectedUserId.value = u.id;
+  formUsername.value = u.username;
+  formName.value = u.name;
+  formPassword.value = ""; // optional
+  formRole.value = u.role || "admin";
   userActionError.value = null;
   showUserModal.value = true;
 };
@@ -73,69 +87,90 @@ const closeUserModal = () => {
   showUserModal.value = false;
 };
 
-const handleCreateUser = async () => {
-  if (!newUserUsername.value.trim() || !newUserName.value.trim() || !newUserPassword.value) {
-    userActionError.value = "Semua kolom pengguna wajib diisi.";
-    return;
-  }
-
-  if (newUserPassword.value.length < 6) {
-    userActionError.value = "Kata sandi minimal 6 karakter.";
-    return;
+const handleSaveUser = async () => {
+  if (modalMode.value === "create") {
+    if (!formUsername.value.trim() || !formName.value.trim() || !formPassword.value) {
+      userActionError.value = "Semua kolom pengguna wajib diisi.";
+      return;
+    }
+    if (formPassword.value.length < 6) {
+      userActionError.value = "Kata sandi minimal 6 karakter.";
+      return;
+    }
+  } else {
+    if (!formName.value.trim()) {
+      userActionError.value = "Nama lengkap wajib diisi.";
+      return;
+    }
+    if (formPassword.value && formPassword.value.length < 6) {
+      userActionError.value = "Kata sandi baru minimal 6 karakter.";
+      return;
+    }
   }
 
   isSavingUser.value = true;
   userActionError.value = null;
 
   try {
-    const res = await $fetch<{ success: boolean; message: string }>("/api/users", {
-      method: "POST",
-      body: {
-        username: newUserUsername.value.trim().toLowerCase(),
-        name: newUserName.value.trim(),
-        password: newUserPassword.value,
-        role: newUserRole.value,
-      },
-    });
+    if (modalMode.value === "edit") {
+      const payload: any = {
+        name: formName.value.trim(),
+        role: formRole.value,
+      };
+      if (formPassword.value) {
+        payload.password = formPassword.value;
+      }
 
-    successMessage.value = res.message || "Pengguna admin baru berhasil ditambahkan.";
-    newUserUsername.value = "";
-    newUserName.value = "";
-    newUserPassword.value = "";
-    newUserRole.value = "admin";
-    showUserModal.value = false;
+      await $fetch(`/api/users/${selectedUserId.value}`, {
+        method: "PUT",
+        body: payload,
+      });
+
+      showUserModal.value = false;
+      showSuccess("Data Berhasil Diedit", `Akun @${formUsername.value} telah diperbarui.`);
+    } else {
+      await $fetch("/api/users", {
+        method: "POST",
+        body: {
+          username: formUsername.value.trim().toLowerCase(),
+          name: formName.value.trim(),
+          password: formPassword.value,
+          role: formRole.value,
+        },
+      });
+
+      showUserModal.value = false;
+      showSuccess("Data Berhasil Disimpan", `Akun admin @${formUsername.value} berhasil ditambahkan.`);
+    }
+
     await refreshUsers();
-    setTimeout(() => {
-      successMessage.value = null;
-    }, 4000);
   } catch (err: any) {
-    userActionError.value = err.data?.statusMessage || "Gagal membuat pengguna.";
+    userActionError.value = err.data?.statusMessage || "Gagal menyimpan akun pengguna.";
   } finally {
     isSavingUser.value = false;
   }
 };
 
-const handleDeleteUser = async (u: any) => {
+const handleDeleteUser = (u: any) => {
   if (u.id === user.value?.id) {
-    alert("Anda tidak dapat menghapus akun Anda sendiri.");
+    showAlert({
+      title: "Perhatian",
+      message: "Anda tidak dapat menghapus akun Anda sendiri.",
+    });
     return;
   }
 
-  if (!confirm(`Hapus akun admin @${u.username} (${u.name})? Akses masuk akan segera diblokir.`)) {
-    return;
-  }
-
-  deleteError.value = null;
-  try {
-    await $fetch(`/api/users/${u.id}`, { method: "DELETE" });
-    successMessage.value = `Akun @${u.username} berhasil dihapus.`;
-    await refreshUsers();
-    setTimeout(() => {
-      successMessage.value = null;
-    }, 4000);
-  } catch (err: any) {
-    deleteError.value = err.data?.statusMessage || "Gagal menghapus pengguna.";
-  }
+  showConfirm({
+    title: "Konfirmasi Hapus Akun",
+    message: `Hapus akun admin @${u.username} (${u.name})? Akses masuk akan segera diblokir secara permanen.`,
+    confirmText: "Ya, Hapus",
+    cancelText: "Batal",
+    onConfirm: async () => {
+      await $fetch(`/api/users/${u.id}`, { method: "DELETE" });
+      await refreshUsers();
+      showSuccess("Data Berhasil Dihapus", `Akun @${u.username} berhasil dihapus.`);
+    },
+  });
 };
 </script>
 
@@ -155,7 +190,7 @@ const handleDeleteUser = async (u: any) => {
 
     <!-- Super Admin Content -->
     <template v-else>
-      <!-- Header Page: Clean, Static & Semantic -->
+      <!-- Header Page -->
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-2">
         <div class="space-y-2">
           <h1 class="text-3xl sm:text-4xl lg:text-5xl font-manrope tracking-tight leading-tight">
@@ -165,28 +200,11 @@ const handleDeleteUser = async (u: any) => {
 
         <!-- Top Action Buttons -->
         <div class="flex flex-wrap items-center gap-3 shrink-0 self-start sm:self-auto">
-          <button type="button" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13.5px] transition-all shadow-xs hover:shadow-md cursor-pointer" @click="openUserModal">
+          <button type="button" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13.5px] transition-all shadow-xs hover:shadow-md cursor-pointer" @click="openCreateUserModal">
             <Plus class="w-4 h-4" />
             <span>Tambah Akun Admin Baru</span>
           </button>
         </div>
-      </div>
-
-      <!-- Success / Error Alert -->
-      <div v-if="successMessage" class="p-4 rounded-2xl bg-[#A3EEEC]/50 text-[#054E4C] text-[14px] flex items-center justify-between font-medium shadow-xs">
-        <div class="flex items-center gap-2.5">
-          <CheckCircle2 class="w-5 h-5 text-[#054E4C] shrink-0" />
-          <span>{{ successMessage }}</span>
-        </div>
-        <button type="button" class="text-[#054E4C] font-bold cursor-pointer" @click="successMessage = null">✕</button>
-      </div>
-
-      <div v-if="deleteError" class="p-4 rounded-2xl bg-red-100 text-red-800 text-[14px] flex items-center justify-between font-medium shadow-xs">
-        <div class="flex items-center gap-2.5">
-          <AlertCircle class="w-5 h-5 text-red-600 shrink-0" />
-          <span>{{ deleteError }}</span>
-        </div>
-        <button type="button" class="text-red-700 font-bold cursor-pointer" @click="deleteError = null">✕</button>
       </div>
 
       <!-- Users Table Container -->
@@ -227,10 +245,29 @@ const handleDeleteUser = async (u: any) => {
                   {{ new Date(u.created_at).toLocaleDateString("id-ID") }}
                 </td>
                 <td class="py-4 px-6 text-right">
-                  <button v-if="u.id !== user?.id" type="button" class="text-red-600 hover:text-red-800 p-2 rounded-xl hover:bg-red-50 transition-colors cursor-pointer" title="Hapus Akun Pengguna" @click="handleDeleteUser(u)">
-                    <Trash2 class="w-4 h-4" />
-                  </button>
-                  <span v-else class="text-xs text-[#486581]/50 italic pr-2">Aktif</span>
+                  <div class="flex items-center justify-end gap-1.5">
+                    <!-- Edit User via Modal -->
+                    <button
+                      type="button"
+                      class="p-2 rounded-xl text-[#0D253A] hover:bg-[#D0F2F9] transition-colors cursor-pointer"
+                      title="Edit Akun Admin"
+                      @click="openEditUserModal(u)"
+                    >
+                      <Edit3 class="w-4 h-4 text-[#082838]" />
+                    </button>
+
+                    <!-- Delete User via Confirm Modal -->
+                    <button
+                      v-if="u.id !== user?.id"
+                      type="button"
+                      class="text-red-600 hover:text-red-800 p-2 rounded-xl hover:bg-red-50 transition-colors cursor-pointer"
+                      title="Hapus Akun Pengguna"
+                      @click="handleDeleteUser(u)"
+                    >
+                      <Trash2 class="w-4 h-4" />
+                    </button>
+                    <span v-else class="text-xs text-[#486581]/50 italic pr-2">Aktif</span>
+                  </div>
                 </td>
               </tr>
 
@@ -271,17 +308,19 @@ const handleDeleteUser = async (u: any) => {
         </div>
       </div>
 
-      <!-- MODAL: TAMBAH USER ADMIN BARU -->
+      <!-- MODAL: TAMBAH / EDIT AKUN ADMIN -->
       <Teleport to="body">
         <div v-if="showUserModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div class="fixed inset-0 bg-[#0D253A]/40 backdrop-blur-xs" @click="showUserModal = false" />
+          <div class="fixed inset-0 bg-[#0D253A]/40 backdrop-blur-xs" @click="closeUserModal" />
           <div class="relative bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-[#ADDFF1]/50 space-y-5 animate-scale-up z-10 text-[#0D2235]">
             <div class="flex items-center justify-between pb-2 border-b border-[#D0F2F9]/60">
               <div class="flex items-center gap-2.5">
                 <div class="w-9 h-9 rounded-2xl bg-[#A3EEEC]/50 text-[#054E4C] flex items-center justify-center">
                   <Users class="w-4 h-4" />
                 </div>
-                <h3 class="font-manrope font-bold text-[16px]">Tambah Akun Admin Baru</h3>
+                <h3 class="font-manrope font-bold text-[16px]">
+                  {{ modalMode === "edit" ? `Edit Akun @${formUsername}` : "Tambah Akun Admin Baru" }}
+                </h3>
               </div>
               <button type="button" class="p-1 rounded-xl text-[#486581] hover:text-[#0D2235] cursor-pointer" @click="closeUserModal">
                 <X class="w-4 h-4" />
@@ -294,49 +333,86 @@ const handleDeleteUser = async (u: any) => {
             </div>
 
             <div class="space-y-4">
+              <!-- Username -->
               <div class="space-y-1">
-                <label class="block text-[13px] font-manrope font-bold text-[#0D253A]"> Nama Lengkap <span class="text-red-500">*</span> </label>
-                <input v-model="newUserName" type="text" placeholder="Contoh: Budi Santoso, S.Si" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all" />
+                <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">
+                  Username (Untuk Login) <span v-if="modalMode === 'create'" class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model="formUsername"
+                  type="text"
+                  placeholder="Contoh: admin_medika"
+                  :disabled="modalMode === 'edit'"
+                  class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] font-mono transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                />
               </div>
 
+              <!-- Nama Lengkap -->
               <div class="space-y-1">
-                <label class="block text-[13px] font-manrope font-bold text-[#0D253A]"> Username Login <span class="text-red-500">*</span> </label>
-                <input v-model="newUserUsername" type="text" placeholder="Contoh: budi_arm" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] font-mono outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all" />
+                <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">
+                  Nama Lengkap Admin <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model="formName"
+                  type="text"
+                  placeholder="Contoh: Sarah Farida"
+                  class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all"
+                />
               </div>
 
+              <!-- Password -->
               <div class="space-y-1">
-                <label class="block text-[13px] font-manrope font-bold text-[#0D253A]"> Kata Sandi Baru <span class="text-red-500">*</span> </label>
-                <input v-model="newUserPassword" type="password" placeholder="Minimal 6 karakter" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all" />
+                <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">
+                  {{ modalMode === "edit" ? "Kata Sandi Baru (Kosongkan jika tidak diubah)" : "Kata Sandi Masuk *" }}
+                </label>
+                <input
+                  v-model="formPassword"
+                  type="password"
+                  :placeholder="modalMode === 'edit' ? 'Minimal 6 karakter baru' : 'Minimal 6 karakter'"
+                  class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all"
+                />
               </div>
 
+              <!-- Level Peran -->
               <div class="space-y-1">
                 <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">Tingkat Hak Akses</label>
                 <div class="grid grid-cols-2 gap-2 pt-1">
-                  <label class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1" :class="newUserRole === 'admin' ? 'bg-[#ADDFF1]/40 border-[#082838] text-[#082838] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'">
-                    <input v-model="newUserRole" type="radio" value="admin" class="sr-only" />
-                    <span class="text-[13px] font-manrope flex items-center gap-1">
-                      <User class="w-3.5 h-3.5" />
-                      Admin Biasa
-                    </span>
-                    <span class="text-[10px] font-normal opacity-75">Kelola produk & lihat RFQ</span>
+                  <label
+                    class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1"
+                    :class="formRole === 'admin' ? 'bg-[#ADDFF1]/40 border-[#082838] text-[#082838] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'"
+                  >
+                    <input v-model="formRole" type="radio" value="admin" class="sr-only" />
+                    <span class="text-[13px] font-manrope">Admin Biasa</span>
+                    <span class="text-[10px] font-normal opacity-75">Katalog & Penawaran</span>
                   </label>
 
-                  <label class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1" :class="newUserRole === 'superadmin' ? 'bg-[#A3EEEC]/40 border-[#054E4C] text-[#054E4C] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'">
-                    <input v-model="newUserRole" type="radio" value="superadmin" class="sr-only" />
-                    <span class="text-[13px] font-manrope flex items-center gap-1">
-                      <ShieldCheck class="w-3.5 h-3.5" />
-                      Super Admin
-                    </span>
-                    <span class="text-[10px] font-normal opacity-75">Akses penuh & kelola user</span>
+                  <label
+                    class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1"
+                    :class="formRole === 'superadmin' ? 'bg-[#A3EEEC]/40 border-[#054E4C] text-[#054E4C] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'"
+                  >
+                    <input v-model="formRole" type="radio" value="superadmin" class="sr-only" />
+                    <span class="text-[13px] font-manrope">Super Admin</span>
+                    <span class="text-[10px] font-normal opacity-75">Akses Penuh Sistem</span>
                   </label>
                 </div>
               </div>
             </div>
 
             <div class="flex items-center justify-end gap-2.5 pt-2">
-              <button type="button" class="px-5 py-2.5 rounded-2xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13px] cursor-pointer" @click="closeUserModal">Batal</button>
-              <button type="button" :disabled="isSavingUser" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all shadow-xs disabled:opacity-50 cursor-pointer" @click="handleCreateUser">
-                <span>{{ isSavingUser ? "Menyimpan..." : "Buat Akun" }}</span>
+              <button
+                type="button"
+                class="px-5 py-2.5 rounded-2xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13px] cursor-pointer"
+                @click="closeUserModal"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                :disabled="isSavingUser"
+                class="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+                @click="handleSaveUser"
+              >
+                <span>{{ isSavingUser ? "Menyimpan..." : modalMode === "edit" ? "Simpan Perubahan" : "Simpan Akun" }}</span>
               </button>
             </div>
           </div>

@@ -133,7 +133,7 @@ const resetFilters = () => {
       </motion.div>
 
       <!-- Filter & Search Controls Bar -->
-      <motion.div :initial="{ opacity: 0, y: 40 }" :whileInView="{ opacity: 1, y: 0 }" :transition="{ duration: 0.8, ease: 'easeOut', delay: 0.1 }" :viewport="{ once: true, amount: 0.2 }" class="space-y-4">
+      <motion.div :initial="{ opacity: 0, y: 40 }" :whileInView="{ opacity: 1, y: 0 }" :transition="{ duration: 0.8, ease: 'easeOut', delay: 0.1 }" :viewport="{ once: true, amount: 0.2 }" class="space-y-4 max-w-full overflow-hidden">
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           <ProductSearch v-model="searchQuery" />
           <div class="flex items-center gap-2">

@@ -1,13 +1,14 @@
 <!-- @format -->
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import { Plus, Search, Edit3, Trash2, ExternalLink, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Package } from "lucide-vue-next";
+import { ref, computed, watch, onMounted } from "vue";
+import { Plus, Search, Edit3, Trash2, ExternalLink, ChevronLeft, ChevronRight, Package } from "lucide-vue-next";
 import type { Product } from "~/types/catalog";
 import { useCatalog } from "~/composables/useCatalog";
 import { useSiteSettings } from "~/composables/useSiteSettings";
 import { useAdminAuth } from "~/composables/useAdminAuth";
-import ProductCreateModal from "~/components/admin/ProductCreateModal.vue";
+import { useActionModal } from "~/composables/useActionModal";
+import ProductFormModal from "~/components/admin/ProductFormModal.vue";
 
 definePageMeta({
   layout: "admin",
@@ -18,41 +19,42 @@ const router = useRouter();
 const { settings } = useSiteSettings();
 const { isSuperAdmin } = useAdminAuth();
 const { refreshCatalog } = useCatalog();
+const { showSuccess, showConfirm, showAlert } = useActionModal();
 
 useSeoMeta({
   title: () => `Daftar Produk`,
 });
 
-// Modal Tambah Produk Baru State
+// Modal Tambah / Edit Produk State
 const isProductModalOpen = ref(false);
-const openProductModal = () => {
+const productModalMode = ref<"create" | "edit">("create");
+const selectedProduct = ref<any | null>(null);
+
+const openCreateModal = () => {
+  productModalMode.value = "create";
+  selectedProduct.value = null;
   isProductModalOpen.value = true;
 };
+
+const openEditModal = (product: any) => {
+  productModalMode.value = "edit";
+  selectedProduct.value = product;
+  isProductModalOpen.value = true;
+};
+
 const closeProductModal = () => {
   isProductModalOpen.value = false;
-  if (route.query.newProduct) {
+  selectedProduct.value = null;
+  if (route.query.newProduct || route.query.editId) {
     const q = { ...route.query };
     delete q.newProduct;
+    delete q.editId;
     router.replace({ query: q });
   }
 };
 
-// Check if route has newProduct query param (e.g. from create redirect)
-if (route.query.newProduct) {
-  isProductModalOpen.value = true;
-}
-watch(
-  () => route.query.newProduct,
-  (val) => {
-    if (val) isProductModalOpen.value = true;
-  },
-);
-
 const searchQuery = ref("");
 const selectedCategory = ref("all");
-const isDeleting = ref(false);
-const deleteError = ref<string | null>(null);
-const successMessage = ref<string | null>(null);
 
 // Pagination
 const pageSizeOptions = [10, 20, 50, 100];
@@ -65,6 +67,26 @@ const { data: categoriesData } = await useFetch<any[]>("/api/categories");
 
 const products = computed(() => productsData.value || []);
 const categories = computed(() => categoriesData.value || []);
+
+// Auto open modal if editId or newProduct query param exists
+const checkUrlQuery = () => {
+  if (route.query.newProduct) {
+    openCreateModal();
+  } else if (route.query.editId && typeof route.query.editId === "string") {
+    const found = products.value.find((p) => p.id === route.query.editId);
+    if (found) {
+      openEditModal(found);
+    }
+  }
+};
+
+watch(
+  () => [route.query.newProduct, route.query.editId, products.value],
+  () => {
+    checkUrlQuery();
+  },
+  { immediate: true }
+);
 
 // Filter products
 const filteredProducts = computed(() => {
@@ -99,42 +121,35 @@ const productsEndRange = computed(() => {
   return Math.min(productsPage.value * productsPageSize.value, totalProducts.value);
 });
 
-// Handle Product Created
-const handleProductCreated = async (newProduct: any) => {
+// Handle Product Saved (Create or Edit)
+const handleProductSaved = async () => {
   await refreshProducts();
   await refreshCatalog();
-  successMessage.value = `Produk "${newProduct?.name || "baru"}" berhasil ditambahkan ke katalog!`;
-  setTimeout(() => {
-    successMessage.value = null;
-  }, 4000);
+  closeProductModal();
 };
 
-// Delete Product Handler (Super Admin Only)
-const handleDeleteProduct = async (id: string, name: string) => {
+// Delete Product Handler with Confirm Modal
+const handleDeleteProduct = (id: string, name: string) => {
   if (!isSuperAdmin.value) {
-    alert("Hanya Super Admin yang diizinkan untuk menghapus produk dari katalog.");
+    showAlert({
+      title: "Akses Ditolak",
+      message: "Hanya Super Admin yang diizinkan untuk menghapus produk dari katalog.",
+    });
     return;
   }
 
-  if (!confirm(`Apakah Anda yakin ingin menghapus produk "${name}" dari katalog? Tindakan ini tidak dapat dibatalkan.`)) {
-    return;
-  }
-
-  isDeleting.value = true;
-  deleteError.value = null;
-  try {
-    await $fetch(`/api/products/${id}`, { method: "DELETE" });
-    successMessage.value = `Produk "${name}" berhasil dihapus dari katalog.`;
-    await refreshProducts();
-    await refreshCatalog();
-    setTimeout(() => {
-      successMessage.value = null;
-    }, 4000);
-  } catch (err: any) {
-    deleteError.value = err.data?.statusMessage || "Gagal menghapus produk.";
-  } finally {
-    isDeleting.value = false;
-  }
+  showConfirm({
+    title: "Konfirmasi Hapus Produk",
+    message: `Apakah Anda yakin ingin menghapus produk "${name}" dari katalog? Data yang dihapus tidak dapat dipulihkan.`,
+    confirmText: "Ya, Hapus",
+    cancelText: "Batal",
+    onConfirm: async () => {
+      await $fetch(`/api/products/${id}`, { method: "DELETE" });
+      await refreshProducts();
+      await refreshCatalog();
+      showSuccess("Data Berhasil Dihapus", `Produk "${name}" telah dihapus.`);
+    },
+  });
 };
 </script>
 
@@ -144,28 +159,11 @@ const handleDeleteProduct = async (id: string, name: string) => {
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-2">
       <!-- Top Action Buttons -->
       <div class="flex flex-wrap items-center gap-3 shrink-0 self-start sm:self-auto">
-        <button type="button" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13.5px] transition-all shadow-xs hover:shadow-md cursor-pointer" @click="openProductModal">
+        <button type="button" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13.5px] transition-all shadow-xs hover:shadow-md cursor-pointer" @click="openCreateModal">
           <Plus class="w-4 h-4" />
           <span>Tambah Produk Baru</span>
         </button>
       </div>
-    </div>
-
-    <!-- Success / Error Alert -->
-    <div v-if="successMessage" class="p-4 rounded-2xl bg-[#A3EEEC]/50 text-[#054E4C] text-[14px] flex items-center justify-between font-medium shadow-xs">
-      <div class="flex items-center gap-2.5">
-        <CheckCircle2 class="w-5 h-5 text-[#054E4C] shrink-0" />
-        <span>{{ successMessage }}</span>
-      </div>
-      <button type="button" class="text-[#054E4C] font-bold cursor-pointer" @click="successMessage = null">✕</button>
-    </div>
-
-    <div v-if="deleteError" class="p-4 rounded-2xl bg-red-100 text-red-800 text-[14px] flex items-center justify-between font-medium shadow-xs">
-      <div class="flex items-center gap-2.5">
-        <AlertCircle class="w-5 h-5 text-red-600 shrink-0" />
-        <span>{{ deleteError }}</span>
-      </div>
-      <button type="button" class="text-red-700 font-bold cursor-pointer" @click="deleteError = null">✕</button>
     </div>
 
     <!-- Search, Filter & Per Page Controls -->
@@ -194,7 +192,7 @@ const handleDeleteProduct = async (id: string, name: string) => {
               <th class="py-4 px-6">Produk</th>
               <th class="py-4 px-4">Kategori</th>
               <th class="py-4 px-4">Kemasan & Mutu</th>
-              <th class="py-4 px-4">Status</th>
+              <th class="py-4 px-4">Status & Dokumen</th>
               <th class="py-4 px-6 text-right">Aksi</th>
             </tr>
           </thead>
@@ -207,7 +205,7 @@ const handleDeleteProduct = async (id: string, name: string) => {
                     <img :src="p.imageUrl" :alt="p.name" class="w-full h-full object-contain" />
                   </div>
                   <div>
-                    <div class="font-manrope font-bold text-[#0D2235] hover:text-[#1B7E98]">
+                    <div class="font-manrope font-bold text-[#0D2235] hover:text-[#1B7E98] cursor-pointer" @click="openEditModal(p)">
                       {{ p.name }}
                     </div>
                     <div class="text-[12px] text-[#486581] font-mono">{{ p.sku }} &bull; {{ p.brand }}</div>
@@ -230,26 +228,30 @@ const handleDeleteProduct = async (id: string, name: string) => {
                 </div>
               </td>
 
-              <!-- Status Tags -->
+              <!-- Status & Documents count -->
               <td class="py-4 px-4">
                 <div class="flex flex-col gap-1 items-start">
                   <span v-if="p.isFeatured" class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10.5px] font-manrope font-bold"> ★ Unggulan </span>
                   <span v-if="p.isVerified" class="px-2.5 py-0.5 rounded-full bg-[#A3EEEC]/50 text-[#054E4C] text-[10.5px] font-manrope font-bold"> Terverifikasi </span>
+                  <span v-if="p.documents && p.documents.length > 0" class="text-[11px] font-mono text-[#1B7E98]">
+                    {{ p.documents.length }} Dokumen
+                  </span>
                 </div>
               </td>
 
-              <!-- Actions -->
+              <!-- Actions (Semua Edit Pakai Modal!) -->
               <td class="py-4 px-6 text-right">
                 <div class="flex items-center justify-end gap-2">
                   <NuxtLink :to="`/products/${p.slug}`" target="_blank" class="p-2 rounded-xl text-[#486581] hover:text-[#0D2235] hover:bg-[#D0F2F9] transition-colors" title="Lihat di Website Publik">
                     <ExternalLink class="w-4 h-4 text-[#89CBDD]" />
                   </NuxtLink>
 
-                  <NuxtLink :to="`/admin/products/${p.id}`" class="p-2 rounded-xl text-[#0D253A] hover:bg-[#D0F2F9] transition-colors" title="Edit Produk">
+                  <!-- Edit via Modal Button -->
+                  <button type="button" class="p-2 rounded-xl text-[#0D253A] hover:bg-[#D0F2F9] transition-colors cursor-pointer" title="Edit Produk (Modal)" @click="openEditModal(p)">
                     <Edit3 class="w-4 h-4 text-[#082838]" />
-                  </NuxtLink>
+                  </button>
 
-                  <!-- Delete Button: Only active for Super Admin -->
+                  <!-- Delete Button: Modal Confirm -->
                   <button v-if="isSuperAdmin" type="button" class="p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors cursor-pointer" title="Hapus Produk (Super Admin)" @click="handleDeleteProduct(p.id, p.name)">
                     <Trash2 class="w-4 h-4" />
                   </button>
@@ -297,7 +299,13 @@ const handleDeleteProduct = async (id: string, name: string) => {
       </div>
     </div>
 
-    <!-- MODAL: TAMBAH PRODUK BARU -->
-    <ProductCreateModal :is-open="isProductModalOpen" @close="closeProductModal" @created="handleProductCreated" />
+    <!-- UNIFIED MODAL: TAMBAH / EDIT PRODUK BARU -->
+    <ProductFormModal
+      :is-open="isProductModalOpen"
+      :mode="productModalMode"
+      :product="selectedProduct"
+      @close="closeProductModal"
+      @saved="handleProductSaved"
+    />
   </div>
 </template>
