@@ -91,7 +91,7 @@ const handleSubmit = async () => {
   } catch (err: any) {
     console.error("Inquiry submission error:", err);
     submissionResponse.value = {
-      message: "Permintaan penawaran harga Anda berhasil dicatat. Tim penjualan Angkasa Karya Media akan segera menindaklanjuti dalam waktu 1 hari kerja.",
+      message: "Permintaan penawaran harga Anda berhasil dicatat. Tim penjualan Angkasa Karya Medika akan segera menindaklanjuti dalam waktu 1 hari kerja.",
       inquiryId: `ARM-${Date.now().toString().slice(-6)}`,
     };
     isSubmitted.value = true;
@@ -238,7 +238,7 @@ onUnmounted(() => {
               </div>
 
               <!-- Notice -->
-              <p class="text-[11.5px] text-[#486581] font-sans leading-relaxed">Prioritas distribusi mencakup wilayah Jabodetabek dan pengiriman nasional resmi. Data Anda hanya digunakan untuk korespondensi penawaran harga Angkasa Karya Media.</p>
+              <p class="text-[11.5px] text-[#486581] font-sans leading-relaxed">Prioritas distribusi mencakup wilayah Jabodetabek dan pengiriman nasional resmi. Data Anda hanya digunakan untuk korespondensi penawaran harga Angkasa Karya Medika.</p>
 
               <!-- Actions -->
               <div class="pt-4 flex items-center justify-end gap-3">

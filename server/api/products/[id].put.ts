@@ -1,47 +1,47 @@
-import { defineEventHandler, getRouterParam, readBody, createError } from 'h3'
-import { useDb } from '../../utils/db'
-import { requireUser } from '../../utils/auth'
-import { isSupabaseConfigured, supabaseUpdateProduct } from '../../utils/supabase'
+/** @format */
+
+import { defineEventHandler, getRouterParam, readBody, createError } from "h3";
+import { useDb } from "../../utils/db";
+import { requireUser } from "../../utils/auth";
+import { isSupabaseConfigured, supabaseUpdateProduct } from "../../utils/supabase";
 
 export default defineEventHandler(async (event) => {
-  await requireUser(event)
-  const id = getRouterParam(event, 'id')
-  const body = await readBody(event)
+  await requireUser(event);
+  const id = getRouterParam(event, "id");
+  const body = await readBody(event);
 
   if (!id) {
-    throw createError({ statusCode: 400, statusMessage: 'Parameter ID diperlukan.' })
+    throw createError({ statusCode: 400, statusMessage: "Parameter ID diperlukan." });
   }
 
   if (isSupabaseConfigured()) {
-    return await supabaseUpdateProduct(id, body)
+    return await supabaseUpdateProduct(id, body);
   }
 
-  const db = useDb()
-  const existing = db.prepare('SELECT id FROM products WHERE id = ?').get(id)
+  const db = useDb();
+  const existing = db.prepare("SELECT id FROM products WHERE id = ?").get(id);
   if (!existing) {
-    throw createError({ statusCode: 404, statusMessage: 'Produk tidak ditemukan.' })
+    throw createError({ statusCode: 404, statusMessage: "Produk tidak ditemukan." });
   }
 
   // Check SKU uniqueness (exclude current product id)
   if (body.sku) {
-    const existingSku = db
-      .prepare('SELECT id, name FROM products WHERE UPPER(sku) = UPPER(?) AND id != ?')
-      .get(body.sku.trim(), id) as any
+    const existingSku = db.prepare("SELECT id, name FROM products WHERE UPPER(sku) = UPPER(?) AND id != ?").get(body.sku.trim(), id) as any;
 
     if (existingSku) {
       throw createError({
         statusCode: 409,
         statusMessage: `Nomor SKU "${body.sku.trim()}" sudah digunakan oleh produk "${existingSku.name}".`,
-      })
+      });
     }
   }
 
-  const cat = db.prepare('SELECT name FROM categories WHERE slug = ?').get(body.categorySlug) as { name: string } | undefined
-  const categoryName = cat ? cat.name : (body.categoryName || body.categorySlug)
+  const cat = db.prepare("SELECT name FROM categories WHERE slug = ?").get(body.categorySlug) as { name: string } | undefined;
+  const categoryName = cat ? cat.name : body.categoryName || body.categorySlug;
 
-  const packagingJson = JSON.stringify(body.packaging || [])
-  const specificationsJson = JSON.stringify(body.specifications || [])
-  const documentsJson = JSON.stringify(body.documents || [])
+  const packagingJson = JSON.stringify(body.packaging || []);
+  const specificationsJson = JSON.stringify(body.specifications || []);
+  const documentsJson = JSON.stringify(body.documents || []);
 
   const stmt = db.prepare(`
     UPDATE products SET
@@ -65,33 +65,13 @@ export default defineEventHandler(async (event) => {
       min_order_quantity = ?,
       updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
-  `)
+  `);
 
-  stmt.run(
-    body.name,
-    body.categorySlug,
-    categoryName,
-    body.sku,
-    body.brand || 'Angkasa Karya Media',
-    body.grade || '',
-    body.casNumber || '',
-    body.chemicalFormula || '',
-    body.shortDescription || '',
-    body.description || '',
-    packagingJson,
-    specificationsJson,
-    documentsJson,
-    body.imageUrl,
-    body.isFeatured ? 1 : 0,
-    body.isVerified ? 1 : 0,
-    body.leadTime,
-    body.minOrderQuantity,
-    id
-  )
+  stmt.run(body.name, body.categorySlug, categoryName, body.sku, body.brand || "Angkasa Karya Medika", body.grade || "", body.casNumber || "", body.chemicalFormula || "", body.shortDescription || "", body.description || "", packagingJson, specificationsJson, documentsJson, body.imageUrl, body.isFeatured ? 1 : 0, body.isVerified ? 1 : 0, body.leadTime, body.minOrderQuantity, id);
 
   return {
     success: true,
-    message: 'Data produk berhasil diperbarui.',
+    message: "Data produk berhasil diperbarui.",
     id,
-  }
-})
+  };
+});

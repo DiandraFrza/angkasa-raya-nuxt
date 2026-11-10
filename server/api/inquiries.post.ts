@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
 
   return {
     success: true,
-    message: "Terima kasih atas permintaan penawaran harga Anda. Tim penjualan Angkasa Karya Media akan meninjau spesifikasi kebutuhan dan mengirimkan penawaran resmi dalam waktu 1 hari kerja.",
+    message: "Terima kasih atas permintaan penawaran harga Anda. Tim penjualan Angkasa Karya Medika akan meninjau spesifikasi kebutuhan dan mengirimkan penawaran resmi dalam waktu 1 hari kerja.",
     inquiryId,
   };
 });

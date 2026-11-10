@@ -1,6 +1,6 @@
 /** @format */
 
-import { DatabaseSync } from "node:sqlite";
+import { createRequire } from "node:module";
 import path from "path";
 import fs from "fs";
 import { hashPassword } from "./crypto";
@@ -8,6 +8,18 @@ import { hashPassword } from "./crypto";
 let dbInstance: any = null;
 
 function createSqliteConnection(dbPath: string) {
+  let DatabaseSync: any = null;
+  try {
+    const req = createRequire(import.meta.url);
+    const sqlite = req("node:sqlite");
+    DatabaseSync = sqlite.DatabaseSync;
+  } catch (err: any) {
+    throw new Error(
+      "Modul 'node:sqlite' tidak tersedia pada runtime ini (memerlukan Node >= 22.5.0). " +
+      "Di lingkungan cloud / Vercel, pastikan SUPABASE_URL dan SUPABASE_KEY telah diisi di Environment Variables Vercel."
+    );
+  }
+
   const rawDb = new DatabaseSync(dbPath);
 
   try {
@@ -150,8 +162,8 @@ export const useDb = () => {
   const settingsCount = db.prepare("SELECT COUNT(*) as count FROM site_settings").get() as { count: number };
   if (!settingsCount || settingsCount.count === 0) {
     const defaultSettings: Record<string, string> = {
-      company_name: "Angkasa Karya Media",
-      company_legal_name: "PT Angkasa Karya Media",
+      company_name: "Angkasa Karya Medika",
+      company_legal_name: "PT Angkasa Karya Medika",
       tagline: "Distribusi Reagen & Alat Laboratorium B2B",
       hero_headline: "Katalog Reagen dan Bahan Laboratorium dengan Informasi yang Jelas.",
       hero_subheadline: "Membantu analis dan tim pengadaan menemukan spesifikasi reagen yang tepat sebelum mengajukan penawaran harga resmi.",

@@ -33,7 +33,7 @@ const { openModal } = useQuoteModal();
           <span class="block font-black text-[#0D2235]">Integritas Pasokan Lab.</span>
           <span class="block font-light text-[#486581] mt-2">Mitra Fasilitas Kesehatan & RS.</span>
         </h1>
-        <p class="text-base sm:text-lg text-[#486581] font-sans font-light leading-relaxed"><strong class="text-[#0D253A] font-semibold">Spesifikasi jelas. Dokumen lengkap.</strong> Angkasa Karya Media hadir sebagai mitra pengadaan B2B yang menjembatani kebutuhan fasilitas kesehatan, laboratorium klinis, dan lembaga riset terhadap reagen berkualitas serta instrumen diagnostik yang andal.</p>
+        <p class="text-base sm:text-lg text-[#486581] font-sans font-light leading-relaxed"><strong class="text-[#0D253A] font-semibold">Spesifikasi jelas. Dokumen lengkap.</strong> Angkasa Karya Medika hadir sebagai mitra pengadaan B2B yang menjembatani kebutuhan fasilitas kesehatan, laboratorium klinis, dan lembaga riset terhadap reagen berkualitas serta instrumen diagnostik yang andal.</p>
       </motion.div>
 
       <!-- Main Overview Card -->

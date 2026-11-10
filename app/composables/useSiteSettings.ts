@@ -20,8 +20,8 @@ export interface SiteSettings {
 }
 
 export const defaultSettings: SiteSettings = {
-  company_name: "Angkasa Karya Media",
-  company_legal_name: "PT Angkasa Karya Media",
+  company_name: "Angkasa Karya Medika",
+  company_legal_name: "PT Angkasa Karya Medika",
   tagline: "Distribusi Reagen & Alat Laboratorium B2B",
   hero_headline: "Katalog Reagen dan Bahan Laboratorium dengan Informasi yang Jelas.",
   hero_subheadline: "Membantu analis dan tim pengadaan menemukan spesifikasi reagen yang tepat sebelum mengajukan penawaran harga resmi.",

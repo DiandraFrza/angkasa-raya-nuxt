@@ -87,7 +87,7 @@ const currentCategoryInfo = computed(() => {
   if (activeCategory.value === "all") {
     return {
       name: "Seluruh Katalog Produk",
-      description: "Menampilkan seluruh sediaan reagen standar, reagen uji rutin, dan lini alat laboratorium dari Angkasa Karya Media.",
+      description: "Menampilkan seluruh sediaan reagen standar, reagen uji rutin, dan lini alat laboratorium dari Angkasa Karya Medika.",
     };
   }
   const cat = getCategoryBySlug(activeCategory.value);

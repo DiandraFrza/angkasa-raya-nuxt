@@ -1,6 +1,6 @@
 <!-- @format -->
 
-# Sistem Desain - Angkasa Karya Media
+# Sistem Desain - Angkasa Karya Medika
 
 **Arah:** _Turquoise_ yang Tegas + Efek Paralaks Menengah
 **Kata Kunci:** Ilmiah yang tegas, otoritatif, kedalaman yang dinamis, presisi, bergaya editorial, kejelasan tinggi
@@ -10,7 +10,7 @@
 
 ## 1. Arah Visual & Filosofi Merek
 
-Angkasa Karya Media meninggalkan estetika warna biru korporat yang steril dan generik untuk menghadirkan **identitas ilmiah yang tegas dan distingtif**. Antarmukanya terasa seperti perpaduan antara publikasi ilmiah bergengsi dan produsen instrumen berpresisi tinggi.
+Angkasa Karya Medika meninggalkan estetika warna biru korporat yang steril dan generik untuk menghadirkan **identitas ilmiah yang tegas dan distingtif**. Antarmukanya terasa seperti perpaduan antara publikasi ilmiah bergengsi dan produsen instrumen berpresisi tinggi.
 
 ### Pilar Utama
 

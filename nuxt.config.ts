@@ -27,7 +27,7 @@ export default defineNuxtConfig({
     pageTransition: { name: "page", mode: "out-in" },
     layoutTransition: { name: "layout", mode: "out-in" },
     head: {
-      title: "Angkasa Karya Media - Katalog Reagen & Bahan Laboratorium B2B",
+      title: "Angkasa Karya Medika - Katalog Reagen & Bahan Laboratorium B2B",
       htmlAttrs: {
         lang: "id",
       },

@@ -1,6 +1,6 @@
 <!-- @format -->
 
-# Spesifikasi Teknis - Angkasa Karya Media (Nuxt 4)
+# Spesifikasi Teknis - Angkasa Karya Medika (Nuxt 4)
 
 **Status Dokumen:** Arsitektur yang Disetujui untuk Migrasi Nuxt 4 (v2.0)
 **Framework:** Nuxt 4 + Vue 3 (Composition API)

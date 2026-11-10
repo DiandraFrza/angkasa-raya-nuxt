@@ -1,6 +1,6 @@
 <!-- @format -->
 
-# Angkasa Karya Media - Rencana Implementasi Strategis (Migrasi ke Nuxt 4)
+# Angkasa Karya Medika - Rencana Implementasi Strategis (Migrasi ke Nuxt 4)
 
 **Status Dokumen:** Cetak Biru Arsitektur & Implementasi yang Disetujui (v2.0)
 **Direktori Proyek:** `angkasa-raya-nuxt` (Proyek Nuxt 4 Terisolasi)
@@ -13,7 +13,7 @@
 
 ## 1. Ringkasan Eksekutif & Dasar Pemikiran Migrasi
 
-Cetak biru ini mendefinisikan migrasi teknis menyeluruh untuk Angkasa Karya Media **Nuxt 4**.
+Cetak biru ini mendefinisikan migrasi teknis menyeluruh untuk Angkasa Karya Medika **Nuxt 4**.
 
 ### Pilar Strategis:
 

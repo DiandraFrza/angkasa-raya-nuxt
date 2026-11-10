@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
       categorySlug: body.categorySlug,
       categoryName: body.categoryName,
       sku: body.sku,
-      brand: body.brand || "Angkasa Karya Media",
+      brand: body.brand || "Angkasa Karya Medika",
       grade: body.grade || "",
       casNumber: body.casNumber || "",
       chemicalFormula: body.chemicalFormula || "",
@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    stmt.run(id, slug, body.name, body.categorySlug, categoryName, body.sku, body.brand || "Angkasa Karya Media", body.grade || "", body.casNumber || "", body.chemicalFormula || "", body.shortDescription || "", body.description || "", packagingJson, specificationsJson, documentsJson, body.imageUrl || "/brand/logo_akm.jpg", body.isFeatured ? 1 : 0, body.isVerified !== undefined ? (body.isVerified ? 1 : 0) : 1, body.leadTime || "Ready Stock Jabodetabek", body.minOrderQuantity || "1 Box");
+    stmt.run(id, slug, body.name, body.categorySlug, categoryName, body.sku, body.brand || "Angkasa Karya Medika", body.grade || "", body.casNumber || "", body.chemicalFormula || "", body.shortDescription || "", body.description || "", packagingJson, specificationsJson, documentsJson, body.imageUrl || "/brand/logo_akm.jpg", body.isFeatured ? 1 : 0, body.isVerified !== undefined ? (body.isVerified ? 1 : 0) : 1, body.leadTime || "Ready Stock Jabodetabek", body.minOrderQuantity || "1 Box");
   }
 
   return {
