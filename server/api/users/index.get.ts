@@ -1,9 +1,14 @@
 import { defineEventHandler } from 'h3'
 import { useDb } from '../../utils/db'
 import { requireSuperAdmin } from '../../utils/auth'
+import { isSupabaseConfigured, supabaseGetUsers } from '../../utils/supabase'
 
-export default defineEventHandler((event) => {
-  requireSuperAdmin(event)
+export default defineEventHandler(async (event) => {
+  await requireSuperAdmin(event)
+
+  if (isSupabaseConfigured()) {
+    return await supabaseGetUsers()
+  }
 
   const db = useDb()
   const users = db

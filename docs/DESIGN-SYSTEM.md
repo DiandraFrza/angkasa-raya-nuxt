@@ -1,6 +1,6 @@
 <!-- @format -->
 
-# Sistem Desain — Angkasa Raya Medika
+# Sistem Desain - Angkasa Karya Media
 
 **Arah:** _Turquoise_ yang Tegas + Efek Paralaks Menengah
 **Kata Kunci:** Ilmiah yang tegas, otoritatif, kedalaman yang dinamis, presisi, bergaya editorial, kejelasan tinggi
@@ -10,14 +10,14 @@
 
 ## 1. Arah Visual & Filosofi Merek
 
-Angkasa Raya Medika meninggalkan estetika warna biru korporat yang steril dan generik untuk menghadirkan **identitas ilmiah yang tegas dan distingtif**. Antarmukanya terasa seperti perpaduan antara publikasi ilmiah bergengsi dan produsen instrumen berpresisi tinggi.
+Angkasa Karya Media meninggalkan estetika warna biru korporat yang steril dan generik untuk menghadirkan **identitas ilmiah yang tegas dan distingtif**. Antarmukanya terasa seperti perpaduan antara publikasi ilmiah bergengsi dan produsen instrumen berpresisi tinggi.
 
 ### Pilar Utama
 
-1. **Dominasi _Turquoise_ yang Tegas:** _Scientific Turquoise_ (`#08AEB3`) berfungsi sebagai jangkar visual utama—menarik perhatian pada elemen _hero_, titik navigasi aktif, tombol _call-to-action_ (CTA) utama, dan status interaktif. Warna ini jauh lebih tegas dan menonjol dibandingkan iterasi sebelumnya.
+1. **Dominasi _Turquoise_ yang Tegas:** _Scientific Turquoise_ (`#08AEB3`) berfungsi sebagai jangkar visual utama-menarik perhatian pada elemen _hero_, titik navigasi aktif, tombol _call-to-action_ (CTA) utama, dan status interaktif. Warna ini jauh lebih tegas dan menonjol dibandingkan iterasi sebelumnya.
 2. **Warna _Deep Navy_ yang Otoritatif:** _Deep Navy_ (`#123B5D`) menyeimbangkan energi warna _turquoise_, memberikan kesan institusional yang kokoh pada judul, bagian struktural yang gelap, serta CTA sekunder.
-3. **Latar _Soft Ivory_:** _Soft Ivory_ (`#F7F7F2`) menggantikan warna abu-abu klinis atau putih murni yang terlalu tajam sebagai latar utama, memberikan kesan hangat, tekstur yang terasa nyata, serta keterbacaan yang tinggi. Warna putih murni (_Pure White_ — `#FFFFFF`) hanya digunakan untuk permukaan konten yang membutuhkan ketajaman visual.
-4. **Aksen _Warm Amber_ yang Terukur:** _Warm Amber_ (`#F2A23A`) digunakan dengan sangat disiplin—khusus untuk peringatan prioritas tinggi, kutipan penting, dan penanda (_badge_) mikro yang krusial.
+3. **Latar _Soft Ivory_:** _Soft Ivory_ (`#F7F7F2`) menggantikan warna abu-abu klinis atau putih murni yang terlalu tajam sebagai latar utama, memberikan kesan hangat, tekstur yang terasa nyata, serta keterbacaan yang tinggi. Warna putih murni (_Pure White_ - `#FFFFFF`) hanya digunakan untuk permukaan konten yang membutuhkan ketajaman visual.
+4. **Aksen _Warm Amber_ yang Terukur:** _Warm Amber_ (`#F2A23A`) digunakan dengan sangat disiplin-khusus untuk peringatan prioritas tinggi, kutipan penting, dan penanda (_badge_) mikro yang krusial.
 5. **Tipografi Editorial & Ruang Kosong Asimetris:** Kontras kuat antara tipografi _Manrope_ yang geometris dan tegas untuk judul, dengan tipografi _DM Sans_ yang fungsional untuk teks teknis; dipadukan dengan ruang kosong yang luas dan terukur, serta tata letak kisi (_grid_) yang asimetris.
 6. **Minimalisme Tanpa Elemen Dekoratif Berlebih:** Menghilangkan elemen yang tidak perlu seperti bingkai kartu (_card wrapper_), bayangan (_drop shadow_) yang tebal, kontainer berbentuk kapsul (_pill-shaped_), serta lencana dekoratif yang tidak bermakna. Tata letak mengandalkan garis pemisah (_divider_) setebal 1px, skala tipografi, dan penyelarasan elemen yang disengaja.
 
@@ -66,7 +66,7 @@ Sistem desain ini secara ketat menggunakan **dua keluarga fon**:
 | **H3 (Sub-judul / Kartu)**   | Manrope      | 20-24px          | 600 (SemiBold)       | 1,30         | -0,01em                  |
 | **Paragraf Pembuka**         | DM Sans      | 18-20px          | 400 (Regular)        | 1,60         | normal                   |
 | **Teks ​​Isi (_Body Text_)** | DM Sans      | 15-16px          | 400 (Regular)        | 1,65         | normal                   |
-| **Teknis / Spesifikasi**     | DM Sans      | 13-14px          | 500 (Medium)         | —            | —                        |     | 1.50 | +0.01em |
+| **Teknis / Spesifikasi**     | DM Sans      | 13-14px          | 500 (Medium)         | -            | -                        |     | 1.50 | +0.01em |
 | **Micro / Eyebrow**          | Manrope      | 11-12px          | 700 (Bold)           | 1.40         | +0.08em (Huruf Kapital)  |
 
 ---
@@ -99,7 +99,7 @@ Untuk menciptakan estetika modern tanpa garis tepi (_borderless_), sistem menggu
 
 ## 5. Animasi & Arah Paralaks (Intensitas Menengah)
 
-Animasi dijalankan menggunakan **Motion for Vue (`motion-v`)**. Tingkat intensitas yang ditetapkan adalah **MENENGAH (MEDIUM)**: terarah, terasa nyata, dan spasial—menciptakan kesan kedalaman yang presisi tanpa efek yang berlebihan layaknya permainan atau pertunjukan sirkus.
+Animasi dijalankan menggunakan **Motion for Vue (`motion-v`)**. Tingkat intensitas yang ditetapkan adalah **MENENGAH (MEDIUM)**: terarah, terasa nyata, dan spasial-menciptakan kesan kedalaman yang presisi tanpa efek yang berlebihan layaknya permainan atau pertunjukan sirkus.
 
 ### 5.1 Paralaks & Pergerakan Berlapis
 
@@ -118,7 +118,7 @@ Animasi dijalankan menggunakan **Motion for Vue (`motion-v`)**. Tingkat intensit
 - Tombol Utama (Warna Pirus/Turquoise): Saat kursor diarahkan (_hover_), tombol akan sedikit terangkat dengan efek cahaya (`translateY(-2px)`) dan bayangan yang lebih pekat (`0 8px 20px -4px rgba(8, 174, 179, 0.35)`).
 - Ikon Panah pada Tombol: Bergeser $+4\text{px}$ secara horizontal saat kursor diarahkan, dengan efek pegas (_spring physics_) yang tajam dan responsif.
 - **Interaksi Kartu Produk (_Hover_):** Gambar produk mengalami perubahan skala secara halus ($1,02\times$ hingga $1,03\times$) selama 350ms, sementara kontainer kartu sedikit terangkat atau warna garis tepinya (_border_) berubah menjadi warna Pirus.
-- **Transisi _Header_ Saat Digulir:** Setelah digulir lebih dari 20px, latar belakang _header_ akan berubah secara mulus dari transparan/padat menjadi efek buram ala kaca (_glassmorphic blur_ — `backdrop-blur-md bg-white/90 border-b border-[#DDE6ED]`).
+- **Transisi _Header_ Saat Digulir:** Setelah digulir lebih dari 20px, latar belakang _header_ akan berubah secara mulus dari transparan/padat menjadi efek buram ala kaca (_glassmorphic blur_ - `backdrop-blur-md bg-white/90 border-b border-[#DDE6ED]`).
 
 ### 5.4 Pembatasan Gerakan & Aksesibilitas
 

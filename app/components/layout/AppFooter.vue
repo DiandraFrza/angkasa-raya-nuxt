@@ -79,7 +79,7 @@ const { categories } = useCatalog();
 
           <div class="pt-3">
             <button type="button" class="group inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13.5px] transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer w-full sm:w-auto" @click="openModal()">
-              <span>Ajukan Daftar Kebutuhan (RFQ)</span>
+              <span>Ajukan Daftar Kebutuhan </span>
               <ArrowUpRight class="w-4 h-4 text-[#082838] transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform duration-300" />
             </button>
           </div>

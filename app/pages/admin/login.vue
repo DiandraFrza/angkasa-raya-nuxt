@@ -11,7 +11,7 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "Login Administrator — PT Angkasa Raya Medika",
+  title: "Login Administrator - PT Angkasa Karya Media",
 });
 
 const route = useRoute();

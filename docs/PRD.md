@@ -1,11 +1,11 @@
 <!-- @format -->
 
-# PRD — FZA Scientific Website
+# PRD - FZA Scientific Website
 
 **Document status:** Updated for Nuxt 4 Migration (v2.0)  
 **Brand:** FZA Scientific  
 **Product type:** B2B company profile and scientific product catalog  
-**Primary conversion:** Product inquiry / Request a Quotation (RFQ)  
+**Primary conversion:** Product inquiry / Request a Quotation  
 **Initial release:** Informational B2B website; no online checkout or consumer cart  
 **Architecture:** Nuxt 4 (Vue 3, TypeScript, Tailwind CSS, Motion for Vue, SSG)  
 **Visual Direction:** Bold Turquoise + Medium Parallax
@@ -126,7 +126,7 @@ _(Rule: Category names, spellings, and hierarchies must remain intact. Do not in
   - Category breadcrumb navigation.
   - High-resolution product imagery (or high-fidelity placeholder graphic).
   - Short description and comprehensive technical overview.
-  - Specifications table (CAS Number, Formula, Grade, Pack Sizes, Purity) — unverified attributes display `[PLACEHOLDER: Pending Verification]`.
+  - Specifications table (CAS Number, Formula, Grade, Pack Sizes, Purity) - unverified attributes display `[PLACEHOLDER: Pending Verification]`.
   - Downloadable documentation links (SDS, Technical Data Sheet) where files exist.
   - Primary CTA: **"Request a Quote"** (opens modal prefilled with product identity).
   - Secondary CTA: Direct WhatsApp inquiry link with pre-composed message.
@@ -191,7 +191,7 @@ _(Rule: Category names, spellings, and hierarchies must remain intact. Do not in
 
 1. **Zero Fabrication:** Under no circumstance will imaginary product specifications, batch numbers, chemical properties, customer testimonials, or partner logos be invented.
 2. **Explicit Placeholders:** Any required UI element lacking verified company data must be styled with the standard tag:  
-   `[PLACEHOLDER — REPLACE BEFORE LAUNCH]`
+   `[PLACEHOLDER - REPLACE BEFORE LAUNCH]`
 3. **Catalog Data File:** All product records reside in a strongly-typed TypeScript structure (`data/products.ts`) using explicit verification booleans (`isVerified: boolean`).
 
 ---

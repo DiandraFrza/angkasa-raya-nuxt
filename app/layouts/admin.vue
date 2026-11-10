@@ -2,25 +2,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from "vue";
-import {
-  LayoutDashboard,
-  Package,
-  Inbox,
-  PlusCircle,
-  Settings,
-  ExternalLink,
-  Menu,
-  X,
-  Layers,
-  ChevronRight,
-  ShieldCheck,
-  User,
-  Users,
-  LogOut,
-  Bell,
-  Volume2,
-  VolumeX,
-} from "lucide-vue-next";
+import { LayoutDashboard, Package, Inbox, PlusCircle, Settings, ExternalLink, Menu, X, Layers, ChevronRight, ShieldCheck, User, Users, LogOut, Bell, Volume2, VolumeX } from "lucide-vue-next";
 import { useSiteSettings } from "~/composables/useSiteSettings";
 import { useAdminAuth } from "~/composables/useAdminAuth";
 import { useCafeNotification } from "~/composables/useCafeNotification";
@@ -44,7 +26,7 @@ const handleLogout = async () => {
 };
 
 const handleOpenInquiry = (inquiryId: string) => {
-  router.push({ path: "/admin", query: { tab: "inquiries", focus: inquiryId } });
+  router.push({ path: "/admin/inquiries", query: { focus: inquiryId } });
 };
 
 // RFQ Real-time Watcher with Cafe Shop Chime
@@ -91,17 +73,12 @@ onUnmounted(() => {
         <div>
           <span class="font-manrope font-bold text-[14px] text-[#0D2235] block leading-tight">{{ settings.company_name }}</span>
           <span class="text-[10.5px] font-manrope font-bold text-[#1B7E98] uppercase">
-            {{ isSuperAdmin ? 'Super Admin' : 'Admin Biasa' }}
+            {{ isSuperAdmin ? "Super Admin" : "Admin Biasa" }}
           </span>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button
-          type="button"
-          :title="isSoundEnabled ? 'Suara Cafe Chime Aktif' : 'Suara Nonaktif'"
-          class="p-2 rounded-xl bg-[#E9F8FF] text-[#0D253A]"
-          @click="toggleSound"
-        >
+        <button type="button" :title="isSoundEnabled ? 'Suara Cafe Chime Aktif' : 'Suara Nonaktif'" class="p-2 rounded-xl bg-[#E9F8FF] text-[#0D253A]" @click="toggleSound">
           <Volume2 v-if="isSoundEnabled" class="w-4 h-4 text-emerald-600" />
           <VolumeX v-else class="w-4 h-4 text-gray-400" />
         </button>
@@ -116,10 +93,7 @@ onUnmounted(() => {
     <div v-if="isSidebarOpen" class="fixed inset-0 bg-[#0D253A]/40 backdrop-blur-xs z-40 md:hidden transition-opacity" @click="closeSidebar" />
 
     <!-- LEFT SIDEBAR -->
-    <aside
-      class="fixed inset-y-0 left-0 z-50 w-72 bg-white flex flex-col justify-between transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen md:sticky md:top-0 shrink-0 shadow-sm border-r border-[#D0F2F9]/60"
-      :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
-    >
+    <aside class="fixed inset-y-0 left-0 z-50 w-72 bg-white flex flex-col justify-between transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen md:sticky md:top-0 shrink-0 shadow-sm border-r border-[#D0F2F9]/60" :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'">
       <div class="p-6 space-y-6 overflow-y-auto">
         <!-- Brand & Identity -->
         <NuxtLink to="/admin" class="flex items-center gap-3.5 group" @click="closeSidebar">
@@ -130,157 +104,80 @@ onUnmounted(() => {
             <span class="font-manrope font-extrabold text-[15px] text-[#0D2235] block leading-tight truncate">
               {{ settings.company_name }}
             </span>
-            <span class="text-[11px] font-manrope font-bold uppercase tracking-wider text-[#1B7E98] block mt-0.5">
-              Panel Administrator
-            </span>
+            <span class="text-[11px] font-manrope font-bold uppercase tracking-wider text-[#1B7E98] block mt-0.5"> Panel Administrator </span>
           </div>
         </NuxtLink>
-
-        <!-- Logged-in User Profile Badge -->
-        <div class="p-3.5 rounded-2xl bg-gradient-to-r from-[#E9F8FF] to-[#D0F2F9]/50 border border-[#ADDFF1]/40 space-y-2">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2 min-w-0">
-              <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-[#082838] shadow-xs shrink-0 font-manrope font-bold text-xs uppercase">
-                {{ user?.name ? user.name.charAt(0) : 'A' }}
-              </div>
-              <div class="min-w-0">
-                <div class="font-manrope font-bold text-[13px] text-[#0D2235] truncate leading-tight">
-                  {{ user?.name || 'Administrator' }}
-                </div>
-                <div class="text-[10.5px] text-[#486581] font-mono truncate">
-                  @{{ user?.username || 'admin' }}
-                </div>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              class="p-1.5 rounded-xl text-[#486581] hover:text-red-600 hover:bg-white/80 transition-colors cursor-pointer shrink-0"
-              title="Keluar Sesi"
-              @click="handleLogout"
-            >
-              <LogOut class="w-4 h-4" />
-            </button>
-          </div>
-
-          <div class="flex items-center justify-between pt-1 border-t border-[#ADDFF1]/30 text-[10.5px]">
-            <span class="font-manrope font-bold">Hak Akses:</span>
-            <span
-              v-if="isSuperAdmin"
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#A3EEEC] text-[#054E4C] font-manrope font-extrabold uppercase tracking-wide"
-            >
-              <ShieldCheck class="w-3 h-3" />
-              Super Admin
-            </span>
-            <span
-              v-else
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#ADDFF1]/60 text-[#082838] font-manrope font-bold uppercase tracking-wide"
-            >
-              <User class="w-3 h-3" />
-              Admin Biasa
-            </span>
-          </div>
-        </div>
-
         <!-- Navigation Section -->
         <nav class="space-y-1.5" aria-label="Navigasi Admin">
-          <div class="text-[11px] font-manrope font-extrabold uppercase tracking-wider text-[#486581]/70 px-3 pt-2 pb-1">
-            Menu Operasional
-          </div>
+          <div class="text-[11px] font-manrope font-extrabold uppercase tracking-wider text-[#486581]/70 px-3 pt-2 pb-1">Menu Operasional</div>
 
-          <!-- 1. Ringkasan & Katalog Produk -->
-          <NuxtLink
-            to="/admin"
-            class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-bold transition-all cursor-pointer"
-            :class="route.path === '/admin' && !route.query.tab ? 'bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838] hover:bg-[#E9F8FF]'"
-            @click="closeSidebar"
-          >
+          <!-- 1. Dashboard -->
+          <NuxtLink to="/admin" class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-bold transition-all cursor-pointer" :class="route.path === '/admin' ? 'bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838] hover:bg-[#E9F8FF]'" @click="closeSidebar">
             <div class="flex items-center gap-3">
               <LayoutDashboard class="w-4 h-4 shrink-0" />
-              <span>Kelola Produk & RFQ</span>
+              <span>Dashboard</span>
             </div>
-            <ChevronRight v-if="route.path === '/admin' && !route.query.tab" class="w-3.5 h-3.5 text-[#082838]" />
+            <ChevronRight v-if="route.path === '/admin'" class="w-3.5 h-3.5 text-[#082838]" />
           </NuxtLink>
 
-          <!-- 2. Tambah Produk Baru -->
-          <NuxtLink
-            to="/admin/products/create"
-            class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-bold transition-all cursor-pointer"
-            :class="route.path === '/admin/products/create' ? 'bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838] hover:bg-[#E9F8FF]'"
-            @click="closeSidebar"
-          >
+          <!-- 2. Daftar Produk -->
+          <NuxtLink to="/admin/products" class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-bold transition-all cursor-pointer" :class="route.path.startsWith('/admin/products') ? 'bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838] hover:bg-[#E9F8FF]'" @click="closeSidebar">
             <div class="flex items-center gap-3">
-              <PlusCircle class="w-4 h-4 shrink-0" />
-              <span>Tambah Produk Baru</span>
+              <Package class="w-4 h-4 shrink-0" />
+              <span>Daftar Produk</span>
             </div>
-            <ChevronRight v-if="route.path === '/admin/products/create'" class="w-3.5 h-3.5 text-[#082838]" />
+            <ChevronRight v-if="route.path.startsWith('/admin/products')" class="w-3.5 h-3.5 text-[#082838]" />
           </NuxtLink>
 
           <!-- 3. Kategori Produk -->
-          <NuxtLink
-            to="/admin?tab=categories"
-            class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-bold transition-all cursor-pointer"
-            :class="route.query.tab === 'categories' ? 'bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838] hover:bg-[#E9F8FF]'"
-            @click="closeSidebar"
-          >
+          <NuxtLink to="/admin/categories" class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-bold transition-all cursor-pointer" :class="route.path.startsWith('/admin/categories') ? 'bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838] hover:bg-[#E9F8FF]'" @click="closeSidebar">
             <div class="flex items-center gap-3">
               <Layers class="w-4 h-4 shrink-0" />
               <span>Kategori Produk</span>
             </div>
-            <ChevronRight v-if="route.query.tab === 'categories'" class="w-3.5 h-3.5 text-[#082838]" />
+            <ChevronRight v-if="route.path.startsWith('/admin/categories')" class="w-3.5 h-3.5 text-[#082838]" />
           </NuxtLink>
 
-          <!-- 4. Manajemen Akun Admin (Super Admin Only) -->
-          <NuxtLink
-            v-if="isSuperAdmin"
-            to="/admin?tab=users"
-            class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-bold transition-all cursor-pointer"
-            :class="route.query.tab === 'users' ? 'bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838] hover:bg-[#E9F8FF]'"
-            @click="closeSidebar"
-          >
+          <!-- 4. Permintaan Penawaran  -->
+          <NuxtLink to="/admin/inquiries" class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-bold transition-all cursor-pointer" :class="route.path.startsWith('/admin/inquiries') ? 'bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838] hover:bg-[#E9F8FF]'" @click="closeSidebar">
+            <div class="flex items-center gap-3">
+              <Inbox class="w-4 h-4 shrink-0" />
+              <span>Permintaan Penawaran</span>
+            </div>
+            <span v-if="lastInquiryCount && lastInquiryCount > 0" class="px-2 py-0.5 rounded-full bg-[#89CBDD] text-[#082838] text-[11px] font-bold">
+              {{ lastInquiryCount }}
+            </span>
+          </NuxtLink>
+
+          <!-- 5. Manajemen Akun Admin (Super Admin Only) -->
+          <NuxtLink v-if="isSuperAdmin" to="/admin/users" class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-bold transition-all cursor-pointer" :class="route.path.startsWith('/admin/users') ? 'bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838] hover:bg-[#E9F8FF]'" @click="closeSidebar">
             <div class="flex items-center gap-3">
               <Users class="w-4 h-4 shrink-0 text-[#1B7E98]" />
-              <span>Kelola Akun Admin</span>
+              <span>Kelola Akun</span>
             </div>
-            <span class="text-[9.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-[#A3EEEC] text-[#054E4C]">Full</span>
+            <!-- <span class="text-[9.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-[#A3EEEC] text-[#054E4C]">Super</span> -->
           </NuxtLink>
 
-          <!-- 5. Pengaturan Website (Super Admin Only / High Level) -->
-          <NuxtLink
-            v-if="isSuperAdmin"
-            to="/admin/settings"
-            class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-bold transition-all cursor-pointer"
-            :class="route.path === '/admin/settings' ? 'bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838] hover:bg-[#E9F8FF]'"
-            @click="closeSidebar"
-          >
+          <!-- 6. Pengaturan Website (Super Admin Only / High Level) -->
+          <NuxtLink v-if="isSuperAdmin" to="/admin/settings" class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-bold transition-all cursor-pointer" :class="route.path.startsWith('/admin/settings') ? 'bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838] hover:bg-[#E9F8FF]'" @click="closeSidebar">
             <div class="flex items-center gap-3">
               <Settings class="w-4 h-4 shrink-0" />
               <span>Pengaturan Website</span>
             </div>
-            <ChevronRight v-if="route.path === '/admin/settings'" class="w-3.5 h-3.5 text-[#082838]" />
+            <ChevronRight v-if="route.path.startsWith('/admin/settings')" class="w-3.5 h-3.5 text-[#082838]" />
           </NuxtLink>
 
-          <div class="text-[11px] font-manrope font-extrabold uppercase tracking-wider text-[#486581]/70 px-3 pt-5 pb-1">
-            Pintasan Cepat
-          </div>
+          <div class="text-[11px] font-manrope font-extrabold uppercase tracking-wider text-[#486581]/70 px-3 pt-5 pb-1">Pintasan Cepat</div>
 
           <!-- Lihat Website Publik -->
-          <NuxtLink
-            to="/"
-            target="_blank"
-            class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-semibold text-[#0D253A] hover:bg-[#E9F8FF] transition-all cursor-pointer"
-          >
+          <NuxtLink to="/" target="_blank" class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-semibold text-[#0D253A] hover:bg-[#E9F8FF] transition-all cursor-pointer">
             <div class="flex items-center gap-3">
               <ExternalLink class="w-4 h-4 text-[#89CBDD] shrink-0" />
               <span>Lihat Website Publik</span>
             </div>
           </NuxtLink>
 
-          <NuxtLink
-            to="/products"
-            target="_blank"
-            class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-semibold text-[#0D253A] hover:bg-[#E9F8FF] transition-all cursor-pointer"
-          >
+          <NuxtLink to="/products" target="_blank" class="flex items-center justify-between px-3.5 py-3 rounded-2xl text-[13.5px] font-manrope font-semibold text-[#0D253A] hover:bg-[#E9F8FF] transition-all cursor-pointer">
             <div class="flex items-center gap-3">
               <Layers class="w-4 h-4 text-[#89CBDD] shrink-0" />
               <span>Katalog Publik</span>
@@ -293,36 +190,33 @@ onUnmounted(() => {
       <div class="p-5 bg-[#E9F8FF]/70 space-y-3 rounded-t-3xl border-t border-[#D0F2F9]/60">
         <div class="flex items-center justify-between text-[11.5px] text-[#486581]">
           <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span class="font-manrope font-bold text-[#0D253A]">Status Sistem</span>
+            <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-[#082838] shadow-xs shrink-0 font-manrope font-bold text-xs uppercase">
+              {{ user?.name ? user.name.charAt(0) : "A" }}
+            </div>
+            <div class="min-w-0">
+              <div class="font-manrope font-bold text-[13px] text-[#0D2235] truncate leading-tight">
+                {{ user?.name || "Administrator" }}
+              </div>
+              <div class="text-[10.5px] text-[#486581] font-mono truncate">@{{ user?.username || "admin" }}</div>
+            </div>
           </div>
-          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#A3EEEC] text-[#054E4C] font-bold">Online</span>
+          <!-- <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#A3EEEC] text-[#054E4C] font-bold">Online</span> -->
         </div>
 
         <!-- Cafe Chime Sound Control -->
         <div class="flex items-center justify-between pt-1 text-[11px] text-[#486581]">
           <div class="flex items-center gap-1.5">
-            <Bell class="w-3.5 h-3.5 text-[#1B7E98]" />
-            <span>Notif RFQ (Cafe Chime)</span>
+            <button type="button" class="p-1.5 rounded-xl text-[#486581] hover:text-red-600 hover:bg-white/80 transition-colors cursor-pointer shrink-0" title="Keluar Sesi" @click="handleLogout"><LogOut class="w-4 h-4" /></button>
+            <!-- <Bell class="w-3.5 h-3.5 text-[#981b36]" /> -->
+            <span class="text-[11px] font-medium">Logout</span>
           </div>
           <div class="flex items-center gap-1">
-            <button
-              type="button"
-              class="px-2 py-0.5 rounded-lg bg-white hover:bg-[#D0F2F9] text-[#082838] font-bold text-[10px] cursor-pointer shadow-2xs border border-[#ADDFF1]/60"
-              title="Uji bunyi lonceng cafe"
-              @click="playCafeChime"
-            >
-              Tes Bunyi
-            </button>
-            <button
-              type="button"
-              class="p-1 rounded-lg text-[#082838] hover:bg-white cursor-pointer"
-              :title="isSoundEnabled ? 'Nonaktifkan bunyi' : 'Aktifkan bunyi'"
-              @click="toggleSound"
-            >
+            <!-- <span>Logout</span> -->
+            <!-- <button type="button" class="px-2 py-0.5 rounded-lg bg-white hover:bg-[#D0F2F9] text-[#082838] font-bold text-[10px] cursor-pointer shadow-2xs border border-[#ADDFF1]/60" title="Uji bunyi lonceng cafe" @click="playCafeChime">Tes Bunyi</button>
+            <button type="button" class="p-1 rounded-lg text-[#082838] hover:bg-white cursor-pointer" :title="isSoundEnabled ? 'Nonaktifkan bunyi' : 'Aktifkan bunyi'" @click="toggleSound">
               <Volume2 v-if="isSoundEnabled" class="w-3.5 h-3.5 text-emerald-600" />
               <VolumeX v-else class="w-3.5 h-3.5 text-gray-400" />
-            </button>
+            </button> -->
           </div>
         </div>
       </div>
@@ -332,8 +226,8 @@ onUnmounted(() => {
     <div class="flex-1 flex flex-col min-w-0">
       <main class="flex-1 p-5 sm:p-8 lg:p-10 max-w-7xl w-full mx-auto">
         <slot />
-        <div class="pt-8 mt-12 flex items-center justify-between text-[11.5px] font-sans text-[#486581] border-t border-[#D0F2F9]/40">
-          <span>Panel Manajemen &bull; PT Angkasa Raya Medika</span>
+        <!-- Ubah justify-between jadi justify-end -->
+        <div class="pt-8 mt-12 flex items-center justify-end text-[11.5px] font-sans text-[#486581] border-t border-[#D0F2F9]/40">
           <span>&lt;/&gt; Craft by ❤️ AvenBytes</span>
         </div>
       </main>

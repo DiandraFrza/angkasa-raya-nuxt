@@ -1,19 +1,26 @@
+/** @format */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    background-color: #E9F8FF;
-    color: #0D2235;
-    font-family: 'DM Sans', sans-serif;
+    background-color: #e9f8ff;
+    color: #0d2235;
+    font-family: "DM Sans", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Manrope', sans-serif;
-    color: #0D2235;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Manrope", sans-serif;
+    color: #0d2235;
     letter-spacing: -0.02em;
   }
 }
@@ -25,16 +32,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #E9F8FF;
+  background: #e9f8ff;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ADDFF1;
+  background: #addff1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #89CBDD;
+  background: #89cbdd;
 }
 
 /* Smooth Global Nuxt Page & Layout Transitions */
@@ -42,7 +49,9 @@
 .page-leave-active,
 .layout-enter-active,
 .layout-leave-active {
-  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .page-enter-from,
@@ -87,20 +96,36 @@
 }
 
 /* Stagger Utilities */
-.delay-100 { animation-delay: 100ms; }
-.delay-150 { animation-delay: 150ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
-.delay-500 { animation-delay: 500ms; }
-.delay-600 { animation-delay: 600ms; }
+.delay-100 {
+  animation-delay: 100ms;
+}
+.delay-150 {
+  animation-delay: 150ms;
+}
+.delay-200 {
+  animation-delay: 200ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}
+.delay-400 {
+  animation-delay: 400ms;
+}
+.delay-500 {
+  animation-delay: 500ms;
+}
+.delay-600 {
+  animation-delay: 600ms;
+}
 
 /* Elegant, Natural Card Elevation (No harsh/colored borders) */
 .card-natural {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border-radius: 1.5rem;
   box-shadow: 0 4px 20px -2px rgba(13, 37, 58, 0.05);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-natural:hover {
@@ -110,13 +135,25 @@
 
 /* Tasteful Micro-animations for CTAs */
 @keyframes float-subtle {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-4px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
 @keyframes pulse-subtle {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.94; transform: scale(1.02); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.94;
+    transform: scale(1.02);
+  }
 }
 
 .animate-float-subtle {

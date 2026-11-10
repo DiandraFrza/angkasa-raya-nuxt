@@ -16,7 +16,7 @@ import ProductSearch from "~/components/products/ProductSearch.vue";
 const { settings } = useSiteSettings();
 
 useSeoMeta({
-  title: () => `Katalog Produk Reagen & Alat Laboratorium — ${settings.value.company_name}`,
+  title: () => `Katalog Produk Reagen & Alat Laboratorium`,
   description: "Telusuri katalog reagen diagnostik, bahan acuan standar, dan alat laboratorium otomatis dengan spesifikasi terverifikasi.",
 });
 
@@ -87,7 +87,7 @@ const currentCategoryInfo = computed(() => {
   if (activeCategory.value === "all") {
     return {
       name: "Seluruh Katalog Produk",
-      description: "Menampilkan seluruh sediaan reagen standar, reagen uji rutin, dan lini alat laboratorium dari Angkasa Raya Medika.",
+      description: "Menampilkan seluruh sediaan reagen standar, reagen uji rutin, dan lini alat laboratorium dari Angkasa Karya Media.",
     };
   }
   const cat = getCategoryBySlug(activeCategory.value);

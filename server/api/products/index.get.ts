@@ -1,11 +1,17 @@
 import { defineEventHandler, getQuery } from 'h3'
 import { useDb } from '../../utils/db'
+import { isSupabaseConfigured, supabaseGetProducts } from '../../utils/supabase'
 
-export default defineEventHandler((event) => {
-  const db = useDb()
+export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const category = query.category as string | undefined
   const search = query.q as string | undefined
+
+  if (isSupabaseConfigured()) {
+    return await supabaseGetProducts(category, search)
+  }
+
+  const db = useDb()
 
   let sql = 'SELECT * FROM products WHERE 1=1'
   const params: any[] = []

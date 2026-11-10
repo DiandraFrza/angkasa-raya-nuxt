@@ -1,9 +1,15 @@
 import { defineEventHandler } from 'h3'
 import { useDb } from '../../utils/db'
 import { requireUser } from '../../utils/auth'
+import { isSupabaseConfigured, supabaseGetInquiries } from '../../utils/supabase'
 
-export default defineEventHandler((event) => {
-  requireUser(event)
+export default defineEventHandler(async (event) => {
+  await requireUser(event)
+
+  if (isSupabaseConfigured()) {
+    return await supabaseGetInquiries()
+  }
+
   const db = useDb()
   const rows = db.prepare('SELECT * FROM inquiries ORDER BY created_at DESC').all() as any[]
 

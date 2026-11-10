@@ -1,10 +1,10 @@
 import { defineEventHandler, getRouterParam, readBody, createError } from 'h3'
 import { useDb } from '../../utils/db'
 import { requireUser } from '../../utils/auth'
+import { isSupabaseConfigured, supabaseUpdateProduct } from '../../utils/supabase'
 
 export default defineEventHandler(async (event) => {
-  requireUser(event)
-  const db = useDb()
+  await requireUser(event)
   const id = getRouterParam(event, 'id')
   const body = await readBody(event)
 
@@ -12,6 +12,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Parameter ID diperlukan.' })
   }
 
+  if (isSupabaseConfigured()) {
+    return await supabaseUpdateProduct(id, body)
+  }
+
+  const db = useDb()
   const existing = db.prepare('SELECT id FROM products WHERE id = ?').get(id)
   if (!existing) {
     throw createError({ statusCode: 404, statusMessage: 'Produk tidak ditemukan.' })
@@ -67,7 +72,7 @@ export default defineEventHandler(async (event) => {
     body.categorySlug,
     categoryName,
     body.sku,
-    body.brand || 'Angkasa Raya Medika',
+    body.brand || 'Angkasa Karya Media',
     body.grade || '',
     body.casNumber || '',
     body.chemicalFormula || '',
@@ -76,17 +81,17 @@ export default defineEventHandler(async (event) => {
     packagingJson,
     specificationsJson,
     documentsJson,
-    body.imageUrl || '/brand/logo_akm.jpg',
+    body.imageUrl,
     body.isFeatured ? 1 : 0,
     body.isVerified ? 1 : 0,
-    body.leadTime || 'Ready Stock Jabodetabek',
-    body.minOrderQuantity || '1 Box',
+    body.leadTime,
+    body.minOrderQuantity,
     id
   )
 
   return {
     success: true,
-    message: 'Data produk berhasil diperbarui di SQLite.',
+    message: 'Data produk berhasil diperbarui.',
     id,
   }
 })

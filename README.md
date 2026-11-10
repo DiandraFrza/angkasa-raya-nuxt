@@ -1,3 +1,5 @@
+<!-- @format -->
+
 # Nuxt Content Starter
 
 Look at the [Nuxt Content documentation](https://content.nuxt.com) to learn more.

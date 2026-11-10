@@ -1,3 +1,5 @@
+<!-- @format -->
+
 <template>
   <div class="alert">
     <slot></slot>
@@ -8,9 +10,9 @@
 const { color } = defineProps({
   color: {
     type: String,
-    default: 'orange'
-  }
-})
+    default: "orange",
+  },
+});
 </script>
 
 <style scoped>

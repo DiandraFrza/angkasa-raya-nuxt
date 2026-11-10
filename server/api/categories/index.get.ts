@@ -1,7 +1,12 @@
 import { defineEventHandler } from 'h3'
 import { useDb } from '../../utils/db'
+import { isSupabaseConfigured, supabaseGetCategories } from '../../utils/supabase'
 
-export default defineEventHandler(() => {
+export default defineEventHandler(async () => {
+  if (isSupabaseConfigured()) {
+    return await supabaseGetCategories()
+  }
+
   const db = useDb()
   const rows = db.prepare('SELECT * FROM categories ORDER BY id ASC').all() as any[]
 

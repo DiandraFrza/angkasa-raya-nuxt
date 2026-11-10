@@ -1,11 +1,13 @@
+<!-- @format -->
+
 <script setup lang="ts">
-import { ShieldCheck, FileSpreadsheet, CheckCircle2 } from 'lucide-vue-next'
-import type { ProductSpecification } from '~/types/catalog'
-import PlaceholderBadge from '~/components/common/PlaceholderBadge.vue'
+import { ShieldCheck, FileSpreadsheet, CheckCircle2 } from "lucide-vue-next";
+import type { ProductSpecification } from "~/types/catalog";
+import PlaceholderBadge from "~/components/common/PlaceholderBadge.vue";
 
 defineProps<{
-  specifications: ProductSpecification[]
-}>()
+  specifications: ProductSpecification[];
+}>();
 </script>
 
 <template>
@@ -17,12 +19,8 @@ defineProps<{
           <FileSpreadsheet class="w-4 h-4" />
         </div>
         <div>
-          <h4 class="font-manrope font-extrabold text-[14px] text-[#0D2235] tracking-wide uppercase">
-            Spesifikasi & Lembar Parameter Teknis
-          </h4>
-          <span class="text-[11.5px] text-[#486581] font-sans">
-            Data acuan pengujian laboratorium terverifikasi
-          </span>
+          <h4 class="font-manrope font-extrabold text-[14px] text-[#0D2235] tracking-wide uppercase">Spesifikasi & Lembar Parameter Teknis</h4>
+          <span class="text-[11.5px] text-[#486581] font-sans"> Data acuan pengujian laboratorium terverifikasi </span>
         </div>
       </div>
 
@@ -34,12 +32,7 @@ defineProps<{
 
     <!-- Specifications Table Rows -->
     <div v-if="specifications && specifications.length > 0" class="divide-y divide-[#D0F2F9]/40">
-      <div
-        v-for="(spec, index) in specifications"
-        :key="index"
-        class="p-4 sm:p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[13.5px] transition-colors"
-        :class="index % 2 === 0 ? 'bg-white' : 'bg-[#E9F8FF]/30'"
-      >
+      <div v-for="(spec, index) in specifications" :key="index" class="p-4 sm:p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[13.5px] transition-colors" :class="index % 2 === 0 ? 'bg-white' : 'bg-[#E9F8FF]/30'">
         <!-- Parameter Label Pill -->
         <div class="sm:w-1/3 shrink-0">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-[#E9F8FF] text-[#082838] font-manrope font-semibold text-[12.5px]">
@@ -59,8 +52,6 @@ defineProps<{
     </div>
 
     <!-- Empty State -->
-    <div v-else class="p-8 text-center text-[#486581] text-[13.5px]">
-      Lembar spesifikasi teknis lengkap untuk sediaan ini dapat diminta melalui permohonan penawaran resmi.
-    </div>
+    <div v-else class="p-8 text-center text-[#486581] text-[13.5px]">Lembar spesifikasi teknis lengkap untuk sediaan ini dapat diminta melalui permohonan penawaran resmi.</div>
   </div>
 </template>

@@ -1,11 +1,52 @@
 /** @format */
 
-import Database from "better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
 import path from "path";
 import fs from "fs";
 import { hashPassword } from "./crypto";
 
-let dbInstance: Database.Database | null = null;
+let dbInstance: any = null;
+
+function createSqliteConnection(dbPath: string) {
+  const rawDb = new DatabaseSync(dbPath);
+
+  try {
+    rawDb.exec("PRAGMA foreign_keys = ON;");
+    rawDb.exec("PRAGMA journal_mode = WAL;");
+  } catch {}
+
+  return {
+    exec: (sql: string) => rawDb.exec(sql),
+    prepare: (sql: string) => {
+      const stmt = rawDb.prepare(sql);
+      return {
+        all: (...args: any[]) => stmt.all(...args),
+        get: (...args: any[]) => stmt.get(...args),
+        run: (...args: any[]) => stmt.run(...args),
+      };
+    },
+    pragma: (sql: string) => {
+      try {
+        return rawDb.prepare("PRAGMA " + sql).get();
+      } catch {
+        rawDb.exec("PRAGMA " + sql);
+      }
+    },
+    transaction: (fn: (...args: any[]) => any) => {
+      return (...args: any[]) => {
+        rawDb.exec("BEGIN");
+        try {
+          const res = fn(...args);
+          rawDb.exec("COMMIT");
+          return res;
+        } catch (e) {
+          rawDb.exec("ROLLBACK");
+          throw e;
+        }
+      };
+    },
+  };
+}
 
 export const useDb = () => {
   if (dbInstance) return dbInstance;
@@ -17,10 +58,7 @@ export const useDb = () => {
   }
 
   const dbPath = path.join(dataDir, "angkasa_raya.db");
-  const db = new Database(dbPath);
-
-  // Enable WAL mode for high performance concurrent reads
-  db.pragma("journal_mode = WAL");
+  const db = createSqliteConnection(dbPath);
 
   // Initialize Tables
   db.exec(`
@@ -98,23 +136,22 @@ export const useDb = () => {
 
   // Check if users need initial seeding
   const userCount = db.prepare("SELECT COUNT(*) as count FROM users").get() as { count: number };
-  if (userCount.count === 0) {
+  if (!userCount || userCount.count === 0) {
     const superPass = hashPassword("Password123!");
     const adminPass = hashPassword("Password123!");
 
     const insertUser = db.prepare("INSERT INTO users (id, username, name, password_hash, salt, role) VALUES (?, ?, ?, ?, ?, ?)");
 
     insertUser.run("usr-superadmin", "superadmin", "Administrator Utama", superPass.hash, superPass.salt, "superadmin");
-
     insertUser.run("usr-admin", "admin", "Staf Admin Operasional", adminPass.hash, adminPass.salt, "admin");
   }
 
   // Check if site_settings need initial seeding
   const settingsCount = db.prepare("SELECT COUNT(*) as count FROM site_settings").get() as { count: number };
-  if (settingsCount.count === 0) {
+  if (!settingsCount || settingsCount.count === 0) {
     const defaultSettings: Record<string, string> = {
-      company_name: "Angkasa Raya Medika",
-      company_legal_name: "PT Angkasa Raya Medika",
+      company_name: "Angkasa Karya Media",
+      company_legal_name: "PT Angkasa Karya Media",
       tagline: "Distribusi Reagen & Alat Laboratorium B2B",
       hero_headline: "Katalog Reagen dan Bahan Laboratorium dengan Informasi yang Jelas.",
       hero_subheadline: "Membantu analis dan tim pengadaan menemukan spesifikasi reagen yang tepat sebelum mengajukan penawaran harga resmi.",

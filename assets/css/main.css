@@ -1,19 +1,26 @@
+/** @format */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    background-color: #F7F7F2;
-    color: #0D2235;
-    font-family: 'DM Sans', sans-serif;
+    background-color: #f7f7f2;
+    color: #0d2235;
+    font-family: "DM Sans", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Manrope', sans-serif;
-    color: #0D2235;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Manrope", sans-serif;
+    color: #0d2235;
     letter-spacing: -0.02em;
   }
 }
@@ -25,14 +32,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #F7F7F2;
+  background: #f7f7f2;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #DDE6ED;
+  background: #dde6ed;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #08AEB3;
+  background: #08aeb3;
 }

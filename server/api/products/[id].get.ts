@@ -1,14 +1,19 @@
 import { defineEventHandler, getRouterParam, createError } from 'h3'
 import { useDb } from '../../utils/db'
+import { isSupabaseConfigured, supabaseGetProductByIdOrSlug } from '../../utils/supabase'
 
-export default defineEventHandler((event) => {
-  const db = useDb()
+export default defineEventHandler(async (event) => {
   const idOrSlug = getRouterParam(event, 'id')
 
   if (!idOrSlug) {
     throw createError({ statusCode: 400, statusMessage: 'Parameter ID atau Slug diperlukan.' })
   }
 
+  if (isSupabaseConfigured()) {
+    return await supabaseGetProductByIdOrSlug(idOrSlug)
+  }
+
+  const db = useDb()
   const r = db.prepare('SELECT * FROM products WHERE id = ? OR slug = ?').get(idOrSlug, idOrSlug) as any
 
   if (!r) {

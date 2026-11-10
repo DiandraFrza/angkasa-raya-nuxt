@@ -1,7 +1,7 @@
 import crypto from 'node:crypto'
 import { H3Event, getCookie, setCookie, deleteCookie, createError } from 'h3'
 import { useDb } from './db'
-import { hashPassword, verifyPassword } from './crypto'
+import { isSupabaseConfigured, supabaseCreateSession, supabaseDestroySession, supabaseGetSessionUser } from './supabase'
 
 export interface UserSession {
   id: string
@@ -14,16 +14,20 @@ export interface UserSession {
 const SESSION_COOKIE_NAME = 'arm_admin_session'
 const SESSION_DURATION_DAYS = 7
 
-export const createSession = (event: H3Event, userId: string) => {
-  const db = useDb()
+export const createSession = async (event: H3Event, userId: string): Promise<string> => {
   const sessionId = crypto.randomUUID()
   const expiresAt = Date.now() + SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000
 
-  db.prepare('INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)').run(
-    sessionId,
-    userId,
-    expiresAt
-  )
+  if (isSupabaseConfigured()) {
+    await supabaseCreateSession(sessionId, userId, expiresAt)
+  } else {
+    const db = useDb()
+    db.prepare('INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)').run(
+      sessionId,
+      userId,
+      expiresAt
+    )
+  }
 
   setCookie(event, SESSION_COOKIE_NAME, sessionId, {
     httpOnly: true,
@@ -36,21 +40,35 @@ export const createSession = (event: H3Event, userId: string) => {
   return sessionId
 }
 
-export const destroySession = (event: H3Event) => {
-  const db = useDb()
+export const destroySession = async (event: H3Event): Promise<void> => {
   const sessionId = getCookie(event, SESSION_COOKIE_NAME)
   if (sessionId) {
-    db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId)
+    if (isSupabaseConfigured()) {
+      await supabaseDestroySession(sessionId)
+    } else {
+      const db = useDb()
+      db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId)
+    }
   }
   deleteCookie(event, SESSION_COOKIE_NAME, { path: '/' })
 }
 
-export const getUserFromSession = (event: H3Event): UserSession | null => {
+export const getUserFromSession = async (event: H3Event): Promise<UserSession | null> => {
   const sessionId = getCookie(event, SESSION_COOKIE_NAME)
   if (!sessionId) return null
 
-  const db = useDb()
   const now = Date.now()
+
+  if (isSupabaseConfigured()) {
+    const user = await supabaseGetSessionUser(sessionId, now)
+    if (!user) {
+      deleteCookie(event, SESSION_COOKIE_NAME, { path: '/' })
+      return null
+    }
+    return user as UserSession
+  }
+
+  const db = useDb()
 
   // Clean expired sessions periodically
   try {
@@ -80,8 +98,8 @@ export const getUserFromSession = (event: H3Event): UserSession | null => {
   }
 }
 
-export const requireUser = (event: H3Event): UserSession => {
-  const user = getUserFromSession(event)
+export const requireUser = async (event: H3Event): Promise<UserSession> => {
+  const user = await getUserFromSession(event)
   if (!user) {
     throw createError({
       statusCode: 401,
@@ -91,8 +109,8 @@ export const requireUser = (event: H3Event): UserSession => {
   return user
 }
 
-export const requireSuperAdmin = (event: H3Event): UserSession => {
-  const user = requireUser(event)
+export const requireSuperAdmin = async (event: H3Event): Promise<UserSession> => {
+  const user = await requireUser(event)
   if (user.role !== 'superadmin') {
     throw createError({
       statusCode: 403,

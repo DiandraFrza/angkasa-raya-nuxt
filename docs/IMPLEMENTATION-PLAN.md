@@ -1,11 +1,11 @@
 <!-- @format -->
 
-# Angkasa Raya Medika — Rencana Implementasi Strategis (Migrasi ke Nuxt 4)
+# Angkasa Karya Media - Rencana Implementasi Strategis (Migrasi ke Nuxt 4)
 
 **Status Dokumen:** Cetak Biru Arsitektur & Implementasi yang Disetujui (v2.0)
 **Direktori Proyek:** `angkasa-raya-nuxt` (Proyek Nuxt 4 Terisolasi)
 **Model Bisnis:** Profil Perusahaan B2B & Katalog Produk Ilmiah
-**Aksi Komersial Utama:** Permintaan Penawaran (RFQ) & Pertanyaan Langsung dari Institusi
+**Aksi Komersial Utama:** Permintaan Penawaran & Pertanyaan Langsung dari Institusi
 **Arahan Visual:** _Bold Turquoise_ (Turkis Tegas) + _Medium Parallax_ (Paralaks Menengah)
 **Tumpukan Teknologi Utama:** Nuxt 4, Vue 3, TypeScript, Tailwind CSS, Motion for Vue (`motion-v`), Lucide Icons, Manrope + DM Sans, Nitro SSG
 
@@ -13,7 +13,7 @@
 
 ## 1. Ringkasan Eksekutif & Dasar Pemikiran Migrasi
 
-Cetak biru ini mendefinisikan migrasi teknis menyeluruh untuk Angkasa Raya Medika **Nuxt 4**.
+Cetak biru ini mendefinisikan migrasi teknis menyeluruh untuk Angkasa Karya Media **Nuxt 4**.
 
 ### Pilar Strategis:
 
@@ -25,7 +25,7 @@ Cetak biru ini mendefinisikan migrasi teknis menyeluruh untuk Angkasa Raya Medik
 - _Soft Ivory_ (`#F7F7F2`) sebagai latar belakang yang menyerupai kertas ilmiah.
 - _Warm Amber_ (`#F2A23A`) sebagai aksen penanda yang mencolok namun tetap terkendali.
 
-3. **Animasi _Medium Parallax_ yang Terarah:** Menggunakan **Motion for Vue (`motion-v`)**, kami mengintegrasikan kedalaman spasial berlapis, efek paralaks pada gambar utama (_hero image_), elemen yang muncul saat digulir (_scroll-triggered reveals_), serta interaksi mikro yang halus—dengan tetap menghormati preferensi pengguna yang membatasi animasi (`prefers-reduced-motion`) dan menghindari manipulasi paksa pada fungsi gulir (_scroll hijacking_).
+3. **Animasi _Medium Parallax_ yang Terarah:** Menggunakan **Motion for Vue (`motion-v`)**, kami mengintegrasikan kedalaman spasial berlapis, efek paralaks pada gambar utama (_hero image_), elemen yang muncul saat digulir (_scroll-triggered reveals_), serta interaksi mikro yang halus-dengan tetap menghormati preferensi pengguna yang membatasi animasi (`prefers-reduced-motion`) dan menghindari manipulasi paksa pada fungsi gulir (_scroll hijacking_).
 4. **Fokus Murni pada B2B:** Penghapusan seluruh mekanisme _e-commerce_ untuk konsumen (tidak ada keranjang belanja, proses _checkout_, ataupun sistem akun pengguna). Kepatuhan ketat terhadap data produk yang telah diverifikasi di keempat kategori kerja (`New Standard Reagent`, `Standard Reagent`, `Reagents`, `Esight`), dengan penanda (placeholder) transparan untuk atribut yang belum diverifikasi.
 5. **Static Site Generation (SSG) & Arsitektur Nitro:** Pemuatan halaman yang sangat cepat, LCP (Largest Contentful Paint) di bawah satu detik, indeksabilitas SEO yang sempurna, serta _endpoint_ permintaan _serverless_ yang ringan (`/api/inquiries`). ---
 
@@ -128,7 +128,7 @@ angkasa-raya-nuxt/
 │   │       └── [slug].vue                 # Detail produk & spesifikasi
 │   ├── types/                             # Definisi TypeScript
 │   │   ├── catalog.ts                     # Antarmuka untuk Kategori, Produk, dan Kemasan
-│   │   └── inquiry.ts                     # Skema data untuk permintaan penawaran (RFQ)
+│   │   └── inquiry.ts                     # Skema data untuk permintaan penawaran
 │   └── app.vue                            # Titik masuk (entrypoint) utama Vue
 ├── server/                                # Rute server Nitro
 │   └── api/
@@ -238,7 +238,7 @@ angkasa-raya-nuxt/
 
 ### Milestone 6: Sistem Penawaran B2B & Penangan Server Nitro
 
-- **Status Modal Penawaran (`composables/useQuoteModal.ts`):** Status reaktif global untuk membuka modal permintaan penawaran (RFQ) dan mengaitkan konteks produk.
+- **Status Modal Penawaran (`composables/useQuoteModal.ts`):** Status reaktif global untuk membuka modal permintaan penawaran dan mengaitkan konteks produk.
 - **Modal Penawaran (`components/forms/QuoteModal.vue`):** Dialog modal yang aksesibel, dilengkapi dengan efek _blur_ pada latar belakang, fitur penutupan menggunakan tombol ESC, dan fokus otomatis (_autofocus_).
 - **Formulir Permintaan Informasi (`components/forms/InquiryForm.vue`):** _Input_ reaktif dengan validasi di sisi klien (_client-side_), penanganan status kesalahan, serta perlindungan _spam_ menggunakan metode _honeypot_.
 - **Halaman Kontak (`pages/contact.vue`):** Halaman kontak lengkap yang memuat formulir permintaan informasi, tautan WhatsApp terverifikasi, alamat surel, dan koordinat lokasi fasilitas.

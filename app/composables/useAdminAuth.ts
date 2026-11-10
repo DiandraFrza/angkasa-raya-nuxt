@@ -18,7 +18,10 @@ export const useAdminAuth = () => {
   const fetchUser = async () => {
     isLoading.value = true
     try {
-      const res = await $fetch<{ authenticated: boolean; user: AdminUser | null }>('/api/auth/me')
+      const headers = import.meta.server ? useRequestHeaders(['cookie']) : undefined
+      const res = await $fetch<{ authenticated: boolean; user: AdminUser | null }>('/api/auth/me', {
+        headers: headers as any,
+      })
       user.value = res.user
       isLoaded.value = true
       return res.user

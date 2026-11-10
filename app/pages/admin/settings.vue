@@ -11,7 +11,7 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "Pengaturan Identitas Website — Admin Panel",
+  title: "Pengaturan Identitas Website - Admin Panel",
 });
 
 const { settings, updateLocalSettings, refresh } = useSiteSettings();
@@ -39,6 +39,7 @@ const handleLogoUpload = async (e: Event) => {
   if (!target.files || target.files.length === 0) return;
 
   const file = target.files[0];
+  if (!file) return;
   const uploadData = new FormData();
   uploadData.append("file", file);
 
@@ -99,33 +100,6 @@ const handleSave = async () => {
 <template>
   <div class="space-y-8 pb-16 animate-fade-up">
     <!-- Header Page: Giant Typography with Extreme Contrast -->
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-2">
-      <div class="space-y-2">
-        <div class="inline-flex items-center gap-2 text-[11px] font-manrope font-bold uppercase tracking-wider text-[#054E4C] bg-[#A3EEEC] px-4 py-1.5 rounded-full">
-          <span>Konfigurasi & Identitas Sistem</span>
-          <span v-if="isSuperAdmin" class="bg-[#054E4C] text-white px-1.5 py-0.2 text-[9.5px] rounded-sm">Super Admin</span>
-        </div>
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-manrope tracking-tight leading-tight">
-          <span class="block font-black text-[#0D2235]">Konfigurasi Identitas.</span>
-          <span class="block font-light text-[#486581]">Profil & Kontak Resmi Perusahaan.</span>
-        </h1>
-        <p class="text-[14.5px] text-[#486581] font-sans max-w-2xl leading-relaxed"><strong class="text-[#0D253A] font-semibold">Spesifikasi jelas. Dokumen lengkap.</strong> Perbarui nama brand, kontak WhatsApp, alamat, dan copywriting landing page secara langsung.</p>
-      </div>
-
-      <!-- Top Actions -->
-      <div class="flex flex-wrap items-center gap-3 shrink-0 self-start sm:self-auto">
-        <NuxtLink to="/" target="_blank" class="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-white hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13.5px] transition-colors shadow-xs">
-          <ExternalLink class="w-4 h-4 text-[#89CBDD]" />
-          <span>Lihat Website</span>
-        </NuxtLink>
-
-        <button v-if="isSuperAdmin" type="button" :disabled="isSaving" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[14px] transition-all transform hover:-translate-y-0.5 active:translate-y-0 shadow-xs hover:shadow-md disabled:opacity-50 cursor-pointer" @click="handleSave">
-          <Save class="w-4 h-4" />
-          <span>{{ isSaving ? "Menyimpan..." : "Simpan Perubahan" }}</span>
-        </button>
-      </div>
-    </div>
-
     <!-- Super Admin vs Admin Restriction Banner -->
     <div v-if="!isSuperAdmin" class="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-900 text-[13.5px] flex items-center gap-3 font-medium shadow-xs">
       <ShieldCheck class="w-5 h-5 text-amber-600 shrink-0" />
@@ -189,12 +163,12 @@ const handleSave = async () => {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div class="space-y-1">
                 <label class="block text-[13px] font-manrope font-semibold text-[#0D2235]"> Nama Merek Dagang <span class="text-red-500">*</span> </label>
-                <input v-model="form.company_name" type="text" placeholder="Contoh: Angkasa Raya Medika" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[14px] text-[#0D2235] focus:outline-none focus:ring-2 focus:ring-[#89CBDD]/30 transition-all" required />
+                <input v-model="form.company_name" type="text" placeholder="Contoh: Angkasa Karya Medika" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[14px] text-[#0D2235] focus:outline-none focus:ring-2 focus:ring-[#89CBDD]/30 transition-all" required />
               </div>
 
               <div class="space-y-1">
                 <label class="block text-[13px] font-manrope font-semibold text-[#0D2235]"> Nama Legal Perusahaan (PT / CV) </label>
-                <input v-model="form.company_legal_name" type="text" placeholder="Contoh: PT Angkasa Raya Medika" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[14px] text-[#0D2235] focus:outline-none focus:ring-2 focus:ring-[#89CBDD]/30 transition-all" />
+                <input v-model="form.company_legal_name" type="text" placeholder="Contoh: PT Angkasa Karya Medika" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[14px] text-[#0D2235] focus:outline-none focus:ring-2 focus:ring-[#89CBDD]/30 transition-all" />
               </div>
             </div>
 

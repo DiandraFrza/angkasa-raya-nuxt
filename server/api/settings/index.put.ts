@@ -1,18 +1,29 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { useDb } from '../../utils/db'
 import { requireSuperAdmin } from '../../utils/auth'
+import { isSupabaseConfigured, supabaseUpdateSettings } from '../../utils/supabase'
 
 export default defineEventHandler(async (event) => {
-  requireSuperAdmin(event)
-  const db = useDb()
+  await requireSuperAdmin(event)
   const body = await readBody<Record<string, string>>(event)
 
   if (!body || typeof body !== 'object') {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Invalid payload. Object expected.'
+      statusMessage: 'Invalid payload. Object expected.',
     })
   }
+
+  if (isSupabaseConfigured()) {
+    const updatedSettings = await supabaseUpdateSettings(body)
+    return {
+      success: true,
+      message: 'Pengaturan website berhasil diperbarui.',
+      settings: updatedSettings,
+    }
+  }
+
+  const db = useDb()
 
   const upsertStmt = db.prepare(`
     INSERT INTO site_settings (key, value)
@@ -40,6 +51,6 @@ export default defineEventHandler(async (event) => {
   return {
     success: true,
     message: 'Pengaturan website berhasil diperbarui.',
-    settings: updatedSettings
+    settings: updatedSettings,
   }
 })

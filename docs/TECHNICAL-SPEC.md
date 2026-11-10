@@ -1,6 +1,6 @@
 <!-- @format -->
 
-# Spesifikasi Teknis — Angkasa Raya Medika (Nuxt 4)
+# Spesifikasi Teknis - Angkasa Karya Media (Nuxt 4)
 
 **Status Dokumen:** Arsitektur yang Disetujui untuk Migrasi Nuxt 4 (v2.0)
 **Framework:** Nuxt 4 + Vue 3 (Composition API)
@@ -72,7 +72,7 @@ angkasa-raya-nuxtscientific-nuxt/
 │   ├── composables/                       # Fungsi Vue Composition API yang diimpor secara otomatis
 │   │   ├── useCatalog.ts                  # Lapisan abstraksi untuk kueri produk/kategori
 │   │   ├── useParallax.ts                 # Komposabel untuk perhitungan efek paralaks
-│   │   ├── useQuoteModal.ts               # State reaktif global untuk modal permintaan penawaran (RFQ)
+│   │   ├── useQuoteModal.ts               # State reaktif global untuk modal permintaan penawaran
 │   │   └── useReducedMotion.ts            # Deteksi preferensi aksesibilitas terkait gerakan (motion)
 │   ├── data/                              # Lapisan data lokal dengan pengetikan ketat (strongly typed)
 │   │   ├── categories.ts                  # Kategori yang telah dikonfirmasi (berjumlah 4)
@@ -82,7 +82,7 @@ angkasa-raya-nuxtscientific-nuxt/
 │   ├── pages/# Tampilan rute berbasis file Nuxt
 │   │   ├── index.vue                      # Beranda: proposisi nilai editorial & efek paralaks hero
 │   │   ├── about.vue                      # Profil perusahaan & standar
-│   │   ├── contact.vue                    # Detail kontak langsung & formulir permintaan penawaran (RFQ)
+│   │   ├── contact.vue                    # Detail kontak langsung & formulir permintaan penawaran
 │   │   └── products/
 │   │       ├── index.vue                  # Daftar katalog, filter reaktif & pencarian
 │   │       └── [slug].vue                 # Tampilan detail produk dinamis & spesifikasi
@@ -220,11 +220,11 @@ export const useCatalog = () => {
 
 Nuxt 4 secara otomatis memetakan struktur direktori ke dalam rute. Semua halaman publik dirender sebelumnya secara statis (pre-rendered) pada saat proses _build_ menggunakan konfigurasi _prerendering_ Nitro di dalam `nuxt.config.ts`:
 
-- `/` — Beranda (proposisi nilai perusahaan, tampilan kategori, _hero parallax_)
-- `/about` — Profil perusahaan, standar, dan fokus institusional
-- `/products` — Katalog produk dengan fitur penyaringan kategori reaktif dan pencarian langsung (_live search_)
-- `/products/[slug]` — Tampilan detail produk dinamis yang dirender sebelumnya (_pre-rendered_)
-- `/contact` — Informasi kontak dan formulir permintaan penawaran (RFQ) lengkap
+- `/` - Beranda (proposisi nilai perusahaan, tampilan kategori, _hero parallax_)
+- `/about` - Profil perusahaan, standar, dan fokus institusional
+- `/products` - Katalog produk dengan fitur penyaringan kategori reaktif dan pencarian langsung (_live search_)
+- `/products/[slug]` - Tampilan detail produk dinamis yang dirender sebelumnya (_pre-rendered_)
+- `/contact` - Informasi kontak dan formulir permintaan penawaran lengkap
 
 ### `nuxt.config.ts`Konfigurasi Prerender `nuxt.config.ts`:
 
@@ -341,7 +341,7 @@ return { prefersReducedMotion };
 - **Aksesibilitas (WCAG 2.1 AA):**
 - Dukungan penuh untuk navigasi papan ketik (*keyboard focus*) dengan indikator fokus berwarna *Turquoise* yang terlihat jelas (`focus-visible:ring-2 focus-visible:ring-[#08AEB3]`).
 - Rasio kontras warna yang ketat ($>4,5:1$ untuk teks isi, $>3:1$ untuk judul berukuran besar).
-- Label yang ramah bagi pembaca layar (*screen reader*)—seperti `aria-label`, `aria-expanded`, dan `aria-haspopup`—pada elemen interaktif seperti *drawer*, bilah pencarian, dan dialog.
+- Label yang ramah bagi pembaca layar (*screen reader*)-seperti `aria-label`, `aria-expanded`, dan `aria-haspopup`-pada elemen interaktif seperti *drawer*, bilah pencarian, dan dialog.
 
 ---
 

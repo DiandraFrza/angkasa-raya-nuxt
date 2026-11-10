@@ -1,7 +1,9 @@
+<!-- @format -->
+
 <script setup lang="ts">
-import AppHeader from '~/components/layout/AppHeader.vue'
-import AppFooter from '~/components/layout/AppFooter.vue'
-import QuoteModal from '~/components/forms/QuoteModal.vue'
+import AppHeader from "~/components/layout/AppHeader.vue";
+import AppFooter from "~/components/layout/AppFooter.vue";
+import QuoteModal from "~/components/forms/QuoteModal.vue";
 </script>
 
 <template>

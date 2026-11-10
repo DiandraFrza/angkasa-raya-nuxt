@@ -1,13 +1,18 @@
 import { defineEventHandler, getRouterParam, createError } from 'h3'
 import { useDb } from '../../utils/db'
 import { requireSuperAdmin } from '../../utils/auth'
+import { isSupabaseConfigured, supabaseDeleteCategory } from '../../utils/supabase'
 
-export default defineEventHandler((event) => {
-  requireSuperAdmin(event)
+export default defineEventHandler(async (event) => {
+  await requireSuperAdmin(event)
   const idOrSlug = getRouterParam(event, 'id')
 
   if (!idOrSlug) {
     throw createError({ statusCode: 400, statusMessage: 'ID atau Slug kategori diperlukan.' })
+  }
+
+  if (isSupabaseConfigured()) {
+    return await supabaseDeleteCategory(idOrSlug)
   }
 
   const db = useDb()

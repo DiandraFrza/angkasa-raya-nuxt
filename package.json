@@ -9,6 +9,7 @@
     "preview": "nuxt preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
     "@types/better-sqlite3": "^9.6.0",
     "better-sqlite3": "^12.11.1",
     "framer-motion": "^14.10.1",

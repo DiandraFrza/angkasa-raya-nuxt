@@ -137,21 +137,10 @@ const handleCreateCategory = async () => {
 
 <template>
   <div ref="comboboxRef" class="space-y-1 relative">
-    <label v-if="label" class="block text-[13px] font-manrope font-semibold text-[#0D2235]">
-      {{ label }} <span v-if="required" class="text-red-500">*</span>
-    </label>
+    <label v-if="label" class="block text-[13px] font-manrope font-semibold text-[#0D2235]"> {{ label }} <span v-if="required" class="text-red-500">*</span> </label>
 
     <!-- Trigger Selector Button -->
-    <div
-      role="combobox"
-      :aria-expanded="isOpen"
-      tabindex="0"
-      class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 hover:bg-[#E9F8FF] focus:bg-white text-[14px] text-[#0D2235] border border-transparent focus:border-[#89CBDD] focus:ring-2 focus:ring-[#89CBDD]/30 transition-all cursor-pointer flex items-center justify-between gap-2 select-none"
-      @click="isOpen = !isOpen"
-      @keydown.enter.prevent="isOpen = !isOpen"
-      @keydown.space.prevent="isOpen = !isOpen"
-      @keydown.esc="isOpen = false"
-    >
+    <div role="combobox" :aria-expanded="isOpen" tabindex="0" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 hover:bg-[#E9F8FF] focus:bg-white text-[14px] text-[#0D2235] border border-transparent focus:border-[#89CBDD] focus:ring-2 focus:ring-[#89CBDD]/30 transition-all cursor-pointer flex items-center justify-between gap-2 select-none" @click="isOpen = !isOpen" @keydown.enter.prevent="isOpen = !isOpen" @keydown.space.prevent="isOpen = !isOpen" @keydown.esc="isOpen = false">
       <div class="flex items-center gap-2.5 truncate">
         <Layers class="w-4 h-4 text-[#89CBDD] shrink-0" />
         <span v-if="selectedCategory" class="font-medium text-[#0D2235] truncate">
@@ -161,61 +150,27 @@ const handleCreateCategory = async () => {
       </div>
 
       <div class="flex items-center gap-1.5 shrink-0">
-        <span v-if="selectedCategory?.isInstrument" class="text-[10px] font-manrope font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#ADDFF1]/40 text-[#082838]">
-          Alat
-        </span>
-        <span v-else-if="selectedCategory" class="text-[10px] font-manrope font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#A3EEEC]/50 text-[#054E4C]">
-          Reagen
-        </span>
+        <span v-if="selectedCategory?.isInstrument" class="text-[10px] font-manrope font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#ADDFF1]/40 text-[#082838]"> Alat </span>
+        <span v-else-if="selectedCategory" class="text-[10px] font-manrope font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#A3EEEC]/50 text-[#054E4C]"> Reagen </span>
         <ChevronDown class="w-4 h-4 text-[#486581] transition-transform duration-200" :class="{ 'rotate-180': isOpen }" />
       </div>
     </div>
 
     <!-- Dropdown Menu Popover -->
-    <Transition
-      enter-active-class="transition duration-150 ease-out"
-      enter-from-class="transform scale-95 opacity-0 -translate-y-1"
-      enter-to-class="transform scale-100 opacity-100 translate-y-0"
-      leave-active-class="transition duration-100 ease-in"
-      leave-from-class="transform scale-100 opacity-100 translate-y-0"
-      leave-to-class="transform scale-95 opacity-0 -translate-y-1"
-    >
-      <div
-        v-if="isOpen"
-        class="absolute left-0 right-0 z-50 mt-1.5 bg-white rounded-3xl shadow-xl border border-[#D0F2F9] overflow-hidden text-[#0D2235] text-[13.5px] font-sans antialiased"
-      >
+    <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="transform scale-95 opacity-0 -translate-y-1" enter-to-class="transform scale-100 opacity-100 translate-y-0" leave-active-class="transition duration-100 ease-in" leave-from-class="transform scale-100 opacity-100 translate-y-0" leave-to-class="transform scale-95 opacity-0 -translate-y-1">
+      <div v-if="isOpen" class="absolute left-0 right-0 z-50 mt-1.5 bg-white rounded-3xl shadow-xl border border-[#D0F2F9] overflow-hidden text-[#0D2235] text-[13.5px] font-sans antialiased">
         <!-- Search Input Bar -->
         <div class="p-3 bg-[#E9F8FF]/50 border-b border-[#D0F2F9]/70 relative flex items-center gap-2">
           <Search class="w-4 h-4 text-[#89CBDD] shrink-0" />
-          <input
-            v-model="searchQuery"
-            type="text"
-            autofocus
-            placeholder="Cari kategori (ketik kata, huruf, atau angka)..."
-            class="w-full bg-transparent text-[13px] text-[#0D2235] placeholder-[#486581]/70 outline-none font-sans"
-            @keydown.esc="isOpen = false"
-            @click.stop
-          />
-          <button
-            v-if="searchQuery"
-            type="button"
-            class="text-[#486581] hover:text-[#0D2235] p-1"
-            @click="searchQuery = ''"
-          >
+          <input v-model="searchQuery" type="text" autofocus placeholder="Cari kategori (ketik kata, huruf, atau angka)..." class="w-full bg-transparent text-[13px] text-[#0D2235] placeholder-[#486581]/70 outline-none font-sans" @keydown.esc="isOpen = false" @click.stop />
+          <button v-if="searchQuery" type="button" class="text-[#486581] hover:text-[#0D2235] p-1" @click="searchQuery = ''">
             <X class="w-3.5 h-3.5" />
           </button>
         </div>
 
         <!-- Category Options List -->
         <div class="max-h-60 overflow-y-auto p-1.5 space-y-0.5">
-          <button
-            v-for="cat in filteredCategories"
-            :key="cat.slug"
-            type="button"
-            class="w-full px-3.5 py-2.5 rounded-2xl flex items-center justify-between text-left transition-colors cursor-pointer group"
-            :class="cat.slug === modelValue ? 'bg-gradient-to-r from-[#89CBDD]/30 to-[#A3EEEC]/40 text-[#082838] font-bold' : 'hover:bg-[#E9F8FF]/80 text-[#0D253A]'"
-            @click="selectCategory(cat)"
-          >
+          <button v-for="cat in filteredCategories" :key="cat.slug" type="button" class="w-full px-3.5 py-2.5 rounded-2xl flex items-center justify-between text-left transition-colors cursor-pointer group" :class="cat.slug === modelValue ? 'bg-gradient-to-r from-[#89CBDD]/30 to-[#A3EEEC]/40 text-[#082838] font-bold' : 'hover:bg-[#E9F8FF]/80 text-[#0D253A]'" @click="selectCategory(cat)">
             <div class="min-w-0 pr-2">
               <div class="font-manrope font-semibold text-[13.5px] truncate">
                 {{ cat.name }}
@@ -226,26 +181,23 @@ const handleCreateCategory = async () => {
             </div>
 
             <div class="flex items-center gap-2 shrink-0">
-              <span v-if="cat.isInstrument" class="text-[10px] font-manrope font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#ADDFF1]/40 text-[#082838]">
-                Alat
-              </span>
+              <span v-if="cat.isInstrument" class="text-[10px] font-manrope font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#ADDFF1]/40 text-[#082838]"> Alat </span>
               <Check v-if="cat.slug === modelValue" class="w-4 h-4 text-[#054E4C] shrink-0" />
             </div>
           </button>
 
           <!-- Empty State -->
           <div v-if="filteredCategories.length === 0" class="py-6 px-4 text-center text-[#486581] text-[12.5px]">
-            <p>Kategori "<span class="font-bold text-[#0D2235]">{{ searchQuery }}</span>" tidak ditemukan.</p>
+            <p>
+              Kategori "<span class="font-bold text-[#0D2235]">{{ searchQuery }}</span
+              >" tidak ditemukan.
+            </p>
           </div>
         </div>
 
         <!-- Bottom Action: Tambah Kategori Baru -->
         <div class="p-2.5 bg-[#E9F8FF]/40 border-t border-[#D0F2F9]/70">
-          <button
-            type="button"
-            class="w-full py-2 px-3 rounded-2xl bg-white hover:bg-[#D0F2F9] text-[#082838] font-manrope font-bold text-[12.5px] transition-all flex items-center justify-center gap-2 border border-[#89CBDD]/40 shadow-xs cursor-pointer"
-            @click="openAddModalWithQuery"
-          >
+          <button type="button" class="w-full py-2 px-3 rounded-2xl bg-white hover:bg-[#D0F2F9] text-[#082838] font-manrope font-bold text-[12.5px] transition-all flex items-center justify-center gap-2 border border-[#89CBDD]/40 shadow-xs cursor-pointer" @click="openAddModalWithQuery">
             <Plus class="w-3.5 h-3.5 text-[#1B7E98]" />
             <span v-if="searchQuery">Tambah "{{ searchQuery }}" Sebagai Kategori Baru</span>
             <span v-else>Tambah Kategori Baru</span>
@@ -285,22 +237,13 @@ const handleCreateCategory = async () => {
           <div class="space-y-4">
             <!-- Nama Kategori -->
             <div class="space-y-1">
-              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">
-                Nama Kategori <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="newCatName"
-                type="text"
-                placeholder="Contoh: Rapid Test Kit, Kimia Klinik, dll"
-                class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all"
-              />
+              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]"> Nama Kategori <span class="text-red-500">*</span> </label>
+              <input v-model="newCatName" type="text" placeholder="Contoh: Rapid Test Kit, Kimia Klinik, dll" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all" />
             </div>
 
             <!-- Tipe Klasifikasi -->
             <div class="space-y-1">
-              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">
-                Jenis Sediaan Produk
-              </label>
+              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]"> Jenis Sediaan Produk </label>
               <div class="grid grid-cols-2 gap-2 pt-1">
                 <label class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1" :class="!newCatIsInstrument ? 'bg-[#A3EEEC]/30 border-[#054E4C] text-[#054E4C] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'">
                   <input v-model="newCatIsInstrument" type="radio" :value="false" class="sr-only" />
@@ -318,36 +261,18 @@ const handleCreateCategory = async () => {
 
             <!-- Deskripsi Singkat -->
             <div class="space-y-1">
-              <label class="block text-[13px] font-manrope font-semibold text-[#0D253A]">
-                Deskripsi Singkat (Opsional)
-              </label>
-              <textarea
-                v-model="newCatDescription"
-                rows="2"
-                placeholder="Penjelasan fungsi lini kategori produk..."
-                class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all resize-none"
-              />
+              <label class="block text-[13px] font-manrope font-semibold text-[#0D253A]"> Deskripsi Singkat (Opsional) </label>
+              <textarea v-model="newCatDescription" rows="2" placeholder="Penjelasan fungsi lini kategori produk..." class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all resize-none" />
             </div>
           </div>
 
           <!-- Actions -->
           <div class="flex items-center justify-end gap-2.5 pt-2">
-            <button
-              type="button"
-              class="px-5 py-2.5 rounded-2xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13px] transition-colors cursor-pointer"
-              @click="showAddModal = false"
-            >
-              Batal
-            </button>
-            <button
-              type="button"
-              :disabled="isSavingCategory"
-              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all shadow-xs disabled:opacity-50 cursor-pointer"
-              @click="handleCreateCategory"
-            >
+            <button type="button" class="px-5 py-2.5 rounded-2xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13px] transition-colors cursor-pointer" @click="showAddModal = false">Batal</button>
+            <button type="button" :disabled="isSavingCategory" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all shadow-xs disabled:opacity-50 cursor-pointer" @click="handleCreateCategory">
               <Loader2 v-if="isSavingCategory" class="w-3.5 h-3.5 animate-spin" />
               <Plus v-else class="w-3.5 h-3.5" />
-              <span>{{ isSavingCategory ? 'Menyimpan...' : 'Simpan Kategori' }}</span>
+              <span>{{ isSavingCategory ? "Menyimpan..." : "Simpan Kategori" }}</span>
             </button>
           </div>
         </div>

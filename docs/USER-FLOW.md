@@ -1,10 +1,10 @@
 <!-- @format -->
 
-# Alur Pengguna (User Flows) — Fangkasa-raya-nuxt (Nuxt 4)
+# Alur Pengguna (User Flows) - Fangkasa-raya-nuxt (Nuxt 4)
 
 **Status Dokumen:** Disetujui untuk Arsitektur Nuxt 4 (v2.0)
 **Model Bisnis:** Profil Perusahaan B2B Murni & Katalog Produk Ilmiah
-**Tindakan Komersial Utama:** Permintaan Penawaran (RFQ) & Pertanyaan Langsung dari Institusi
+**Tindakan Komersial Utama:** Permintaan Penawaran & Pertanyaan Langsung dari Institusi
 **Nuansa Pengalaman:** Presisi Ilmiah yang Tegas, Kedalaman Paralaks Berlapis, Tanpa Hambatan (Zero Friction)
 
 ---
@@ -20,7 +20,7 @@ actor Buyer as Pembeli B2B (Bagian Pengadaan / Direktur Lab)
 participant Home as Beranda (Nuxt 4 SSG)
 participant Catalog as Katalog Produk (/products)
 participant Detail as Detail Produk (/products/[slug])
-participant Modal as Modal Permintaan Penawaran (RFQ)
+participant Modal as Modal Permintaan Penawaran
 participant Nitro as Server Nitro (/api/inquiries)
 
 Buyer->>Home: Tiba di Beranda (Menampilkan elemen *hero* berwarna pirus tegas & efek paralaks)
