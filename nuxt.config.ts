@@ -27,7 +27,7 @@ export default defineNuxtConfig({
     pageTransition: { name: "page", mode: "out-in" },
     layoutTransition: { name: "layout", mode: "out-in" },
     head: {
-      title: "Angkasa Karya Medika - Katalog Reagen & Bahan Laboratorium B2B",
+      title: "Angkasa Karya Medika - Katalog Reagen & Bahan Laboratorium",
       htmlAttrs: {
         lang: "id",
       },
@@ -36,7 +36,7 @@ export default defineNuxtConfig({
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         {
           name: "description",
-          content: "Katalog reagen dan bahan laboratorium B2B dengan spesifikasi jelas. Melayani kebutuhan rumah sakit, laboratorium klinis, diagnostik, dan fasilitas riset.",
+          content: "Katalog reagen dan bahan Laboratorium dengan spesifikasi jelas. Melayani kebutuhan rumah sakit, laboratorium klinis, diagnostik, dan fasilitas riset.",
         },
         { name: "theme-color", content: "#08AEB3" },
       ],

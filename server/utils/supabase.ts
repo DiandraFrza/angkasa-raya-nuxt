@@ -10,7 +10,12 @@ let supabaseInstance: SupabaseClient | null = null;
  */
 export const isSupabaseConfigured = (): boolean => {
   const url = process.env.SUPABASE_URL || process.env.NUXT_SUPABASE_URL || "";
-  const key = process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NUXT_SUPABASE_KEY || "";
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_KEY ||
+    process.env.NUXT_SUPABASE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    "";
   return Boolean(url && key && url.startsWith("http"));
 };
 
@@ -21,12 +26,17 @@ export const useSupabase = (): SupabaseClient => {
   if (supabaseInstance) return supabaseInstance;
 
   const url = process.env.SUPABASE_URL || process.env.NUXT_SUPABASE_URL || "";
-  const key = process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NUXT_SUPABASE_KEY || "";
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_KEY ||
+    process.env.NUXT_SUPABASE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    "";
 
   if (!url || !key) {
     throw createError({
       statusCode: 500,
-      statusMessage: "Supabase belum terkonfigurasi. Pastikan SUPABASE_URL dan SUPABASE_KEY telah diisi.",
+      statusMessage: "Supabase belum terkonfigurasi. Pastikan SUPABASE_URL dan SUPABASE_KEY (atau SUPABASE_SERVICE_ROLE_KEY) telah diisi.",
     });
   }
 

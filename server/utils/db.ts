@@ -14,10 +14,7 @@ function createSqliteConnection(dbPath: string) {
     const sqlite = req("node:sqlite");
     DatabaseSync = sqlite.DatabaseSync;
   } catch (err: any) {
-    throw new Error(
-      "Modul 'node:sqlite' tidak tersedia pada runtime ini (memerlukan Node >= 22.5.0). " +
-      "Di lingkungan cloud / Vercel, pastikan SUPABASE_URL dan SUPABASE_KEY telah diisi di Environment Variables Vercel."
-    );
+    throw new Error("Modul 'node:sqlite' tidak tersedia pada runtime ini (memerlukan Node >= 22.5.0). " + "Di lingkungan cloud / Vercel, pastikan SUPABASE_URL dan SUPABASE_KEY telah diisi di Environment Variables Vercel.");
   }
 
   const rawDb = new DatabaseSync(dbPath);
@@ -164,7 +161,7 @@ export const useDb = () => {
     const defaultSettings: Record<string, string> = {
       company_name: "Angkasa Karya Medika",
       company_legal_name: "PT Angkasa Karya Medika",
-      tagline: "Distribusi Reagen & Alat Laboratorium B2B",
+      tagline: "Distribusi Reagen & Alat Laboratorium",
       hero_headline: "Katalog Reagen dan Bahan Laboratorium dengan Informasi yang Jelas.",
       hero_subheadline: "Membantu analis dan tim pengadaan menemukan spesifikasi reagen yang tepat sebelum mengajukan penawaran harga resmi.",
       logo_url: "/brand/logo_akm.jpg",

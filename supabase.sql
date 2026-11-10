@@ -83,6 +83,45 @@ CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_slug);
 CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
 CREATE INDEX IF NOT EXISTS idx_products_featured ON products(is_featured);
 
+-- NONAKTIFKAN ROW LEVEL SECURITY (RLS) & IZINKAN AKSES PENUH
+-- Diperlukan agar backend Nuxt Serverless di Vercel dapat mengelola data secara penuh
+ALTER TABLE IF EXISTS categories DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS products DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS inquiries DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS site_settings DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS sessions DISABLE ROW LEVEL SECURITY;
+
+-- Berikan izin akses penuh ke role anon, authenticated, dan service_role
+GRANT ALL ON TABLE categories TO anon, authenticated, service_role;
+GRANT ALL ON TABLE products TO anon, authenticated, service_role;
+GRANT ALL ON TABLE inquiries TO anon, authenticated, service_role;
+GRANT ALL ON TABLE site_settings TO anon, authenticated, service_role;
+GRANT ALL ON TABLE users TO anon, authenticated, service_role;
+GRANT ALL ON TABLE sessions TO anon, authenticated, service_role;
+
+-- Kebijakan RLS (Policy) terbuka penuh seandainya Supabase tetap memaksakan RLS
+DO $$
+BEGIN
+  DROP POLICY IF EXISTS "Allow all for categories" ON categories;
+  CREATE POLICY "Allow all for categories" ON categories FOR ALL USING (true) WITH CHECK (true);
+
+  DROP POLICY IF EXISTS "Allow all for products" ON products;
+  CREATE POLICY "Allow all for products" ON products FOR ALL USING (true) WITH CHECK (true);
+
+  DROP POLICY IF EXISTS "Allow all for inquiries" ON inquiries;
+  CREATE POLICY "Allow all for inquiries" ON inquiries FOR ALL USING (true) WITH CHECK (true);
+
+  DROP POLICY IF EXISTS "Allow all for site_settings" ON site_settings;
+  CREATE POLICY "Allow all for site_settings" ON site_settings FOR ALL USING (true) WITH CHECK (true);
+
+  DROP POLICY IF EXISTS "Allow all for users" ON users;
+  CREATE POLICY "Allow all for users" ON users FOR ALL USING (true) WITH CHECK (true);
+
+  DROP POLICY IF EXISTS "Allow all for sessions" ON sessions;
+  CREATE POLICY "Allow all for sessions" ON sessions FOR ALL USING (true) WITH CHECK (true);
+END $$;
+
 -- ========================================================
 -- DATA AWAL (SEED DATA)
 -- ========================================================
@@ -105,7 +144,7 @@ ON CONFLICT (username) DO NOTHING;
 INSERT INTO site_settings (key, value) VALUES
   ('company_name', 'Angkasa Karya Medika'),
   ('company_legal_name', 'PT Angkasa Karya Medika'),
-  ('tagline', 'Distribusi Reagen & Alat Laboratorium B2B'),
+  ('tagline', 'Distribusi Reagen & Alat Laboratorium'),
   ('hero_headline', 'Katalog Reagen dan Bahan Laboratorium dengan Informasi yang Jelas.'),
   ('hero_subheadline', 'Membantu analis dan tim pengadaan menemukan spesifikasi reagen yang tepat sebelum mengajukan penawaran harga resmi.'),
   ('logo_url', '/brand/logo_akm.jpg'),
@@ -335,3 +374,27 @@ INSERT INTO inquiries (id, full_name, company_or_institution, work_email, phone_
   NOW()
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- Pengguna Administrator Default (Password default: Password123!)
+INSERT INTO users (id, username, name, password_hash, salt, role) VALUES
+(
+  'usr-superadmin',
+  'superadmin',
+  'Administrator Utama',
+  '327fc8a0f67d288ec4124b8a92b8ed917e2c9ec2588926679c2ebd29651fffdab93e67bdad314ec8aa0f89a42ebf53fa2261f37484edad1880c20498cdb10b54',
+  '8e38025480493ef393dbb702e89a7665',
+  'superadmin'
+),
+(
+  'usr-admin',
+  'admin',
+  'Staff Operasional Lab',
+  '112381f61d1e97203eaf443ec4670e46fd6f705038425cd0ea2eff8ab810260de6e8f05dafc1bdce4fd41ad2c8abcfde7ec653787e12bd22e5081aff2b71ccef',
+  '1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d',
+  'admin'
+)
+ON CONFLICT (username) DO UPDATE SET
+  password_hash = EXCLUDED.password_hash,
+  salt = EXCLUDED.salt,
+  name = EXCLUDED.name,
+  role = EXCLUDED.role;

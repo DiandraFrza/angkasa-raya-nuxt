@@ -174,7 +174,7 @@ const handleSave = async () => {
 
             <div class="space-y-1">
               <label class="block text-[13px] font-manrope font-semibold text-[#0D2235]"> Tagline / Sub-Identitas </label>
-              <input v-model="form.tagline" type="text" placeholder="Contoh: Distribusi Reagen & Alat Laboratorium B2B" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[14px] text-[#0D2235] focus:outline-none focus:ring-2 focus:ring-[#89CBDD]/30 transition-all" />
+              <input v-model="form.tagline" type="text" placeholder="Contoh: Distribusi Reagen & Alat Laboratorium" class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[14px] text-[#0D2235] focus:outline-none focus:ring-2 focus:ring-[#89CBDD]/30 transition-all" />
               <p class="text-[11.5px] text-[#486581]">Tampil tepat di bawah nama perusahaan pada Header dan Footer.</p>
             </div>
 

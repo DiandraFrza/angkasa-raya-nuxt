@@ -92,7 +92,7 @@ INSERT INTO `products` (`id`, `slug`, `name`, `category_slug`, `category_name`, 
 
 INSERT INTO `site_settings` (`key`, `value`) VALUES ('company_name', 'Angkasa Karya Medika');
 INSERT INTO `site_settings` (`key`, `value`) VALUES ('company_legal_name', 'PT Angkasa Karya Medika');
-INSERT INTO `site_settings` (`key`, `value`) VALUES ('tagline', 'Distribusi Reagen & Alat Laboratorium B2B');
+INSERT INTO `site_settings` (`key`, `value`) VALUES ('tagline', 'Distribusi Reagen & Alat Laboratorium');
 INSERT INTO `site_settings` (`key`, `value`) VALUES ('hero_headline', 'Katalog Reagen dan Bahan Laboratorium dengan Informasi yang Jelas.');
 INSERT INTO `site_settings` (`key`, `value`) VALUES ('hero_subheadline', 'Membantu analis dan tim pengadaan menemukan spesifikasi reagen yang tepat sebelum mengajukan penawaran harga resmi.');
 INSERT INTO `site_settings` (`key`, `value`) VALUES ('logo_url', '/brand/logo_akm.jpg');

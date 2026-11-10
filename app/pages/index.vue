@@ -14,9 +14,9 @@ import DribbbleHeroSection from "~/components/home/DribbbleHeroSection.vue";
 const { settings } = useSiteSettings();
 
 useSeoMeta({
-  title: () => `${settings.value.company_name} - Katalog Reagen & Bahan Laboratorium B2B`,
+  title: () => `${settings.value.company_name} - Katalog Reagen & Bahan Laboratorium`,
   description: () => settings.value.hero_subheadline,
-  ogTitle: () => `${settings.value.company_name} - Katalog Reagen & Bahan Laboratorium B2B`,
+  ogTitle: () => `${settings.value.company_name} - Katalog Reagen & Bahan Laboratorium`,
   ogDescription: () => settings.value.hero_subheadline,
 });
 
