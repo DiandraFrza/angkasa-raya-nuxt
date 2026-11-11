@@ -11,8 +11,8 @@ defineProps<{
 
 <template>
   <div :class="[align === 'center' ? 'text-center mx-auto max-w-2xl' : 'max-w-2xl']" class="space-y-2.5">
-    <div v-if="eyebrow" class="inline-flex items-center gap-1.5 text-[11px] font-manrope font-bold uppercase tracking-wider text-[#064E4D] bg-[#A3EEEC] px-3.5 py-1 rounded-full">
-      <span class="w-1.5 h-1.5 rounded-full bg-[#89CBDD]" />
+    <div v-if="eyebrow" class="inline-flex items-center gap-1.5 text-[11px] font-manrope font-bold uppercase tracking-wider text-[#064E4D] bg-[#A3EEEC] px-3 py-1 rounded-xl">
+      <span class="w-1.5 h-1.5 rounded-xl bg-[#89CBDD]" />
       <span>{{ eyebrow }}</span>
     </div>
 

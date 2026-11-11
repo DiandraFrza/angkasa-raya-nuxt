@@ -1,14 +1,18 @@
 <!-- @format -->
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
-import { Plus, Search, Edit3, Trash2, ExternalLink, ChevronLeft, ChevronRight, Package } from "lucide-vue-next";
+import { ref, computed, watch, defineAsyncComponent } from "vue";
+import { Plus, Search, Edit3, Power, ExternalLink, X } from "lucide-vue-next";
 import type { Product } from "~/types/catalog";
 import { useCatalog } from "~/composables/useCatalog";
-import { useSiteSettings } from "~/composables/useSiteSettings";
 import { useAdminAuth } from "~/composables/useAdminAuth";
 import { useActionModal } from "~/composables/useActionModal";
-import ProductFormModal from "~/components/admin/ProductFormModal.vue";
+import { useProgressiveList } from "~/composables/useProgressiveList";
+import { useQuickSearchShortcut } from "~/composables/useKeyboardShortcuts";
+import { getAvailabilityBadge } from "~/utils/availability";
+import ActionMenuPopover, { type ActionMenuItem } from "~/components/admin/ActionMenuPopover.vue";
+
+const LazyProductFormModal = defineAsyncComponent(() => import("~/components/admin/ProductFormModal.vue"));
 
 definePageMeta({
   layout: "admin",
@@ -16,7 +20,6 @@ definePageMeta({
 
 const route = useRoute();
 const router = useRouter();
-const { settings } = useSiteSettings();
 const { isSuperAdmin } = useAdminAuth();
 const { refreshCatalog } = useCatalog();
 const { showSuccess, showConfirm, showAlert } = useActionModal();
@@ -25,20 +28,22 @@ useSeoMeta({
   title: () => `Daftar Produk`,
 });
 
-// Modal Tambah / Edit Produk State
 const isProductModalOpen = ref(false);
+const hasOpenedModal = ref(false);
 const productModalMode = ref<"create" | "edit">("create");
 const selectedProduct = ref<any | null>(null);
 
 const openCreateModal = () => {
   productModalMode.value = "create";
   selectedProduct.value = null;
+  hasOpenedModal.value = true;
   isProductModalOpen.value = true;
 };
 
 const openEditModal = (product: any) => {
   productModalMode.value = "edit";
   selectedProduct.value = product;
+  hasOpenedModal.value = true;
   isProductModalOpen.value = true;
 };
 
@@ -54,21 +59,18 @@ const closeProductModal = () => {
 };
 
 const searchQuery = ref("");
+const searchInputRef = ref<HTMLInputElement | null>(null);
 const selectedCategory = ref("all");
+const statusFilter = ref<"all" | "active" | "inactive">("all");
 
-// Pagination
-const pageSizeOptions = [10, 20, 50, 100];
-const productsPage = ref(1);
-const productsPageSize = ref(10);
+useQuickSearchShortcut(searchInputRef);
 
-// Fetch products & categories
-const { data: productsData, refresh: refreshProducts } = await useFetch<Product[]>("/api/products");
-const { data: categoriesData } = await useFetch<any[]>("/api/categories");
+const { data: productsData, refresh: refreshProducts } = await useFetch<Product[]>("/api/products?includeInactive=true");
+const { data: categoriesData } = await useFetch<any[]>("/api/categories?includeInactive=true");
 
 const products = computed(() => productsData.value || []);
 const categories = computed(() => categoriesData.value || []);
 
-// Auto open modal if editId or newProduct query param exists
 const checkUrlQuery = () => {
   if (route.query.newProduct) {
     openCreateModal();
@@ -85,14 +87,18 @@ watch(
   () => {
     checkUrlQuery();
   },
-  { immediate: true }
+  { immediate: true },
 );
 
-// Filter products
 const filteredProducts = computed(() => {
   let list = products.value;
   if (selectedCategory.value !== "all") {
     list = list.filter((p) => p.categorySlug === selectedCategory.value);
+  }
+  if (statusFilter.value === "active") {
+    list = list.filter((p) => p.isActive !== false);
+  } else if (statusFilter.value === "inactive") {
+    list = list.filter((p) => p.isActive === false);
   }
   if (searchQuery.value && searchQuery.value.trim() !== "") {
     const q = searchQuery.value.toLowerCase().trim();
@@ -101,211 +107,215 @@ const filteredProducts = computed(() => {
   return list;
 });
 
-// Reset page when filter or search changes
-watch([selectedCategory, searchQuery, productsPageSize], () => {
-  productsPage.value = 1;
-});
+const { visibleItems: visibleProducts, totalCount: totalProducts, hasMore, sentinelRef, loadMore } = useProgressiveList(filteredProducts, 10, 10);
 
-// Pagination Calculations
-const totalProducts = computed(() => filteredProducts.value.length);
-const totalProductsPages = computed(() => Math.max(1, Math.ceil(totalProducts.value / productsPageSize.value)));
-const paginatedProducts = computed(() => {
-  const start = (productsPage.value - 1) * productsPageSize.value;
-  return filteredProducts.value.slice(start, start + productsPageSize.value);
-});
-const productsStartRange = computed(() => {
-  if (totalProducts.value === 0) return 0;
-  return (productsPage.value - 1) * productsPageSize.value + 1;
-});
-const productsEndRange = computed(() => {
-  return Math.min(productsPage.value * productsPageSize.value, totalProducts.value);
-});
-
-// Handle Product Saved (Create or Edit)
 const handleProductSaved = async () => {
   await refreshProducts();
   await refreshCatalog();
   closeProductModal();
 };
 
-// Delete Product Handler with Confirm Modal
-const handleDeleteProduct = (id: string, name: string) => {
+const handleToggleProductStatus = (product: Product) => {
   if (!isSuperAdmin.value) {
-    showAlert({
-      title: "Akses Ditolak",
-      message: "Hanya Super Admin yang diizinkan untuk menghapus produk dari katalog.",
-    });
+    showAlert("Akses Ditolak", "Hanya Super Admin yang dapat mengubah status aktif produk.");
     return;
   }
 
+  const nextActive = product.isActive === false;
+  const actionLabel = nextActive ? "Aktifkan" : "Nonaktifkan";
+
   showConfirm({
-    title: "Konfirmasi Hapus Produk",
-    message: `Apakah Anda yakin ingin menghapus produk "${name}" dari katalog? Data yang dihapus tidak dapat dipulihkan.`,
-    confirmText: "Ya, Hapus",
+    title: `${actionLabel} Produk?`,
+    message: nextActive ? `Produk "${product.name}" akan ditampilkan kembali di katalog publik.` : `Produk "${product.name}" akan disembunyikan dari katalog publik (Soft Delete). Data tetap tersimpan aman.`,
+    confirmText: actionLabel,
     cancelText: "Batal",
+    isDanger: !nextActive,
     onConfirm: async () => {
-      await $fetch(`/api/products/${id}`, { method: "DELETE" });
+      await $fetch(`/api/products/${product.id}`, {
+        method: "PUT",
+        body: { isActive: nextActive },
+      });
       await refreshProducts();
       await refreshCatalog();
-      showSuccess("Data Berhasil Dihapus", `Produk "${name}" telah dihapus.`);
+      showSuccess(nextActive ? "Produk Diaktifkan" : "Produk Dinonaktifkan", `Status "${product.name}" berhasil diubah.`);
     },
   });
+};
+
+const buildProductActions = (product: Product): ActionMenuItem[] => {
+  const items: ActionMenuItem[] = [
+    {
+      id: "view",
+      label: "Lihat Detail",
+      icon: ExternalLink,
+      href: `/products/${product.slug}`,
+      target: "_blank",
+    },
+    {
+      id: "edit",
+      label: "Edit",
+      icon: Edit3,
+      onClick: () => openEditModal(product),
+    },
+  ];
+
+  if (isSuperAdmin.value) {
+    const isActive = product.isActive !== false;
+    items.push({
+      id: "toggle",
+      label: isActive ? "Nonaktifkan" : "Aktifkan",
+      icon: Power,
+      variant: isActive ? "warning" : "success",
+      onClick: () => handleToggleProductStatus(product),
+    });
+  }
+
+  return items;
 };
 </script>
 
 <template>
-  <div class="space-y-8 animate-fade-up">
-    <!-- Header Page: Clean, Static & Semantic -->
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-2">
-      <!-- Top Action Buttons -->
-      <div class="flex flex-wrap items-center gap-3 shrink-0 self-start sm:self-auto">
-        <button type="button" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13.5px] transition-all shadow-xs hover:shadow-md cursor-pointer" @click="openCreateModal">
-          <Plus class="w-4 h-4" />
-          <span>Tambah Produk Baru</span>
-        </button>
+  <div class="space-y-5 animate-fade-up">
+    <!-- Top Header -->
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="font-manrope font-extrabold text-xl sm:text-2xl text-[#0D2235]">Daftar Produk</h1>
+        <p class="text-xs text-[#486581] mt-0.5">Kelola katalog reagen &amp; instrumen ({{ totalProducts }} item)</p>
       </div>
+      <button type="button" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-xs sm:text-[13px] transition-all shadow-xs cursor-pointer" @click="openCreateModal">
+        <Plus class="w-4 h-4" />
+        <span>Tambah</span>
+      </button>
     </div>
 
-    <!-- Search, Filter & Per Page Controls -->
-    <div class="bg-white rounded-3xl p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-xs border border-[#D0F2F9]/70">
-      <!-- Search Input -->
-      <div class="relative flex-1 max-w-md">
-        <Search class="w-4 h-4 text-[#89CBDD] absolute left-3.5 top-1/2 -translate-y-1/2" />
-        <input v-model="searchQuery" type="text" placeholder="Cari nama produk, SKU, brand..." class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#E9F8FF]/80 text-[13.5px] text-[#0D2235] placeholder-[#486581]/70 focus:bg-white focus:ring-2 focus:ring-[#89CBDD]/40 outline-none transition-all font-sans" />
+    <!-- Search, Status & Category Filter Controls -->
+    <div class="bg-white rounded-xl p-4 space-y-3 shadow-sm shadow-slate-200/50">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div class="relative flex-1 max-w-md">
+          <Search class="w-4 h-4 text-[#89CBDD] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input ref="searchInputRef" v-model="searchQuery" type="text" placeholder="Cari nama produk, SKU, brand..." class="w-full pl-9 pr-12 py-2 rounded-xl bg-[#F4FBFE] focus:bg-white text-xs sm:text-[13px] text-[#0D2235] placeholder-[#486581]/70 focus:ring-2 focus:ring-[#89CBDD]/50 outline-none transition-all font-sans" />
+          <span v-if="!searchQuery" class="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded bg-white text-[10px] font-mono text-[#486581]/75 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none select-none" title="Pintasan: tekan / atau Ctrl+K"> / </span>
+          <button v-else type="button" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#486581] hover:text-[#0D2235] p-0.5 cursor-pointer" title="Bersihkan pencarian" @click="searchQuery = ''">
+            <X class="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button
+            v-for="st in [
+              { k: 'all', l: 'Semua' },
+              { k: 'active', l: 'Aktif' },
+              { k: 'inactive', l: 'Nonaktif' },
+            ]"
+            :key="st.k"
+            type="button"
+            class="px-3 py-1.5 rounded-xl text-[11px] font-manrope font-bold cursor-pointer transition-colors"
+            :class="statusFilter === st.k ? 'bg-[#082838] text-white' : 'bg-[#F4FBFE] text-[#486581] hover:bg-[#E9F8FF]'"
+            @click="statusFilter = st.k as any"
+          >
+            {{ st.l }}
+          </button>
+        </div>
       </div>
 
-      <!-- Category Filter Pills -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
-        <button type="button" class="px-4 py-2 rounded-2xl text-[12.5px] font-manrope font-bold whitespace-nowrap transition-all cursor-pointer" :class="selectedCategory === 'all' ? 'bg-[#89CBDD] text-[#082838]' : 'bg-[#E9F8FF] text-[#486581] hover:bg-[#D0F2F9]'" @click="selectedCategory = 'all'">Semua ({{ products.length }})</button>
-        <button v-for="cat in categories" :key="cat.slug" type="button" class="px-4 py-2 rounded-2xl text-[12.5px] font-manrope font-bold whitespace-nowrap transition-all cursor-pointer" :class="selectedCategory === cat.slug ? 'bg-[#89CBDD] text-[#082838]' : 'bg-[#E9F8FF] text-[#486581] hover:bg-[#D0F2F9]'" @click="selectedCategory = cat.slug">
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
+        <button type="button" class="px-3 py-1.5 rounded-xl text-[11.5px] font-manrope font-bold whitespace-nowrap transition-all cursor-pointer shrink-0" :class="selectedCategory === 'all' ? 'bg-[#89CBDD] text-[#082838]' : 'bg-[#F4FBFE] text-[#486581] hover:bg-[#E9F8FF]'" @click="selectedCategory = 'all'">Semua ({{ products.length }})</button>
+        <button v-for="cat in categories" :key="cat.slug" type="button" class="px-3 py-1.5 rounded-xl text-[11.5px] font-manrope font-bold whitespace-nowrap transition-all cursor-pointer shrink-0" :class="selectedCategory === cat.slug ? 'bg-[#89CBDD] text-[#082838]' : 'bg-[#F4FBFE] text-[#486581] hover:bg-[#E9F8FF]'" @click="selectedCategory = cat.slug">
           {{ cat.name }}
         </button>
       </div>
     </div>
 
-    <!-- Table Container -->
-    <div class="bg-white rounded-3xl overflow-hidden shadow-xs border border-[#D0F2F9]/70">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-[13.5px]">
-          <thead class="bg-[#D0F2F9]/70 text-[#0D253A] text-[12px] font-manrope font-bold uppercase tracking-wider">
-            <tr>
-              <th class="py-4 px-6">Produk</th>
-              <th class="py-4 px-4">Kategori</th>
-              <th class="py-4 px-4">Kemasan & Mutu</th>
-              <th class="py-4 px-4">Status & Dokumen</th>
-              <th class="py-4 px-6 text-right">Aksi</th>
+    <!-- Clean Soft Zebra Table Container (Horizontal scroll on mobile) -->
+    <div class="bg-white rounded-xl overflow-hidden shadow-sm shadow-slate-200/50">
+      <div class="sm:hidden px-3.5 py-2 bg-[#F4FBFE] border-b border-slate-100 text-[11px] font-manrope font-semibold text-[#1B7E98] flex items-center justify-between">
+        <span>Geser tabel ke kanan/kiri</span>
+        <span>&larr; &rarr;</span>
+      </div>
+
+      <div class="overflow-x-auto touch-pan-x">
+        <table class="w-full min-w-[820px] text-left text-xs border-collapse">
+          <thead class="bg-[#E9F8FF] text-[#0D253A] text-[11px] font-manrope font-bold uppercase tracking-wider border-b border-slate-100">
+            <tr class="divide-x divide-slate-200/60">
+              <th class="py-3 px-4 w-[280px] whitespace-nowrap">Produk</th>
+              <th class="py-3 px-4 w-[140px] whitespace-nowrap">Kategori</th>
+              <th class="py-3 px-4 w-[195px] whitespace-nowrap">Kemasan &amp; Mutu</th>
+              <th class="py-3 px-4 w-[115px] whitespace-nowrap">Status</th>
+              <th class="py-3 px-4 w-[100px] text-right whitespace-nowrap">Aksi</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#D0F2F9]/40">
-            <tr v-for="(p, idx) in paginatedProducts" :key="p.id" class="transition-colors" :class="idx % 2 === 0 ? 'bg-white hover:bg-[#E9F8FF]/50' : 'bg-[#E9F8FF]/20 hover:bg-[#E9F8FF]/50'">
-              <!-- Thumbnail & Name -->
-              <td class="py-4 px-6">
-                <div class="flex items-center gap-3.5">
-                  <div class="w-12 h-12 rounded-2xl bg-[#E9F8FF] p-1 flex items-center justify-center shrink-0 overflow-hidden border border-[#ADDFF1]/40">
-                    <img :src="p.imageUrl" :alt="p.name" class="w-full h-full object-contain" />
+          <tbody class="divide-y divide-slate-100">
+            <tr v-for="(p, idx) in visibleProducts" :key="p.id" class="divide-x divide-slate-100/90 transition-colors" :class="[idx % 2 === 0 ? 'bg-white hover:bg-[#E9F8FF]/60' : 'bg-[#F4FBFE] hover:bg-[#E9F8FF]', p.isActive === false ? 'opacity-65' : '']">
+              <!-- Produk -->
+              <td class="py-3 px-4 align-middle">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                    <img :src="p.imageUrl" :alt="p.name" loading="lazy" decoding="async" class="w-full h-full object-contain" />
                   </div>
-                  <div>
-                    <div class="font-manrope font-bold text-[#0D2235] hover:text-[#1B7E98] cursor-pointer" @click="openEditModal(p)">
+                  <div class="min-w-0 max-w-[210px]">
+                    <div class="font-manrope font-bold text-[#0D2235] hover:text-[#1B7E98] cursor-pointer leading-snug line-clamp-2" @click="openEditModal(p)">
                       {{ p.name }}
                     </div>
-                    <div class="text-[12px] text-[#486581] font-mono">{{ p.sku }} &bull; {{ p.brand }}</div>
+                    <div class="text-[11px] text-[#486581] font-mono truncate mt-0.5">{{ p.sku }} &bull; {{ p.brand }}</div>
                   </div>
                 </div>
               </td>
 
-              <!-- Category -->
-              <td class="py-4 px-4">
-                <span class="inline-block px-3 py-1 rounded-full text-[11.5px] font-manrope font-bold bg-[#ADDFF1]/40 text-[#082838]">
+              <!-- Kategori -->
+              <td class="py-3 px-4 align-middle whitespace-nowrap">
+                <span class="inline-block px-2.5 py-1 rounded-md text-[11px] font-manrope font-bold bg-[#ADDFF1]/40 text-[#082838]">
                   {{ p.categoryName }}
                 </span>
               </td>
 
-              <!-- Packaging & Grade -->
-              <td class="py-4 px-4 text-[#486581]">
-                <div v-if="p.packaging && p.packaging[0]" class="font-medium text-[#0D2235]">{{ p.packaging[0].size }} {{ p.packaging[0].unit }}</div>
-                <div class="text-[11.5px] text-[#486581]">
+              <!-- Kemasan & Mutu -->
+              <td class="py-3 px-4 align-middle text-[#486581]">
+                <div v-if="p.packaging && p.packaging[0]" class="font-semibold text-[#0D2235] leading-snug">{{ p.packaging[0].size }} {{ p.packaging[0].unit }}</div>
+                <div v-else class="text-[#486581]">-</div>
+                <div class="text-[11px] text-[#486581] mt-0.5 leading-snug">
                   {{ p.grade || "-" }}
                 </div>
               </td>
 
-              <!-- Status & Documents count -->
-              <td class="py-4 px-4">
+              <!-- Status & Dokumen -->
+              <td class="py-3 px-4 align-middle whitespace-nowrap">
                 <div class="flex flex-col gap-1 items-start">
-                  <span v-if="p.isFeatured" class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10.5px] font-manrope font-bold"> ★ Unggulan </span>
-                  <span v-if="p.isVerified" class="px-2.5 py-0.5 rounded-full bg-[#A3EEEC]/50 text-[#054E4C] text-[10.5px] font-manrope font-bold"> Terverifikasi </span>
-                  <span v-if="p.documents && p.documents.length > 0" class="text-[11px] font-mono text-[#1B7E98]">
-                    {{ p.documents.length }} Dokumen
+                  <span class="px-2.5 py-0.5 rounded-md text-[10.5px] font-manrope font-bold" :class="p.isActive !== false ? 'bg-emerald-100/80 text-emerald-800' : 'bg-red-100/80 text-red-700'">
+                    {{ p.isActive !== false ? "Aktif" : "Nonaktif" }}
                   </span>
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[10px] font-manrope font-bold" :class="getAvailabilityBadge(p.availabilityStatus, p.leadTime).badgeClass">
+                    <!-- <span class="w-1.5 h-1.5 rounded-sm" :class="getAvailabilityBadge(p.availabilityStatus, p.leadTime).dotClass" /> -->
+                    <span>{{ getAvailabilityBadge(p.availabilityStatus, p.leadTime).shortLabel }}</span>
+                  </span>
+                  <span v-if="p.isFeatured" class="px-2 py-0.5 rounded-md bg-amber-100/80 text-amber-800 text-[10px] font-manrope font-bold">Unggulan</span>
+                  <span v-if="p.documents && p.documents.length > 0" class="text-[10.5px] font-mono text-[#1B7E98]"> {{ p.documents.length }} Dok </span>
                 </div>
               </td>
 
-              <!-- Actions (Semua Edit Pakai Modal!) -->
-              <td class="py-4 px-6 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <NuxtLink :to="`/products/${p.slug}`" target="_blank" class="p-2 rounded-xl text-[#486581] hover:text-[#0D2235] hover:bg-[#D0F2F9] transition-colors" title="Lihat di Website Publik">
-                    <ExternalLink class="w-4 h-4 text-[#89CBDD]" />
-                  </NuxtLink>
-
-                  <!-- Edit via Modal Button -->
-                  <button type="button" class="p-2 rounded-xl text-[#0D253A] hover:bg-[#D0F2F9] transition-colors cursor-pointer" title="Edit Produk (Modal)" @click="openEditModal(p)">
-                    <Edit3 class="w-4 h-4 text-[#082838]" />
-                  </button>
-
-                  <!-- Delete Button: Modal Confirm -->
-                  <button v-if="isSuperAdmin" type="button" class="p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors cursor-pointer" title="Hapus Produk (Super Admin)" @click="handleDeleteProduct(p.id, p.name)">
-                    <Trash2 class="w-4 h-4" />
-                  </button>
-                  <span v-else class="p-2 text-gray-300 cursor-not-allowed" title="Hapus produk dibatasi hanya untuk Super Admin">
-                    <Trash2 class="w-4 h-4" />
-                  </span>
-                </div>
+              <!-- Satu Tombol Aksi dengan Popover Dinamis -->
+              <td class="py-3 px-4 align-middle text-right whitespace-nowrap">
+                <ActionMenuPopover :items="buildProductActions(p)" />
               </td>
             </tr>
 
-            <tr v-if="paginatedProducts.length === 0">
-              <td colspan="5" class="py-12 text-center text-[#486581]">Tidak ada produk yang cocok dengan pencarian atau filter.</td>
+            <tr v-if="visibleProducts.length === 0">
+              <td colspan="5" class="py-10 text-center text-[#486581] text-xs bg-white">Tidak ada produk yang cocok dengan pencarian atau filter.</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- PAGINATION CONTROLS BAR -->
-      <div class="p-4 sm:p-5 bg-white border-t border-[#D0F2F9]/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-[13px] font-sans">
-        <div class="flex items-center gap-2">
-          <span class="text-[#486581] font-medium">Tampilkan:</span>
-          <div class="flex items-center gap-1 bg-[#E9F8FF] p-1 rounded-xl">
-            <button v-for="size in pageSizeOptions" :key="size" type="button" class="px-2.5 py-1 rounded-lg font-manrope font-bold text-[12px] transition-all cursor-pointer" :class="productsPageSize === size ? 'bg-[#89CBDD] text-[#082838]' : 'text-[#486581] hover:text-[#082838]'" @click="productsPageSize = size">
-              {{ size }}
-            </button>
-          </div>
-          <span class="text-[#486581] hidden sm:inline">data per halaman</span>
+      <!-- Lazy Loading Sentinel & Footer -->
+      <div class="px-4 py-3.5 bg-white border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs font-sans">
+        <div class="text-[#486581]">
+          Menampilkan <strong class="text-[#0D2235]">{{ visibleProducts.length }}</strong> dari <strong class="text-[#0D2235]">{{ totalProducts }}</strong> produk
         </div>
-
-        <div class="text-[#486581] font-medium">
-          Menampilkan <strong class="text-[#0D2235]">{{ productsStartRange }}-{{ productsEndRange }}</strong> dari <strong class="text-[#0D2235]">{{ totalProducts }}</strong> produk
-        </div>
-
-        <div class="flex items-center gap-1.5">
-          <button type="button" class="p-2 rounded-xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer" :disabled="productsPage <= 1" title="Halaman Sebelumnya" @click="productsPage--">
-            <ChevronLeft class="w-4 h-4" />
-          </button>
-
-          <div class="px-3.5 py-1.5 rounded-xl bg-[#D0F2F9]/70 text-[#082838] font-manrope font-bold text-[12.5px]">Hal {{ productsPage }} / {{ totalProductsPages }}</div>
-
-          <button type="button" class="p-2 rounded-xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer" :disabled="productsPage >= totalProductsPages" title="Halaman Selanjutnya" @click="productsPage++">
-            <ChevronRight class="w-4 h-4" />
-          </button>
-        </div>
+        <button v-if="hasMore" type="button" class="px-3 py-1.5 rounded-md bg-[#F4FBFE] hover:bg-[#E9F8FF] text-[#082838] font-manrope font-bold text-xs cursor-pointer" @click="loadMore">Muat Lainnya</button>
       </div>
+      <div ref="sentinelRef" class="h-1 w-full" aria-hidden="true" />
     </div>
 
-    <!-- UNIFIED MODAL: TAMBAH / EDIT PRODUK BARU -->
-    <ProductFormModal
-      :is-open="isProductModalOpen"
-      :mode="productModalMode"
-      :product="selectedProduct"
-      @close="closeProductModal"
-      @saved="handleProductSaved"
-    />
+    <!-- Lazy Loaded Modal -->
+    <LazyProductFormModal v-if="hasOpenedModal" :is-open="isProductModalOpen" :mode="productModalMode" :product="selectedProduct" @close="closeProductModal" @saved="handleProductSaved" />
   </div>
 </template>

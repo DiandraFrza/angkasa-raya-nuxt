@@ -8,6 +8,7 @@ export interface UserSession {
   username: string
   name: string
   role: 'superadmin' | 'admin'
+  is_active?: boolean
   created_at: string
 }
 
@@ -77,14 +78,17 @@ export const getUserFromSession = async (event: H3Event): Promise<UserSession | 
 
   const session = db
     .prepare(
-      `SELECT s.id as session_id, s.expires_at, u.id, u.username, u.name, u.role, u.created_at 
+      `SELECT s.id as session_id, s.expires_at, u.id, u.username, u.name, u.role, u.is_active, u.created_at 
        FROM sessions s 
        JOIN users u ON s.user_id = u.id 
        WHERE s.id = ? AND s.expires_at > ?`
     )
     .get(sessionId, now) as any
 
-  if (!session) {
+  if (!session || session.is_active === 0 || session.is_active === false) {
+    try {
+      db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId)
+    } catch {}
     deleteCookie(event, SESSION_COOKIE_NAME, { path: '/' })
     return null
   }
@@ -94,6 +98,7 @@ export const getUserFromSession = async (event: H3Event): Promise<UserSession | 
     username: session.username,
     name: session.name,
     role: session.role,
+    is_active: session.is_active !== 0,
     created_at: session.created_at,
   }
 }

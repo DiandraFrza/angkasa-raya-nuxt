@@ -76,7 +76,8 @@ export const useDb = () => {
       slug TEXT UNIQUE NOT NULL,
       name TEXT NOT NULL,
       description TEXT,
-      is_instrument INTEGER DEFAULT 0
+      is_instrument INTEGER DEFAULT 0,
+      is_active INTEGER NOT NULL DEFAULT 1
     );
 
     CREATE TABLE IF NOT EXISTS products (
@@ -98,6 +99,8 @@ export const useDb = () => {
       image_url TEXT,
       is_featured INTEGER DEFAULT 0,
       is_verified INTEGER DEFAULT 1,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      availability_status TEXT NOT NULL DEFAULT 'ready',
       lead_time TEXT,
       min_order_quantity TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -130,6 +133,7 @@ export const useDb = () => {
       password_hash TEXT NOT NULL,
       salt TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'admin',
+      is_active INTEGER NOT NULL DEFAULT 1,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
@@ -142,6 +146,35 @@ export const useDb = () => {
       FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     );
   `);
+
+  // Safe idempotent migrations for existing SQLite databases
+  for (const tbl of ["categories", "products", "users"]) {
+    try {
+      db.exec(`ALTER TABLE ${tbl} ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1;`);
+    } catch {
+      // Column already exists
+    }
+  }
+
+  try {
+    db.exec(`ALTER TABLE products ADD COLUMN availability_status TEXT;`);
+  } catch {
+    // Column already exists
+  }
+
+  try {
+    db.exec(`
+      UPDATE products
+      SET availability_status = CASE
+        WHEN LOWER(IFNULL(lead_time, '')) LIKE '%habis%' OR LOWER(IFNULL(lead_time, '')) LIKE '%kosong%' THEN 'out_of_stock'
+        WHEN LOWER(IFNULL(lead_time, '')) LIKE '%minggu%' OR LOWER(IFNULL(lead_time, '')) LIKE '%indent%' OR LOWER(IFNULL(lead_time, '')) LIKE '%pre-order%' THEN 'indent'
+        ELSE 'ready'
+      END
+      WHERE availability_status IS NULL OR TRIM(availability_status) = '';
+    `);
+  } catch {
+    // Ignore migration backfill errors
+  }
 
   // Check if users need initial seeding
   const userCount = db.prepare("SELECT COUNT(*) as count FROM users").get() as { count: number };

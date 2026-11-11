@@ -118,10 +118,10 @@
   animation-delay: 600ms;
 }
 
-/* Elegant, Natural Card Elevation (No harsh/colored borders) */
+/* Elegant, Natural Card Elevation (Minimalist rounded-md) */
 .card-natural {
   background-color: #ffffff;
-  border-radius: 1.5rem;
+  border-radius: 0.375rem;
   box-shadow: 0 4px 20px -2px rgba(13, 37, 58, 0.05);
   transition:
     transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),

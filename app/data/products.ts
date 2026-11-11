@@ -32,7 +32,7 @@ export const products: Product[] = [
     imageUrl: "/images/products/ecotest-hbsag-flyer.png",
     isFeatured: true,
     isVerified: true,
-    leadTime: "Ready Stock Jabodetabek",
+    leadTime: "Tersedia Jabodetabek",
     minOrderQuantity: "1 Box (50 Test)",
   },
   {
@@ -85,7 +85,7 @@ export const products: Product[] = [
     imageUrl: "/brand/logo_akm.jpg",
     isFeatured: false,
     isVerified: true,
-    leadTime: "Ready Stock Jabodetabek",
+    leadTime: "Tersedia Jabodetabek",
     minOrderQuantity: "1 Unit",
   },
   {
@@ -144,7 +144,7 @@ export const products: Product[] = [
     imageUrl: "/brand/logo_akm.jpg",
     isFeatured: false,
     isVerified: true,
-    leadTime: "Ready Stock Jabodetabek",
+    leadTime: "Tersedia Jabodetabek",
     minOrderQuantity: "1 Kit (6 x 5 mL)",
   },
   {
@@ -174,7 +174,7 @@ export const products: Product[] = [
     imageUrl: "/brand/logo_akm.jpg",
     isFeatured: true,
     isVerified: true,
-    leadTime: "Ready Stock Jabodetabek",
+    leadTime: "Tersedia Jabodetabek",
     minOrderQuantity: "1 Botol (500 mL)",
   },
   {
@@ -200,7 +200,7 @@ export const products: Product[] = [
     imageUrl: "/brand/logo_akm.jpg",
     isFeatured: false,
     isVerified: true,
-    leadTime: "Ready Stock Jabodetabek",
+    leadTime: "Tersedia Jabodetabek",
     minOrderQuantity: "1 Pack (5 Ampul)",
   },
   {
@@ -225,7 +225,7 @@ export const products: Product[] = [
     imageUrl: "/brand/logo_akm.jpg",
     isFeatured: false,
     isVerified: true,
-    leadTime: "Ready Stock Jabodetabek",
+    leadTime: "Tersedia Jabodetabek",
     minOrderQuantity: "1 Botol (1 L)",
   },
   {
@@ -251,7 +251,7 @@ export const products: Product[] = [
     imageUrl: "/brand/logo_akm.jpg",
     isFeatured: false,
     isVerified: true,
-    leadTime: "Ready Stock Jabodetabek",
+    leadTime: "Tersedia Jabodetabek",
     minOrderQuantity: "1 Botol (500 mL)",
   },
 ];

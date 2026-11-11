@@ -86,7 +86,7 @@ Untuk menciptakan estetika modern tanpa garis tepi (_borderless_), sistem menggu
 | Kelas Tailwind     | Ukuran Pixel | Peruntukan Komponen                                                 | Karakter Visual            |
 | :----------------- | :----------- | :------------------------------------------------------------------ | :------------------------- |
 | **`rounded-md`**   | `6px`        | Tag teknis, indikator kecil                                         | Rapi, tajam, ringkas       |
-| **`rounded-lg`**   | `8px`        | Kolom input formulir, tombol aksi di dalam kartu/modal              | Profesional, fungsional    |
+| **`rounded-xl`**   | `8px`        | Kolom input formulir, tombol aksi di dalam kartu/modal              | Profesional, fungsional    |
 | **`rounded-xl`**   | `12px`       | Image stage produk (di dalam card), baris tabel dinamis, dropdown   | Transisi proporsional      |
 | **`rounded-2xl`**  | `16px`       | Kartu produk (`ProductCard`), kartu kategori, metrik dashboard      | Ramah (_friendly_), modern |
 | **`rounded-3xl`**  | `24px`       | Jendela modal utama (`QuoteModal`), banner CTA besar, overview card | Lembut, lapang, berkelas   |
@@ -142,7 +142,7 @@ Animasi dijalankan menggunakan **Motion for Vue (`motion-v`)**. Tingkat intensit
 - Latar belakang: _Scientific Turquoise_ (`#08AEB3`)
 - Teks: Putih (`#FFFFFF`), jenis huruf Manrope _SemiBold_ (ketebalan 600)
 - Saat diarahkan kursor (_hover_): Warna _Turquoise_ yang lebih gelap (`#07989C`) dengan efek cahaya _cyan_ yang lembut.
-- Sudut: Membulat halus (`rounded-lg`, sekitar 6px).
+- Sudut: Membulat halus (`rounded-xl`, sekitar 6px).
 - **Tombol Sekunder (_Secondary Button_):**
 - Latar belakang: Transparan atau _Soft Ivory_.
 - Garis tepi (_border_): 1,5px solid dengan warna _Deep Navy_ (`#123B5D`).

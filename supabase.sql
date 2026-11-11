@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS categories (
   slug TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   description TEXT,
-  is_instrument BOOLEAN DEFAULT FALSE
+  is_instrument BOOLEAN DEFAULT FALSE,
+  is_active BOOLEAN DEFAULT TRUE
 );
 
 -- 2. TABEL KATALOG PRODUK
@@ -32,7 +33,9 @@ CREATE TABLE IF NOT EXISTS products (
   image_url TEXT,
   is_featured BOOLEAN DEFAULT FALSE,
   is_verified BOOLEAN DEFAULT TRUE,
-  lead_time TEXT DEFAULT 'Ready Stock Jabodetabek',
+  is_active BOOLEAN DEFAULT TRUE,
+  availability_status TEXT DEFAULT 'ready',
+  lead_time TEXT DEFAULT 'Tersedia Jabodetabek',
   min_order_quantity TEXT DEFAULT '1 Box',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -66,9 +69,16 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,
   salt TEXT NOT NULL,
   role TEXT DEFAULT 'admin',
+  is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Migrasi aman jika tabel sudah ada sebelumnya
+ALTER TABLE IF EXISTS categories ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+ALTER TABLE IF EXISTS products ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+ALTER TABLE IF EXISTS products ADD COLUMN IF NOT EXISTS availability_status TEXT DEFAULT 'ready';
+ALTER TABLE IF EXISTS users ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
 
 -- 6. TABEL SESI LOGIN
 CREATE TABLE IF NOT EXISTS sessions (
@@ -178,7 +188,7 @@ INSERT INTO products (id, slug, name, category_slug, category_name, sku, brand, 
   '/images/products/ecotest-hbsag-flyer.png',
   TRUE,
   TRUE,
-  'Ready Stock Jabodetabek',
+  'Tersedia Jabodetabek',
   '1 Box (50 Test)'
 ),
 (
@@ -222,7 +232,7 @@ INSERT INTO products (id, slug, name, category_slug, category_name, sku, brand, 
   '/brand/logo_akm.jpg',
   FALSE,
   TRUE,
-  'Ready Stock Jabodetabek',
+  'Tersedia Jabodetabek',
   '1 Unit'
 ),
 (
@@ -266,7 +276,7 @@ INSERT INTO products (id, slug, name, category_slug, category_name, sku, brand, 
   '/brand/logo_akm.jpg',
   FALSE,
   TRUE,
-  'Ready Stock Jabodetabek',
+  'Tersedia Jabodetabek',
   '1 Kit (6 x 5 mL)'
 ),
 (
@@ -288,7 +298,7 @@ INSERT INTO products (id, slug, name, category_slug, category_name, sku, brand, 
   '/brand/logo_akm.jpg',
   TRUE,
   TRUE,
-  'Ready Stock Jabodetabek',
+  'Tersedia Jabodetabek',
   '1 Botol (500 mL)'
 ),
 (
@@ -310,7 +320,7 @@ INSERT INTO products (id, slug, name, category_slug, category_name, sku, brand, 
   '/brand/logo_akm.jpg',
   FALSE,
   TRUE,
-  'Ready Stock Jabodetabek',
+  'Tersedia Jabodetabek',
   '1 Pack (5 Ampul)'
 ),
 (
@@ -332,7 +342,7 @@ INSERT INTO products (id, slug, name, category_slug, category_name, sku, brand, 
   '/brand/logo_akm.jpg',
   FALSE,
   TRUE,
-  'Ready Stock Jabodetabek',
+  'Tersedia Jabodetabek',
   '1 Botol (1 L)'
 ),
 (
@@ -354,7 +364,7 @@ INSERT INTO products (id, slug, name, category_slug, category_name, sku, brand, 
   '/brand/logo_akm.jpg',
   FALSE,
   TRUE,
-  'Ready Stock Jabodetabek',
+  'Tersedia Jabodetabek',
   '1 Botol (500 mL)'
 )
 ON CONFLICT (slug) DO NOTHING;

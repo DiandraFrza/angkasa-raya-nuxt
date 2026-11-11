@@ -42,13 +42,20 @@ export default defineEventHandler(async (event) => {
     }
   } else {
     const db = useDb();
-    user = db.prepare("SELECT id, username, name, password_hash, salt, role FROM users WHERE LOWER(username) = LOWER(?)").get(username) as any;
+    user = db.prepare("SELECT id, username, name, password_hash, salt, role, is_active FROM users WHERE LOWER(username) = LOWER(?)").get(username) as any;
   }
 
   if (!user) {
     throw createError({
       statusCode: 401,
       statusMessage: "Kredensial login tidak cocok. Periksa kembali username dan kata sandi.",
+    });
+  }
+
+  if (user.is_active === 0 || user.is_active === false) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Akun Anda berstatus Nonaktif. Hubungi Super Admin untuk mengaktifkan kembali akses.",
     });
   }
 

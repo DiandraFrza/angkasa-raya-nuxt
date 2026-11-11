@@ -2,6 +2,7 @@
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { createError } from "h3";
+import { normalizeAvailabilityStatus } from "./productSecurity";
 
 let supabaseInstance: SupabaseClient | null = null;
 
@@ -61,25 +62,39 @@ function parseJsonSafe(val: any) {
   }
 }
 
+function mapDocuments(val: any, includeInactive = false) {
+  const docs = parseJsonSafe(val);
+  if (!Array.isArray(docs)) return [];
+  return docs
+    .map((d: any) => ({
+      ...d,
+      isActive: d?.isActive !== false,
+    }))
+    .filter((d: any) => includeInactive || d.isActive !== false);
+}
+
 // ==========================================
 // 1. CATEGORIES REPOSITORY
 // ==========================================
 
-export const supabaseGetCategories = async () => {
+export const supabaseGetCategories = async (includeInactive = false) => {
   const sb = useSupabase();
   const { data, error } = await sb.from("categories").select("*").order("id", { ascending: true });
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
 
-  return (data || []).map((r) => ({
-    id: r.id,
-    slug: r.slug,
-    name: r.name,
-    description: r.description,
-    isInstrument: Boolean(r.is_instrument),
-  }));
+  return (data || [])
+    .filter((r) => includeInactive || r.is_active !== false)
+    .map((r) => ({
+      id: r.id,
+      slug: r.slug,
+      name: r.name,
+      description: r.description,
+      isInstrument: Boolean(r.is_instrument),
+      isActive: r.is_active !== false,
+    }));
 };
 
-export const supabaseCreateCategory = async (cat: { id: string; slug: string; name: string; description: string; isInstrument: boolean }) => {
+export const supabaseCreateCategory = async (cat: { id: string; slug: string; name: string; description: string; isInstrument: boolean; isActive?: boolean }) => {
   const sb = useSupabase();
   const { error } = await sb.from("categories").insert({
     id: cat.id,
@@ -87,17 +102,19 @@ export const supabaseCreateCategory = async (cat: { id: string; slug: string; na
     name: cat.name,
     description: cat.description,
     is_instrument: cat.isInstrument,
+    is_active: cat.isActive !== undefined ? Boolean(cat.isActive) : true,
   });
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
   return cat;
 };
 
-export const supabaseUpdateCategory = async (id: string, cat: { name?: string; description?: string; isInstrument?: boolean }) => {
+export const supabaseUpdateCategory = async (id: string, cat: { name?: string; description?: string; isInstrument?: boolean; isActive?: boolean }) => {
   const sb = useSupabase();
   const updateData: any = {};
   if (cat.name !== undefined) updateData.name = cat.name;
   if (cat.description !== undefined) updateData.description = cat.description;
   if (cat.isInstrument !== undefined) updateData.is_instrument = Boolean(cat.isInstrument);
+  if (cat.isActive !== undefined) updateData.is_active = Boolean(cat.isActive);
 
   const { error } = await sb.from("categories").update(updateData).eq("id", id);
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
@@ -143,7 +160,7 @@ export const supabaseDeleteCategory = async (idOrSlug: string) => {
 // 2. PRODUCTS REPOSITORY
 // ==========================================
 
-export const supabaseGetProducts = async (category?: string, search?: string) => {
+export const supabaseGetProducts = async (category?: string, search?: string, includeInactive = false) => {
   const sb = useSupabase();
   let query = sb.from("products").select("*");
 
@@ -158,41 +175,60 @@ export const supabaseGetProducts = async (category?: string, search?: string) =>
 
   query = query.order("created_at", { ascending: false });
 
-  const { data, error } = await query;
+  const [{ data, error }, { data: cats }] = await Promise.all([
+    query,
+    includeInactive ? Promise.resolve({ data: [] as any[] }) : sb.from("categories").select("slug, is_active"),
+  ]);
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
 
-  return (data || []).map((r) => ({
-    id: r.id,
-    slug: r.slug,
-    name: r.name,
-    categorySlug: r.category_slug,
-    categoryName: r.category_name,
-    sku: r.sku,
-    brand: r.brand,
-    grade: r.grade,
-    casNumber: r.cas_number,
-    chemicalFormula: r.chemical_formula,
-    shortDescription: r.short_description,
-    description: r.description,
-    packaging: parseJsonSafe(r.packaging_json),
-    specifications: parseJsonSafe(r.specifications_json),
-    documents: parseJsonSafe(r.documents_json),
-    imageUrl: r.image_url,
-    isFeatured: Boolean(r.is_featured),
-    isVerified: Boolean(r.is_verified),
-    leadTime: r.lead_time,
-    minOrderQuantity: r.min_order_quantity,
-    createdAt: r.created_at,
-    updatedAt: r.updated_at,
-  }));
+  const inactiveCatSlugs = new Set((cats || []).filter((c: any) => c.is_active === false).map((c: any) => c.slug));
+
+  return (data || [])
+    .filter((r) => includeInactive || (r.is_active !== false && !inactiveCatSlugs.has(r.category_slug)))
+    .map((r) => ({
+      id: r.id,
+      slug: r.slug,
+      name: r.name,
+      categorySlug: r.category_slug,
+      categoryName: r.category_name,
+      sku: r.sku,
+      brand: r.brand,
+      grade: r.grade,
+      casNumber: r.cas_number,
+      chemicalFormula: r.chemical_formula,
+      shortDescription: r.short_description,
+      description: r.description,
+      packaging: parseJsonSafe(r.packaging_json),
+      specifications: parseJsonSafe(r.specifications_json),
+      documents: mapDocuments(r.documents_json, includeInactive),
+      imageUrl: r.image_url,
+      isFeatured: Boolean(r.is_featured),
+      isVerified: Boolean(r.is_verified),
+      isActive: r.is_active !== false,
+      availabilityStatus: normalizeAvailabilityStatus(r.availability_status, r.lead_time),
+      leadTime: r.lead_time,
+      minOrderQuantity: r.min_order_quantity,
+      createdAt: r.created_at,
+      updatedAt: r.updated_at,
+    }));
 };
 
-export const supabaseGetProductByIdOrSlug = async (idOrSlug: string) => {
+export const supabaseGetProductByIdOrSlug = async (idOrSlug: string, includeInactive = false) => {
   const sb = useSupabase();
   const { data: r, error } = await sb.from("products").select("*").or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`).maybeSingle();
 
   if (error || !r) {
     throw createError({ statusCode: 404, statusMessage: "Produk tidak ditemukan." });
+  }
+
+  if (!includeInactive) {
+    if (r.is_active === false) {
+      throw createError({ statusCode: 404, statusMessage: "Produk sedang dinonaktifkan." });
+    }
+    const { data: cat } = await sb.from("categories").select("is_active").eq("slug", r.category_slug).maybeSingle();
+    if (cat && cat.is_active === false) {
+      throw createError({ statusCode: 404, statusMessage: "Kategori produk sedang dinonaktifkan." });
+    }
   }
 
   return {
@@ -210,10 +246,12 @@ export const supabaseGetProductByIdOrSlug = async (idOrSlug: string) => {
     description: r.description,
     packaging: parseJsonSafe(r.packaging_json),
     specifications: parseJsonSafe(r.specifications_json),
-    documents: parseJsonSafe(r.documents_json),
+    documents: mapDocuments(r.documents_json, includeInactive),
     imageUrl: r.image_url,
     isFeatured: Boolean(r.is_featured),
     isVerified: Boolean(r.is_verified),
+    isActive: r.is_active !== false,
+    availabilityStatus: normalizeAvailabilityStatus(r.availability_status, r.lead_time),
     leadTime: r.lead_time,
     minOrderQuantity: r.min_order_quantity,
     createdAt: r.created_at,
@@ -237,7 +275,7 @@ export const supabaseCreateProduct = async (productData: any) => {
   const { data: cat } = await sb.from("categories").select("name").eq("slug", productData.categorySlug).maybeSingle();
   const categoryName = cat ? cat.name : productData.categoryName || productData.categorySlug;
 
-  const row = {
+  const row: Record<string, any> = {
     id: productData.id,
     slug: productData.slug,
     name: productData.name,
@@ -256,11 +294,18 @@ export const supabaseCreateProduct = async (productData: any) => {
     image_url: productData.imageUrl || null,
     is_featured: Boolean(productData.isFeatured),
     is_verified: productData.isVerified !== undefined ? Boolean(productData.isVerified) : true,
+    is_active: productData.isActive !== undefined ? Boolean(productData.isActive) : true,
+    availability_status: normalizeAvailabilityStatus(productData.availabilityStatus, productData.leadTime),
     lead_time: productData.leadTime || null,
     min_order_quantity: productData.minOrderQuantity || null,
   };
 
-  const { error } = await sb.from("products").insert(row);
+  let { error } = await sb.from("products").insert(row);
+  if (error && error.message?.includes("availability_status")) {
+    const fallbackRow = { ...row };
+    delete fallbackRow.availability_status;
+    ({ error } = await sb.from("products").insert(fallbackRow));
+  }
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
 
   return row;
@@ -307,10 +352,22 @@ export const supabaseUpdateProduct = async (id: string, productData: any) => {
   if (productData.imageUrl !== undefined) updateFields.image_url = productData.imageUrl;
   if (productData.isFeatured !== undefined) updateFields.is_featured = Boolean(productData.isFeatured);
   if (productData.isVerified !== undefined) updateFields.is_verified = Boolean(productData.isVerified);
+  if (productData.isActive !== undefined) updateFields.is_active = Boolean(productData.isActive);
+  if (productData.availabilityStatus !== undefined) {
+    updateFields.availability_status = normalizeAvailabilityStatus(
+      productData.availabilityStatus,
+      productData.leadTime,
+    );
+  }
   if (productData.leadTime !== undefined) updateFields.lead_time = productData.leadTime;
   if (productData.minOrderQuantity !== undefined) updateFields.min_order_quantity = productData.minOrderQuantity;
 
-  const { error } = await sb.from("products").update(updateFields).eq("id", id);
+  let { error } = await sb.from("products").update(updateFields).eq("id", id);
+  if (error && error.message?.includes("availability_status")) {
+    const fallbackFields = { ...updateFields };
+    delete fallbackFields.availability_status;
+    ({ error } = await sb.from("products").update(fallbackFields).eq("id", id));
+  }
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
 
   return { success: true, message: "Data produk berhasil diperbarui." };
@@ -400,9 +457,12 @@ export const supabaseUpdateSettings = async (settings: Record<string, string>) =
 
 export const supabaseGetUsers = async () => {
   const sb = useSupabase();
-  const { data, error } = await sb.from("users").select("id, username, name, role, created_at, updated_at").order("created_at", { ascending: false });
+  const { data, error } = await sb.from("users").select("id, username, name, role, is_active, created_at, updated_at").order("created_at", { ascending: false });
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
-  return data || [];
+  return (data || []).map((u: any) => ({
+    ...u,
+    is_active: u.is_active !== false,
+  }));
 };
 
 export const supabaseGetUserByUsername = async (username: string) => {
@@ -421,6 +481,7 @@ export const supabaseCreateUser = async (user: any) => {
     password_hash: user.password_hash,
     salt: user.salt,
     role: user.role,
+    is_active: user.is_active !== undefined ? Boolean(user.is_active) : true,
   });
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
   return user;
@@ -431,6 +492,11 @@ export const supabaseDeleteUser = async (id: string) => {
   const { error } = await sb.from("users").delete().eq("id", id);
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
   return { success: true };
+};
+
+export const supabaseDestroyUserSessions = async (userId: string) => {
+  const sb = useSupabase();
+  await sb.from("sessions").delete().eq("user_id", userId);
 };
 
 export const supabaseCreateSession = async (sessionId: string, userId: string, expiresAt: number) => {
@@ -445,15 +511,20 @@ export const supabaseCreateSession = async (sessionId: string, userId: string, e
 
 export const supabaseGetSessionUser = async (sessionId: string, now: number) => {
   const sb = useSupabase();
-  const { data: session } = await sb.from("sessions").select("id, expires_at, user_id, users ( id, username, name, role, created_at )").eq("id", sessionId).gt("expires_at", now).maybeSingle();
+  const { data: session } = await sb.from("sessions").select("id, expires_at, user_id, users ( id, username, name, role, is_active, created_at )").eq("id", sessionId).gt("expires_at", now).maybeSingle();
 
   if (!session || !session.users) return null;
   const u: any = session.users;
+  if (u.is_active === false) {
+    await supabaseDestroySession(sessionId);
+    return null;
+  }
   return {
     id: u.id,
     username: u.username,
     name: u.name,
     role: u.role,
+    is_active: u.is_active !== false,
     created_at: u.created_at,
   };
 };

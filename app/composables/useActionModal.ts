@@ -26,7 +26,7 @@ const confirmState = ref({
   isOpen: false,
   title: "Konfirmasi Tindakan",
   message: "",
-  confirmText: "Ya, Hapus",
+  confirmText: "Ya",
   cancelText: "Tidak",
   isDanger: true,
   isLoading: false,
@@ -70,9 +70,9 @@ export const useActionModal = () => {
   const showConfirm = (options: ConfirmModalOptions) => {
     confirmState.value = {
       isOpen: true,
-      title: options.title || "Konfirmasi Hapus",
+      title: options.title || "Konfirmasi Tindakan",
       message: options.message,
-      confirmText: options.confirmText || "Ya, Hapus",
+      confirmText: options.confirmText || "Ya",
       cancelText: options.cancelText || "Tidak",
       isDanger: options.isDanger !== undefined ? options.isDanger : true,
       isLoading: false,
@@ -87,7 +87,7 @@ export const useActionModal = () => {
   };
 
   const executeConfirm = async () => {
-    if (!confirmState.value.onConfirm) return;
+    if (confirmState.value.isLoading || !confirmState.value.onConfirm) return;
     confirmState.value.isLoading = true;
     try {
       await confirmState.value.onConfirm();
@@ -102,11 +102,19 @@ export const useActionModal = () => {
   /**
    * Tampilkan modal peringatan / alert pengganti window.alert.
    */
-  const showAlert = (options: AlertModalOptions) => {
+  const showAlert = (titleOrOptions: string | AlertModalOptions, message = "") => {
+    if (typeof titleOrOptions === "string") {
+      alertState.value = {
+        isOpen: true,
+        title: titleOrOptions || "Perhatian",
+        message,
+      };
+      return;
+    }
     alertState.value = {
       isOpen: true,
-      title: options.title || "Perhatian",
-      message: options.message,
+      title: titleOrOptions.title || "Perhatian",
+      message: titleOrOptions.message,
     };
   };
 

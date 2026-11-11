@@ -19,8 +19,8 @@ const { categories } = useCatalog();
         <!-- Brand & Description (5 cols) -->
         <div class="lg:col-span-5 space-y-4">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-white p-1 flex items-center justify-center overflow-hidden">
-              <img :src="settings.logo_url || '/brand/logo_akm.jpg'" :alt="`Logo ${settings.company_name}`" class="w-full h-full object-contain" />
+            <div class="w-10 h-10 rounded-md bg-white p-1 flex items-center justify-center overflow-hidden">
+              <img :src="settings.logo_url || '/brand/logo_akm.jpg'" :alt="`Logo ${settings.company_name}`" loading="lazy" decoding="async" class="w-full h-full object-contain" />
             </div>
             <div>
               <span class="font-manrope font-extrabold text-[18px] tracking-tight block text-white leading-tight">
@@ -34,7 +34,7 @@ const { categories } = useCatalog();
 
           <p class="text-[14px] text-white/75 leading-relaxed font-sans max-w-md">Penyedia reagen diagnostik, bahan standar laboratorium, dan instrumen analisis ilmiah dengan fokus pada kejelasan spesifikasi teknis dan keterbukaan informasi untuk fasilitas kesehatan, riset, dan industri.</p>
 
-          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-[12px] text-white/80">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 text-[12px] text-white/80">
             <ShieldCheck class="w-4 h-4 text-[#A3EEEC]" />
             <span>Fokus Wilayah Pengadaan: {{ settings.distribution_focus }}</span>
           </div>
@@ -47,7 +47,7 @@ const { categories } = useCatalog();
             <li v-for="cat in categories" :key="cat.id">
               <NuxtLink :to="`/products?category=${cat.slug}`" class="hover:text-[#89CBDD] transition-colors inline-flex items-center gap-1.5 group">
                 <span>{{ cat.name }}</span>
-                <span v-if="cat.isInstrument" class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[#A3EEEC]/20 text-[#A3EEEC]">Alat</span>
+                <span v-if="cat.isInstrument" class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-xl bg-[#A3EEEC]/20 text-[#A3EEEC]">Alat</span>
               </NuxtLink>
             </li>
           </ul>
@@ -78,8 +78,8 @@ const { categories } = useCatalog();
           </ul>
 
           <div class="pt-3">
-            <button type="button" class="group inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13.5px] transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer w-full sm:w-auto" @click="openModal()">
-              <span>Ajukan Daftar Kebutuhan </span>
+            <button type="button" class="group inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-md bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13.5px] transition-all cursor-pointer w-full sm:w-auto" @click="openModal()">
+              <span>Penawaran</span>
               <ArrowUpRight class="w-4 h-4 text-[#082838] transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform duration-300" />
             </button>
           </div>

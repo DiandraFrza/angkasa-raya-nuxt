@@ -1,9 +1,11 @@
 <!-- @format -->
 
 <script setup lang="ts">
+import { defineAsyncComponent } from "vue";
 import AppHeader from "~/components/layout/AppHeader.vue";
 import AppFooter from "~/components/layout/AppFooter.vue";
-import QuoteModal from "~/components/forms/QuoteModal.vue";
+
+const LazyQuoteModal = defineAsyncComponent(() => import("~/components/forms/QuoteModal.vue"));
 </script>
 
 <template>
@@ -13,6 +15,6 @@ import QuoteModal from "~/components/forms/QuoteModal.vue";
       <slot />
     </main>
     <AppFooter />
-    <QuoteModal />
+    <LazyQuoteModal />
   </div>
 </template>

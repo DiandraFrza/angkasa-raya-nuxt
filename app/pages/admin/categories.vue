@@ -2,18 +2,21 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { Plus, Trash2, Edit3, Layers, AlertCircle, X } from "lucide-vue-next";
+import { Plus, Power, Edit3, Layers, AlertCircle, X, RotateCcw } from "lucide-vue-next";
+import TableControlBar from "~/components/admin/TableControlBar.vue";
+import TablePaginationFooter from "~/components/admin/TablePaginationFooter.vue";
+import ActionMenuPopover, { type ActionMenuItem } from "~/components/admin/ActionMenuPopover.vue";
 import type { Product } from "~/types/catalog";
 import { useCatalog } from "~/composables/useCatalog";
-import { useSiteSettings } from "~/composables/useSiteSettings";
 import { useAdminAuth } from "~/composables/useAdminAuth";
 import { useActionModal } from "~/composables/useActionModal";
+import { useTablePagination } from "~/composables/useTablePagination";
+import { useEscapeDismiss, useModalAutoFocus } from "~/composables/useKeyboardShortcuts";
 
 definePageMeta({
   layout: "admin",
 });
 
-const { settings } = useSiteSettings();
 const { isSuperAdmin } = useAdminAuth();
 const { refreshCatalog } = useCatalog();
 const { showSuccess, showConfirm, showAlert } = useActionModal();
@@ -22,48 +25,126 @@ useSeoMeta({
   title: () => `Kategori Produk`,
 });
 
-// Fetch categories & products for counting
-const { data: categoriesData, refresh: refreshCategories } = await useFetch<any[]>("/api/categories");
-const { data: productsData } = await useFetch<Product[]>("/api/products");
+const { data: categoriesData, refresh: refreshCategories } = await useFetch<any[]>("/api/categories?includeInactive=true");
+const { data: productsData } = await useFetch<Product[]>("/api/products?includeInactive=true");
 
 const categories = computed(() => categoriesData.value || []);
 const products = computed(() => productsData.value || []);
 
-// Modal State (Create & Edit)
+const searchQuery = ref("");
+const statusFilter = ref<"all" | "active" | "inactive">("all");
+
+const filteredCategories = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase();
+  return categories.value.filter((cat: any) => {
+    if (statusFilter.value === "active" && cat.isActive === false) return false;
+    if (statusFilter.value === "inactive" && cat.isActive !== false) return false;
+    if (!q) return true;
+    const typeText = cat.isInstrument ? "alat mesin instrumen" : "reagen bahan";
+    const haystack = [cat.name, cat.slug, cat.description || "", typeText].join(" ").toLowerCase();
+    return haystack.includes(q);
+  });
+});
+
+const { pageSizeOptions, pageSize, currentPage, totalItems: totalFilteredCategories, totalPages, paginatedItems: paginatedCategories, startRange, endRange, goToPage, prevPage, nextPage } = useTablePagination(filteredCategories, { defaultPageSize: 10 });
+
+const getActiveProductCount = (slug: string) => {
+  return products.value.filter((p) => p.categorySlug === slug && p.isActive !== false).length;
+};
+
+interface CategoryDraft {
+  name: string;
+  description: string;
+  isInstrument: boolean;
+}
+
+const draftsCache = ref<Record<string, CategoryDraft>>({});
 const showCategoryModal = ref(false);
+const categoryModalRef = ref<HTMLElement | null>(null);
 const modalMode = ref<"create" | "edit">("create");
 const selectedCatId = ref<string>("");
+const selectedCatOriginal = ref<any | null>(null);
 const catName = ref("");
 const catDescription = ref("");
 const catIsInstrument = ref(false);
 const isSavingCategory = ref(false);
 const categoryActionError = ref<string | null>(null);
 
+const activeDraftKey = computed(() => (modalMode.value === "edit" && selectedCatId.value ? `edit:${selectedCatId.value}` : "create"));
+
+const syncDraft = () => {
+  draftsCache.value[activeDraftKey.value] = {
+    name: catName.value,
+    description: catDescription.value,
+    isInstrument: catIsInstrument.value,
+  };
+};
+
 const openCreateCategoryModal = () => {
   modalMode.value = "create";
   selectedCatId.value = "";
-  catName.value = "";
-  catDescription.value = "";
-  catIsInstrument.value = false;
+  selectedCatOriginal.value = null;
   categoryActionError.value = null;
+
+  const saved = draftsCache.value.create;
+  if (saved) {
+    catName.value = saved.name;
+    catDescription.value = saved.description;
+    catIsInstrument.value = saved.isInstrument;
+  } else {
+    catName.value = "";
+    catDescription.value = "";
+    catIsInstrument.value = false;
+  }
   showCategoryModal.value = true;
 };
 
 const openEditCategoryModal = (cat: any) => {
   modalMode.value = "edit";
   selectedCatId.value = cat.id;
-  catName.value = cat.name;
-  catDescription.value = cat.description || "";
-  catIsInstrument.value = Boolean(cat.isInstrument);
+  selectedCatOriginal.value = cat;
   categoryActionError.value = null;
+
+  const key = `edit:${cat.id}`;
+  const saved = draftsCache.value[key];
+  if (saved) {
+    catName.value = saved.name;
+    catDescription.value = saved.description;
+    catIsInstrument.value = saved.isInstrument;
+  } else {
+    catName.value = cat.name;
+    catDescription.value = cat.description || "";
+    catIsInstrument.value = Boolean(cat.isInstrument);
+  }
   showCategoryModal.value = true;
 };
 
 const closeCategoryModal = () => {
+  if (isSavingCategory.value) return;
+  syncDraft();
   showCategoryModal.value = false;
 };
 
+useModalAutoFocus(() => showCategoryModal.value, categoryModalRef);
+useEscapeDismiss(() => showCategoryModal.value, closeCategoryModal);
+
+const handleResetCategoryModal = () => {
+  if (isSavingCategory.value) return;
+  if (modalMode.value === "edit" && selectedCatOriginal.value) {
+    catName.value = selectedCatOriginal.value.name || "";
+    catDescription.value = selectedCatOriginal.value.description || "";
+    catIsInstrument.value = Boolean(selectedCatOriginal.value.isInstrument);
+  } else {
+    catName.value = "";
+    catDescription.value = "";
+    catIsInstrument.value = false;
+  }
+  delete draftsCache.value[activeDraftKey.value];
+  categoryActionError.value = null;
+};
+
 const handleSaveCategory = async () => {
+  if (isSavingCategory.value) return;
   if (!catName.value.trim()) {
     categoryActionError.value = "Nama kategori wajib diisi.";
     return;
@@ -80,6 +161,7 @@ const handleSaveCategory = async () => {
           isInstrument: catIsInstrument.value,
         },
       });
+      delete draftsCache.value[activeDraftKey.value];
       showCategoryModal.value = false;
       showSuccess("Data Berhasil Diedit", `Kategori "${catName.value}" telah diperbarui.`);
     } else {
@@ -91,8 +173,12 @@ const handleSaveCategory = async () => {
           isInstrument: catIsInstrument.value,
         },
       });
+      delete draftsCache.value.create;
+      catName.value = "";
+      catDescription.value = "";
+      catIsInstrument.value = false;
       showCategoryModal.value = false;
-      showSuccess("Data Berhasil Disimpan", `Kategori "${catName.value}" telah ditambahkan.`);
+      showSuccess("Data Berhasil Disimpan", "Kategori baru berhasil ditambahkan.");
     }
 
     await refreshCategories();
@@ -104,203 +190,257 @@ const handleSaveCategory = async () => {
   }
 };
 
-const handleDeleteCategory = (cat: any) => {
+const handleToggleCategoryStatus = (cat: any) => {
   if (!isSuperAdmin.value) {
-    showAlert({
-      title: "Akses Ditolak",
-      message: "Hanya Super Admin yang diizinkan untuk menghapus kategori.",
-    });
+    showAlert("Akses Ditolak", "Hanya Super Admin yang dapat mengubah status aktif kategori.");
     return;
   }
 
-  const linkedCount = products.value.filter((p) => p.categorySlug === cat.slug).length;
-  if (linkedCount > 0) {
-    showAlert({
-      title: "Kategori Masih Digunakan",
-      message: `Tidak dapat menghapus kategori "${cat.name}" karena masih memiliki ${linkedCount} produk aktif. Harap ubah kategori produk terkait terlebih dahulu.`,
-    });
-    return;
-  }
+  const nextActive = cat.isActive === false;
+  const actionLabel = nextActive ? "Aktifkan" : "Nonaktifkan";
 
   showConfirm({
-    title: "Konfirmasi Hapus Kategori",
-    message: `Apakah Anda yakin ingin menghapus kategori "${cat.name}"? Tindakan ini tidak dapat dibatalkan.`,
-    confirmText: "Ya, Hapus",
+    title: `${actionLabel} Kategori?`,
+    message: nextActive ? `Kategori "${cat.name}" akan ditampilkan kembali di katalog publik.` : `Kategori "${cat.name}" akan disembunyikan sementara (Soft Delete). Data tetap aman tersimpan.`,
+    confirmText: actionLabel,
     cancelText: "Batal",
+    isDanger: !nextActive,
     onConfirm: async () => {
-      await $fetch(`/api/categories/${cat.id}`, { method: "DELETE" });
+      await $fetch(`/api/categories/${cat.id}`, {
+        method: "PUT",
+        body: { isActive: nextActive },
+      });
       await refreshCategories();
       await refreshCatalog();
-      showSuccess("Data Berhasil Dihapus", `Kategori "${cat.name}" telah dihapus.`);
+      showSuccess(nextActive ? "Kategori Diaktifkan" : "Kategori Dinonaktifkan", `Status "${cat.name}" berhasil diperbarui.`);
     },
   });
+};
+
+const getRowActions = (cat: any): ActionMenuItem[] => {
+  const actions: ActionMenuItem[] = [
+    {
+      id: "edit",
+      label: "Edit",
+      icon: Edit3,
+      variant: "default",
+      onClick: () => openEditCategoryModal(cat),
+    },
+  ];
+
+  if (isSuperAdmin.value) {
+    const isActive = cat.isActive !== false;
+    actions.push({
+      id: "toggle-status",
+      label: isActive ? "Nonaktifkan" : "Aktifkan",
+      icon: Power,
+      variant: isActive ? "warning" : "success",
+      onClick: () => handleToggleCategoryStatus(cat),
+    });
+  }
+
+  return actions;
 };
 </script>
 
 <template>
-  <div class="space-y-8 animate-fade-up">
+  <div class="space-y-5 animate-fade-up">
     <!-- Header Page -->
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-2">
-      <!-- Top Action Buttons -->
-      <div class="flex flex-wrap items-center gap-3 shrink-0 self-start sm:self-auto">
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13.5px] transition-all shadow-xs hover:shadow-md cursor-pointer"
-          @click="openCreateCategoryModal"
-        >
-          <Plus class="w-4 h-4" />
-          <span>Tambah Kategori Baru</span>
-        </button>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="font-manrope font-extrabold text-xl sm:text-2xl text-[#0D2235]">Kategori Produk</h1>
+        <p class="text-xs text-[#486581] mt-0.5">Kelola pengelompokan sediaan reagen & alat ({{ categories.length }} kategori)</p>
       </div>
+
+      <button type="button" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-xs sm:text-[13px] transition-all shadow-xs cursor-pointer" @click="openCreateCategoryModal">
+        <Plus class="w-4 h-4" />
+        <span>Tambah</span>
+      </button>
     </div>
 
-    <!-- Categories Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      <div
-        v-for="cat in categories"
-        :key="cat.slug"
-        class="bg-white rounded-3xl p-6 border border-[#D0F2F9]/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4"
-      >
-        <div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <span
-              class="text-[10.5px] font-manrope font-extrabold uppercase px-2.5 py-0.5 rounded-full"
-              :class="cat.isInstrument ? 'bg-[#ADDFF1]/40 text-[#082838]' : 'bg-[#A3EEEC]/50 text-[#054E4C]'"
-            >
-              {{ cat.isInstrument ? "Alat / Instrumen" : "Reagen & Bahan" }}
-            </span>
-            <span class="text-[11px] font-mono text-[#486581]">{{ cat.slug }}</span>
-          </div>
-
-          <h4 class="font-manrope font-bold text-[17px] text-[#0D2235]">
-            {{ cat.name }}
-          </h4>
-          <p class="text-[13px] text-[#486581] leading-relaxed">
-            {{ cat.description || "Tidak ada deskripsi tambahan." }}
-          </p>
-        </div>
-
-        <div class="pt-4 border-t border-[#D0F2F9]/40 flex items-center justify-between text-[12.5px]">
-          <span class="font-medium text-[#486581]">
-            <strong class="text-[#0D2235]">{{ products.filter((p) => p.categorySlug === cat.slug).length }}</strong> produk aktif
-          </span>
-
-          <div class="flex items-center gap-2">
-            <!-- Edit Button via Modal -->
+    <!-- Table Card (Excel-like striped, responsive horizontal scroll, unified controls & pagination) -->
+    <div class="bg-white rounded-xl shadow-xs overflow-hidden">
+      <TableControlBar v-model:page-size="pageSize" v-model:search-query="searchQuery" :page-size-options="pageSizeOptions" search-placeholder="Cari kategori, slug, deskripsi...">
+        <template #filters>
+          <div class="inline-flex items-center gap-1 p-1 rounded-xl bg-[#E9F8FF]/70">
             <button
+              v-for="tab in [
+                { id: 'all', label: 'Semua' },
+                { id: 'active', label: 'Aktif' },
+                { id: 'inactive', label: 'Nonaktif' },
+              ]"
+              :key="tab.id"
               type="button"
-              class="text-[#082838] hover:text-[#1B7E98] font-manrope font-bold text-[12px] flex items-center gap-1 cursor-pointer transition-colors p-1.5 rounded-xl hover:bg-[#E9F8FF]"
-              title="Edit Kategori"
-              @click="openEditCategoryModal(cat)"
+              class="px-2.5 py-1 rounded-lg text-[11.5px] font-manrope font-bold transition-colors cursor-pointer whitespace-nowrap"
+              :class="statusFilter === tab.id ? 'bg-white text-[#082838] shadow-xs' : 'text-[#486581] hover:text-[#082838]'"
+              @click="statusFilter = tab.id as any"
             >
-              <Edit3 class="w-3.5 h-3.5" />
-              <span>Edit</span>
-            </button>
-
-            <!-- Delete Button via Modal Confirm -->
-            <button
-              v-if="isSuperAdmin"
-              type="button"
-              class="text-red-600 hover:text-red-800 font-manrope font-bold text-[12px] flex items-center gap-1 cursor-pointer transition-colors p-1.5 rounded-xl hover:bg-red-50"
-              title="Hapus Kategori (Super Admin)"
-              @click="handleDeleteCategory(cat)"
-            >
-              <Trash2 class="w-3.5 h-3.5" />
-              <span>Hapus</span>
+              {{ tab.label }}
             </button>
           </div>
-        </div>
+        </template>
+      </TableControlBar>
+
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[780px] text-left border-collapse">
+          <thead>
+            <tr class="bg-[#D0F2F9]/60 border-b border-[#89CBDD]/25 divide-x divide-[#89CBDD]/20 text-[11px] font-manrope font-extrabold uppercase tracking-wider text-[#082838]">
+              <th class="px-4 py-3 whitespace-nowrap">Kategori</th>
+              <th class="px-4 py-3 whitespace-nowrap">Jenis Sediaan</th>
+              <th class="px-4 py-3 whitespace-nowrap">Slug</th>
+              <th class="px-4 py-3 whitespace-nowrap text-center">Produk Aktif</th>
+              <th class="px-4 py-3 whitespace-nowrap">Status</th>
+              <th class="px-4 py-3 whitespace-nowrap text-right">Aksi</th>
+            </tr>
+          </thead>
+
+          <tbody v-if="paginatedCategories.length > 0" class="divide-y divide-slate-100 text-[13px]">
+            <tr v-for="(cat, idx) in paginatedCategories" :key="cat.id || cat.slug" class="transition-colors divide-x divide-slate-100/90 hover:bg-[#E9F8FF]/60" :class="[idx % 2 === 0 ? 'bg-white' : 'bg-[#F4FBFE]', cat.isActive === false ? 'opacity-65' : '']">
+              <!-- Kategori & Deskripsi -->
+              <td class="px-4 py-3 max-w-[290px]">
+                <div class="font-manrope font-bold text-[#0D2235] leading-snug">
+                  {{ cat.name }}
+                </div>
+                <p class="text-[11.5px] text-[#486581] line-clamp-2 mt-0.5 leading-relaxed">
+                  {{ cat.description || "Tidak ada deskripsi tambahan." }}
+                </p>
+              </td>
+
+              <!-- Jenis Sediaan -->
+              <td class="px-4 py-3 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-manrope font-bold" :class="cat.isInstrument ? 'bg-[#ADDFF1]/35 text-[#082838]' : 'bg-[#A3EEEC]/40 text-[#054E4C]'">
+                  {{ cat.isInstrument ? "Alat / Instrumen" : "Reagen & Bahan" }}
+                </span>
+              </td>
+
+              <!-- Slug -->
+              <td class="px-4 py-3 whitespace-nowrap">
+                <span class="px-2 py-1 rounded-md bg-slate-100/80 text-[#486581] font-mono text-[11.5px]">
+                  {{ cat.slug }}
+                </span>
+              </td>
+
+              <!-- Jumlah Produk Aktif -->
+              <td class="px-4 py-3 whitespace-nowrap text-center">
+                <span class="inline-flex items-center justify-center min-w-[32px] px-2 py-0.5 rounded-md bg-[#E9F8FF] text-[#082838] font-manrope font-bold text-xs">
+                  {{ getActiveProductCount(cat.slug) }}
+                </span>
+              </td>
+
+              <!-- Status -->
+              <td class="px-4 py-3 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-manrope font-bold" :class="cat.isActive !== false ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'">
+                  {{ cat.isActive !== false ? "Aktif" : "Nonaktif" }}
+                </span>
+              </td>
+
+              <!-- Single Aksi Popover Button -->
+              <td class="px-4 py-3 whitespace-nowrap text-right">
+                <ActionMenuPopover :items="getRowActions(cat)" />
+              </td>
+            </tr>
+          </tbody>
+
+          <tbody v-else>
+            <tr>
+              <td colspan="6" class="px-4 py-12 text-center text-xs text-[#486581]">Tidak ada kategori yang sesuai dengan filter atau pencarian saat ini.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+
+      <TablePaginationFooter :current-page="currentPage" :total-pages="totalPages" :total-items="totalFilteredCategories" :start-range="startRange" :end-range="endRange" @prev="prevPage" @next="nextPage" @go="goToPage" />
     </div>
 
-    <!-- MODAL: TAMBAH / EDIT KATEGORI -->
+    <!-- MODAL: TAMBAH / EDIT KATEGORI (State Retention + Checkbox UI + Keyboard UX) -->
     <Teleport to="body">
-      <div v-if="showCategoryModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div v-if="showCategoryModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="category-modal-title">
         <div class="fixed inset-0 bg-[#0D253A]/40 backdrop-blur-xs" @click="closeCategoryModal" />
-        <div class="relative bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-[#ADDFF1]/50 space-y-5 animate-scale-up z-10 text-[#0D2235]">
-          <div class="flex items-center justify-between pb-2 border-b border-[#D0F2F9]/60">
+        <div ref="categoryModalRef" class="relative bg-white rounded-xl p-5 sm:p-6 max-w-md w-full shadow-2xl space-y-4 animate-scale-up z-10 text-[#0D2235]" @click.stop>
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
             <div class="flex items-center gap-2.5">
-              <div class="w-9 h-9 rounded-2xl bg-[#A3EEEC]/50 text-[#054E4C] flex items-center justify-center">
+              <div class="w-8 h-8 rounded-xl bg-[#A3EEEC]/50 text-[#054E4C] flex items-center justify-center">
                 <Layers class="w-4 h-4" />
               </div>
-              <h3 class="font-manrope font-bold text-[16px]">
-                {{ modalMode === "edit" ? "Edit Kategori Produk" : "Tambah Kategori Baru" }}
+              <h3 id="category-modal-title" class="font-manrope font-bold text-[15px]">
+                {{ modalMode === "edit" ? "Edit Kategori" : "Tambah Kategori" }}
               </h3>
             </div>
-            <button type="button" class="p-1 rounded-xl text-[#486581] hover:text-[#0D2235] cursor-pointer" @click="closeCategoryModal">
+            <button type="button" :disabled="isSavingCategory" class="p-1.5 rounded-xl text-[#486581] hover:text-[#0D2235] hover:bg-[#E9F8FF] cursor-pointer disabled:opacity-50" title="Tutup (Esc)" @click="closeCategoryModal">
               <X class="w-4 h-4" />
             </button>
           </div>
 
-          <div v-if="categoryActionError" class="p-3 rounded-2xl bg-red-50 text-red-800 text-[12.5px] flex items-center gap-2">
+          <div v-if="categoryActionError" class="p-3 rounded-xl bg-red-50 text-red-800 text-xs flex items-center gap-2">
             <AlertCircle class="w-4 h-4 text-red-600 shrink-0" />
             <span>{{ categoryActionError }}</span>
           </div>
 
-          <div class="space-y-4">
-            <div class="space-y-1">
-              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">
-                Nama Kategori <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="catName"
-                type="text"
-                placeholder="Contoh: Rapid Test Kit, Kimia Klinik, dll"
-                class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all"
-              />
-            </div>
+          <form class="space-y-4" @submit.prevent="handleSaveCategory">
+            <fieldset :disabled="isSavingCategory" class="space-y-4 min-w-0">
+              <div class="space-y-1">
+                <label class="block text-xs font-manrope font-bold text-[#0D253A]"> Nama Kategori <span class="text-red-500">*</span> </label>
+                <input v-model="catName" type="text" placeholder="Contoh: Rapid Test Kit, Kimia Klinik" class="w-full px-3.5 py-2.5 rounded-xl bg-[#E9F8FF]/60 focus:bg-white text-[13px] text-[#0D2235] outline-none ring-1 ring-transparent focus:ring-[#89CBDD] transition-all" @input="syncDraft" />
+              </div>
 
-            <div class="space-y-1">
-              <label class="block text-[13px] font-manrope font-bold text-[#0D253A]">Jenis Sediaan</label>
-              <div class="grid grid-cols-2 gap-2 pt-1">
-                <label
-                  class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1"
-                  :class="!catIsInstrument ? 'bg-[#A3EEEC]/30 border-[#054E4C] text-[#054E4C] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'"
-                >
-                  <input v-model="catIsInstrument" type="radio" :value="false" class="sr-only" />
-                  <span class="text-[13px] font-manrope">Reagen / Bahan</span>
-                  <span class="text-[10px] font-normal opacity-75">Bahan uji & konsumabel</span>
-                </label>
+              <!-- Checkbox UI: Jenis Sediaan -->
+              <div class="space-y-1.5">
+                <label class="block text-xs font-manrope font-bold text-[#0D253A]">Jenis Sediaan</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
+                  <label class="p-3 rounded-xl cursor-pointer transition-all flex items-start gap-2.5 ring-1" :class="!catIsInstrument ? 'bg-[#A3EEEC]/25 ring-[#054E4C]/30 text-[#054E4C]' : 'bg-[#E9F8FF]/40 ring-black/5 text-[#486581] hover:bg-[#E9F8FF]/70'">
+                    <input
+                      type="checkbox"
+                      :checked="!catIsInstrument"
+                      class="w-4 h-4 mt-0.5 accent-[#054E4C] rounded shrink-0 cursor-pointer"
+                      @change="
+                        catIsInstrument = false;
+                        syncDraft();
+                      "
+                    />
+                    <div>
+                      <span class="block text-xs font-manrope font-bold">Reagen / Bahan</span>
+                      <span class="block text-[10.5px] opacity-75">Bahan uji & konsumabel</span>
+                    </div>
+                  </label>
 
-                <label
-                  class="p-3 rounded-2xl border text-center cursor-pointer transition-all flex flex-col items-center gap-1"
-                  :class="catIsInstrument ? 'bg-[#ADDFF1]/40 border-[#082838] text-[#082838] font-bold' : 'bg-[#E9F8FF]/30 border-transparent text-[#486581]'"
-                >
-                  <input v-model="catIsInstrument" type="radio" :value="true" class="sr-only" />
-                  <span class="text-[13px] font-manrope">Alat / Mesin</span>
-                  <span class="text-[10px] font-normal opacity-75">Instrumen & analyzer</span>
-                </label>
+                  <label class="p-3 rounded-xl cursor-pointer transition-all flex items-start gap-2.5 ring-1" :class="catIsInstrument ? 'bg-[#ADDFF1]/35 ring-[#082838]/30 text-[#082838]' : 'bg-[#E9F8FF]/40 ring-black/5 text-[#486581] hover:bg-[#E9F8FF]/70'">
+                    <input
+                      type="checkbox"
+                      :checked="catIsInstrument"
+                      class="w-4 h-4 mt-0.5 accent-[#082838] rounded shrink-0 cursor-pointer"
+                      @change="
+                        catIsInstrument = true;
+                        syncDraft();
+                      "
+                    />
+                    <div>
+                      <span class="block text-xs font-manrope font-bold">Alat / Mesin</span>
+                      <span class="block text-[10.5px] opacity-75">Instrumen & analyzer</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-xs font-manrope font-semibold text-[#0D253A]"> Deskripsi Singkat <span class="text-red-500 text-xs font-normal ml-1">*jika ada</span> </label>
+                <textarea v-model="catDescription" rows="2" placeholder="Penjelasan fungsi lini kategori... (Ctrl+Enter untuk simpan)" class="w-full px-3.5 py-2.5 rounded-xl bg-[#E9F8FF]/60 focus:bg-white text-[13px] text-[#0D2235] outline-none ring-1 ring-transparent focus:ring-[#89CBDD] transition-all resize-none" @input="syncDraft" @keydown.ctrl.enter.prevent="handleSaveCategory" @keydown.meta.enter.prevent="handleSaveCategory" />
+              </div>
+            </fieldset>
+
+            <div class="flex items-center justify-between gap-2 pt-3 border-t border-slate-100">
+              <button type="button" :disabled="isSavingCategory" class="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-slate-100/80 hover:bg-slate-200/70 text-[#486581] font-manrope font-semibold text-xs cursor-pointer transition-colors disabled:opacity-50" @click="handleResetCategoryModal">
+                <RotateCcw class="w-3.5 h-3.5" />
+                <span>Reset</span>
+              </button>
+
+              <div class="flex items-center gap-2">
+                <button type="button" :disabled="isSavingCategory" class="px-4 py-2 rounded-xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-xs cursor-pointer transition-colors disabled:opacity-50" @click="closeCategoryModal">Batal</button>
+                <button type="submit" :disabled="isSavingCategory" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-xs transition-all shadow-xs disabled:opacity-50 cursor-pointer">
+                  <span>{{ isSavingCategory ? "Menyimpan..." : "Simpan" }}</span>
+                </button>
               </div>
             </div>
-
-            <div class="space-y-1">
-              <label class="block text-[13px] font-manrope font-semibold text-[#0D253A]">Deskripsi Singkat (Opsional)</label>
-              <textarea
-                v-model="catDescription"
-                rows="2"
-                placeholder="Penjelasan fungsi lini kategori..."
-                class="w-full px-4 py-2.5 rounded-2xl bg-[#E9F8FF]/50 focus:bg-white text-[13.5px] text-[#0D2235] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 border border-transparent focus:border-[#89CBDD] transition-all resize-none"
-              />
-            </div>
-          </div>
-
-          <div class="flex items-center justify-end gap-2.5 pt-2">
-            <button
-              type="button"
-              class="px-5 py-2.5 rounded-2xl bg-[#E9F8FF] hover:bg-[#D0F2F9] text-[#0D253A] font-manrope font-semibold text-[13px] cursor-pointer"
-              @click="closeCategoryModal"
-            >
-              Batal
-            </button>
-            <button
-              type="button"
-              :disabled="isSavingCategory"
-              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#89CBDD] to-[#A3EEEC] hover:from-[#76BED2] hover:to-[#8EE2E0] text-[#082838] font-manrope font-bold text-[13px] transition-all shadow-xs disabled:opacity-50 cursor-pointer"
-              @click="handleSaveCategory"
-            >
-              <span>{{ isSavingCategory ? "Menyimpan..." : modalMode === "edit" ? "Simpan Perubahan" : "Simpan Kategori" }}</span>
-            </button>
-          </div>
+          </form>
         </div>
       </div>
     </Teleport>
