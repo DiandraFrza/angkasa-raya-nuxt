@@ -132,7 +132,7 @@ const { openModal } = useQuoteModal();
       <motion.div :initial="{ opacity: 0, y: 40 }" :whileInView="{ opacity: 1, y: 0 }" :transition="{ duration: 0.8, ease: 'easeOut' }" :viewport="{ once: true, amount: 0.2 }" class="relative overflow-hidden p-8 sm:p-12 rounded-md bg-[#0D253A] text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border border-white/10">
         <div class="space-y-3 relative z-10 max-w-2xl">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/10 text-[#A3EEEC] text-[11.5px] font-manrope font-bold uppercase tracking-wider">
-            <span class="w-2 h-2 rounded-xl bg-[#A3EEEC] animate-pulse" />
+            <!-- <span class="w-2 h-2 rounded-xl bg-[#A3EEEC] animate-pulse" /> -->
             <span>Kemitraan Pasokan Medis & Laboratorium</span>
           </div>
 

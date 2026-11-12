@@ -2,7 +2,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { ArrowRight, FileCheck, Download, FileText, Layers, Clock, PhoneCall, PackageCheck } from "lucide-vue-next";
+import { ArrowRight, FileCheck, Download, FileText, Layers, Clock, CheckCircle2, XCircle, PhoneCall, PackageCheck } from "lucide-vue-next";
 import { motion } from "motion-v";
 import { useCatalog } from "~/composables/useCatalog";
 import { useQuoteModal } from "~/composables/useQuoteModal";
@@ -41,6 +41,12 @@ useSeoMeta({
 const activeDocuments = computed(() => (product.documents || []).filter((doc) => doc?.isActive !== false));
 
 const availability = computed(() => getAvailabilityBadge(product.availabilityStatus, product.leadTime));
+
+const availabilityIcon = computed(() => {
+  if (availability.value.status === "indent") return Clock;
+  if (availability.value.status === "out_of_stock") return XCircle;
+  return CheckCircle2;
+});
 
 const waInquiryUrl = computed(() => {
   const text = encodeURIComponent(`Halo ${settings.value.company_name}, saya ingin meminta informasi penawaran harga resmi untuk produk: ${product.name} (SKU: ${product.sku}).`);
@@ -152,14 +158,17 @@ const waInquiryUrl = computed(() => {
                 <div class="space-y-1.5">
                   <span class="block font-manrope font-bold text-[#0D2235]">Status Ketersediaan:</span>
                   <div class="flex flex-wrap items-center gap-2">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm font-manrope font-bold text-[11.5px]" :class="availability.badgeClass">
-                      <span class="w-1.5 h-1.5 rounded-sm shrink-0" :class="availability.dotClass" />
+                    <!-- Status Utama dengan Ikon Lucide Dinamis -->
+                    <span class="inline-flex items-center gap-1.5 text-[11.5px] font-manrope font-bold" :class="availability.badgeClass">
+                      <component :is="availabilityIcon" class="w-3.5 h-3.5 shrink-0" :class="availability.iconClass" />
                       <span>{{ availability.label }}</span>
                     </span>
                   </div>
-                  <span v-if="product.leadTime" class="inline-flex items-center gap-1 text-[11.5px] text-[#486581]">
-                    <Clock class="w-3 h-3 text-[#89CBDD] shrink-0" />
-                    <span>{{ product.leadTime }}</span>
+
+                  <!-- Keterangan Pengiriman / Lead Time Dinamis -->
+                  <span v-if="availability.subText" class="inline-flex items-center gap-1.5 text-[11.5px] text-[#486581]">
+                    <Clock class="w-3.5 h-3.5 text-[#89CBDD] shrink-0" />
+                    <span>{{ availability.subText }}</span>
                   </span>
                 </div>
               </div>

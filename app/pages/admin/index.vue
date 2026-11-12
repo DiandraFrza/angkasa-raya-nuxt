@@ -283,7 +283,7 @@ const categoryStats = computed(() => {
           <Building2 class="w-5 h-5 text-[#1B7E98]" />
         </div>
         <div>
-          <h4 class="font-manrope font-bold text-sm text-[#0D2235]">Layanan Distribusi B2B - {{ settings.company_name }}</h4>
+          <h4 class="font-manrope font-bold text-sm text-[#0D2235]">Layanan Distribusi - {{ settings.company_name }}</h4>
           <p class="text-xs text-[#486581]">Penyedia reagen diagnostik klinis, larutan buffer, dan instrumen laboratorium terpercaya.</p>
         </div>
       </div>

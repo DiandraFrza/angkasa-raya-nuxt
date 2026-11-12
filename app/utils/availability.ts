@@ -7,7 +7,8 @@ export interface AvailabilityBadgeMeta {
   label: string;
   shortLabel: string;
   badgeClass: string;
-  dotClass: string;
+  iconClass: string;
+  subText: string | null;
 }
 
 export const AVAILABILITY_OPTIONS: { label: string; value: ProductAvailabilityStatus }[] = [
@@ -20,8 +21,8 @@ export function deriveAvailabilityStatus(status?: string | null, leadTime?: stri
   const raw = String(status || "")
     .trim()
     .toLowerCase();
-  if (raw === "ready" || raw === "Tersedia" || raw === "Tersedia") return "ready";
-  if (raw === "indent" || raw === "Pre-Order" || raw === "pre-order" || raw === "preorder") return "indent";
+  if (raw === "ready" || raw === "tersedia") return "ready";
+  if (raw === "indent" || raw === "pre-order" || raw === "preorder") return "indent";
   if (raw === "out_of_stock" || raw === "stok habis" || raw === "habis") return "out_of_stock";
 
   const lt = String(leadTime || "")
@@ -45,8 +46,9 @@ export function getAvailabilityBadge(status?: string | null, leadTime?: string |
         status: "indent",
         label: "Pre-Order",
         shortLabel: "Pre-Order",
-        badgeClass: "text-amber-800",
-        // dotClass: "bg-amber-500",
+        badgeClass: "text-amber-700",
+        iconClass: "text-amber-600",
+        subText: "Estimasi Indent 7-14 Hari",
       };
     case "out_of_stock":
       return {
@@ -54,7 +56,8 @@ export function getAvailabilityBadge(status?: string | null, leadTime?: string |
         label: "Stok Habis",
         shortLabel: "Stok Habis",
         badgeClass: "text-rose-700",
-        // dotClass: "bg-rose-500",
+        iconClass: "text-rose-600",
+        subText: null,
       };
     case "ready":
     default:
@@ -63,7 +66,8 @@ export function getAvailabilityBadge(status?: string | null, leadTime?: string |
         label: "Tersedia",
         shortLabel: "Tersedia",
         badgeClass: "text-emerald-700",
-        dotClass: "bg-emerald-500",
+        iconClass: "text-emerald-600",
+        subText: "Pengiriman cepat area Jabodetabek",
       };
   }
 }

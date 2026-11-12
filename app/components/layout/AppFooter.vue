@@ -87,8 +87,9 @@ const { categories } = useCatalog();
       </div>
 
       <!-- Copyright & Bottom Note -->
-      <div class="pt-8 gap-4 text-[12.5px] text-white/50">
-        <p class="text-right">&lt;/&gt; Craft by ❤️ AvenBytes.</p>
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-sans text-[#486581]">
+        <span>&copy; {{ new Date().getFullYear() }} {{ settings.company_name || "Angkasa Karya Medika" }}</span>
+        <span>&lt;/&gt; Craft by ❤️ AvenBytes</span>
       </div>
     </div>
   </footer>

@@ -177,6 +177,10 @@ const addSpecRow = () => {
   form.value.specifications.push({ label: "", value: "", isVerified: true });
 };
 
+const removeSpecRow = (index: number) => {
+  form.value.specifications.splice(index, 1);
+};
+
 const addDocRow = () => {
   form.value.documents.push({
     title: "",
@@ -320,6 +324,13 @@ const handleSubmit = async () => {
 
   const payload = {
     ...form.value,
+    specifications: form.value.specifications
+      .map((s) => ({
+        label: String(s.label || "").trim(),
+        value: String(s.value || "").trim(),
+        isVerified: Boolean(s.isVerified),
+      }))
+      .filter((s) => s.label || s.value),
     documents: form.value.documents.map(({ _isNew, ...rest }) => rest),
   };
 
@@ -669,23 +680,48 @@ const handleSubmit = async () => {
               <!-- Dynamic Spec Rows (Responsive Grid) -->
               <div class="space-y-2.5">
                 <div class="flex items-center justify-between gap-2">
-                  <label class="block text-[12.5px] font-manrope font-semibold text-[#0D2235]">
-                    Parameter Uji Tambahan
-                    <span class="text-red-500 text-xs font-normal ml-1">*jika ada</span>
-                  </label>
+                  <div>
+                    <label class="block text-[12.5px] font-manrope font-semibold text-[#0D2235]">
+                      Parameter Uji &amp; Spesifikasi Teknis
+                      <span class="text-red-500 text-xs font-normal ml-1">*jika ada</span>
+                    </label>
+                    <p class="text-[11px] text-[#486581]">
+                      Centang "Terverifikasi" untuk validasi resmi. Jika tidak dicentang, berstatus "Menunggu Verifikasi".
+                    </p>
+                  </div>
                   <button type="button" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-[#ADDFF1] text-[11.5px] font-manrope font-bold text-[#1B7E98] hover:bg-[#E9F8FF] cursor-pointer shrink-0" @click="addSpecRow">
                     <Plus class="w-3.5 h-3.5" />
                     <span>Tambah</span>
                   </button>
                 </div>
 
-                <div v-for="(spec, i) in form.specifications" :key="i" class="grid grid-cols-1 sm:grid-cols-12 gap-2 p-2.5 rounded-md bg-white">
-                  <div class="sm:col-span-5 min-w-0">
-                    <input v-model="spec.label" type="text" placeholder="Parameter (mis: Akurasi)" class="w-full min-w-0 px-2.5 py-1.5 rounded-sm bg-[#E9F8FF]/50 border border-slate-200/70 text-[12.5px] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 font-mono" />
+                <div v-if="form.specifications && form.specifications.length > 0" class="space-y-2">
+                  <div v-for="(spec, i) in form.specifications" :key="i" class="p-2.5 rounded-md bg-white border border-slate-200/60 shadow-2xs space-y-2 sm:space-y-0 sm:grid sm:grid-cols-12 sm:gap-2.5 sm:items-center">
+                    <div class="sm:col-span-5 min-w-0">
+                      <span class="block sm:hidden text-[10px] font-bold uppercase text-[#486581] mb-1">Parameter</span>
+                      <input v-model="spec.label" type="text" placeholder="Parameter (mis: Akurasi)" class="w-full min-w-0 px-2.5 py-1.5 rounded-sm bg-[#E9F8FF]/50 border border-slate-200/70 text-[12.5px] outline-none focus:ring-2 focus:ring-[#89CBDD]/40 font-mono" />
+                    </div>
+                    <div class="sm:col-span-4 min-w-0">
+                      <span class="block sm:hidden text-[10px] font-bold uppercase text-[#486581] mb-1">Nilai / Keterangan</span>
+                      <input v-model="spec.value" type="text" placeholder="Nilai (mis: 99.8%)" class="w-full min-w-0 px-2.5 py-1.5 rounded-sm bg-[#E9F8FF]/50 border border-slate-200/70 text-[12.5px] outline-none focus:ring-2 focus:ring-[#89CBDD]/40" />
+                    </div>
+                    <div class="sm:col-span-3 flex items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-0">
+                      <label class="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm cursor-pointer select-none transition-colors border" :class="spec.isVerified ? 'bg-[#D0F2F9]/70 text-[#054E4C] border-[#ADDFF1]' : 'bg-amber-50 text-amber-700 border-amber-200'" :title="spec.isVerified ? 'Parameter terverifikasi resmi' : 'Parameter draft (Menunggu Verifikasi)'">
+                        <input v-model="spec.isVerified" type="checkbox" class="w-3.5 h-3.5 rounded-sm accent-[#054E4C] cursor-pointer" />
+                        <span class="text-[11px] font-manrope font-semibold whitespace-nowrap">
+                          {{ spec.isVerified ? 'Terverifikasi' : 'Draft' }}
+                        </span>
+                      </label>
+
+                      <button type="button" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-sm transition-colors cursor-pointer shrink-0" title="Hapus baris parameter ini" @click="removeSpecRow(i)">
+                        <Trash2 class="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
-                  <div class="sm:col-span-7 min-w-0">
-                    <input v-model="spec.value" type="text" placeholder="Nilai (mis: 99.8%)" class="w-full min-w-0 px-2.5 py-1.5 rounded-sm bg-[#E9F8FF]/50 border border-slate-200/70 text-[12.5px] outline-none focus:ring-2 focus:ring-[#89CBDD]/40" />
-                  </div>
+                </div>
+
+                <div v-else class="p-4 text-center bg-white rounded-md border border-dashed border-[#ADDFF1] text-[#486581] text-[12px]">
+                  Belum ada parameter uji tambahan. Klik "+ Tambah" di atas untuk menambahkan.
                 </div>
               </div>
 
